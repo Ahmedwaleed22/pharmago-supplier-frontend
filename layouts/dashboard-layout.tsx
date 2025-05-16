@@ -19,7 +19,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
         style={{
           "--sidebar-width": "280px",
           "--sidebar-width-mobile": "240px",
-        }}
+        } as React.CSSProperties}
         className="w-min relative"
       >
         <AppSidebar/>
