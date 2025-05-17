@@ -5,9 +5,9 @@ import React from "react";
 import CustomButton from "@/components/custom-button";
 import { Icon } from "@iconify/react";
 import OrderHistory from "@/components/ui/dashboard/order-history";
-import { Select, SelectSection, SelectItem } from "@heroui/select";
+import { Select, SelectItem } from "@heroui/select";
 
-export const statusList = [
+const statusList = [
   { key: "all", label: "All" },
   { key: "approved", label: "Approved" },
   { key: "completed", label: "Completed" },
