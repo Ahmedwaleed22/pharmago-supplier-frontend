@@ -103,7 +103,7 @@ const formatMonth = (month: string) => {
  * import {Area, AreaChart, ResponsiveContainer, YAxis} from "recharts";
  * ```
  */
-function GrowthVolumeGraph() {
+function GrowthVolumeGraph({ className }: { className?: string }) {
   const [activeChart, setActiveChart] = React.useState<(typeof data)[number]["key"]>(data[0].key);
 
   const activeChartData = React.useMemo(() => {
@@ -126,9 +126,9 @@ function GrowthVolumeGraph() {
 
   return (
     <Card as="dl" className="border border-transparent dark:border-default-100 bg-transparent shadow-none">
-      <section className="flex flex-col flex-nowrap">
+      <section className="flex flex-col flex-nowrap h-full">
         <ResponsiveContainer
-          className="min-h-[300px] [&_.recharts-surface]:outline-none"
+          className={cn("min-h-[300px] h-full [&_.recharts-surface]:outline-none", className)}
           height="100%"
           width="100%"
         >

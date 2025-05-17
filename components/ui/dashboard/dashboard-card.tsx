@@ -7,7 +7,7 @@ interface DashboardCardProps {
 
 function DashboardCard({ children, className }: DashboardCardProps) {
   return (
-    <div className={cn("bg-white rounded-xl px-4 py-5 shadow-sm", className)}>
+    <div className={cn("bg-white rounded-xl px-4 py-5 shadow-sm h-full", className)}>
       {children}
     </div>
   )

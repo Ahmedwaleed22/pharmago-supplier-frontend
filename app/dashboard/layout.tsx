@@ -10,15 +10,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const nonDashboardLayoutPages = ["/dashboard/product/add", "/dashboard/product/add/step-2", "/dashboard/product/add/step-3", "/dashboard/product/add/step-4", "/dashboard/prescription/requests"];
+  const nonDashboardLayoutPages = [
+    "/dashboard/product/add",
+    "/dashboard/product/add/step-2",
+    "/dashboard/product/add/step-3",
+    "/dashboard/product/add/step-4",
+    "/dashboard/prescription/requests",
+    "/dashboard/prescription/approved",
+    "/dashboard/prescription/order-history",
+    "/dashboard/delivery/live-tracking",
+    "/dashboard/delivery/history",
+  ];
 
-  if (nonDashboardLayoutPages.includes(pathname)) {
+  const shouldExcludeFromDashboard =
+    nonDashboardLayoutPages.includes(pathname) ||
+    (pathname.startsWith("/dashboard/prescription/requests/") &&
+      pathname !== "/dashboard/prescription/requests/") ||
+    (pathname.startsWith("/dashboard/delivery/live-tracking/") &&
+      pathname !== "/dashboard/delivery/live-tracking/");
+
+  if (shouldExcludeFromDashboard) {
     return (
       <html lang="en">
         <body>
-          <Provider store={store}>
-            {children}
-          </Provider>
+          <Provider store={store}>{children}</Provider>
         </body>
       </html>
     );

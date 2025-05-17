@@ -22,10 +22,12 @@ const config: Config = {
           "500": "#2970FF",
           "600": "#2363e5",
         },
-        "smooth-white": "#F4F4F4",
+        // "smooth-white": "#F4F4F4",
+        "smooth-white": "#fbfbfb",
         "blue-gray": "#414651",
         "gray": "#71717A",
-        "muted-gray": "#A0A0A0"
+        "muted-gray": "#A0A0A0",
+        "light-gray": "#838383",
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],

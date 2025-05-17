@@ -41,7 +41,7 @@ function ProductCreationLayout({ children }: { children: React.ReactNode }) {
   const currentStep = steps.findIndex((step) => step.href === pathname);
 
   return (
-    <div className="flex min-h-screen bg-[#f4f4f5]">
+    <div className="flex min-h-screen bg-smooth-white">
       {/* Sidebar */}
       <div className="w-64 border-r border-gray-200 bg-white">
         <div className="px-4 py-16">

@@ -13,8 +13,8 @@ interface BreadcrumbProps {
 function Breadcrumb({ items }: BreadcrumbProps) {
   return (
     <Breadcrumbs>
-      {items.map((item) => (
-        <BreadcrumbItem key={item.href} href={item.href}>
+      {items.map((item, key) => (
+        <BreadcrumbItem key={key} href={item.href}>
           {item.label}
         </BreadcrumbItem>
       ))}

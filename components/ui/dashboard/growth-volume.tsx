@@ -26,7 +26,15 @@ const chartData: DataPoint[] = [
   { month: "Dec", value1: 110, value2: 100 },
 ];
 
-function GrowthVolume() {
+type GrowthVolumeDataClassName = {
+  graph?: string;
+}
+
+interface GrowthVolumeData {
+  className?: GrowthVolumeDataClassName;
+}
+
+function GrowthVolume({ className }: GrowthVolumeData) {
   const [activePoint, setActivePoint] = useState<DataPoint | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
@@ -50,7 +58,7 @@ function GrowthVolume() {
             />
           </div>
         </div>
-        <GrowthVolumeGraph />
+        <GrowthVolumeGraph className={className?.graph} />
       </div>
     </DashboardCard>
   );

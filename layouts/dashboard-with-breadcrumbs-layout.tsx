@@ -19,8 +19,8 @@ function DashboardWithBreadcrumbsLayout({ children, breadcrumbs, title }: Dashbo
     <DashboardLayout>
       <div className="mt-7">
         <Breadcrumbs>
-          {breadcrumbs.map((breadcrumb) => (
-            <BreadcrumbItem key={breadcrumb.href}>
+          {breadcrumbs.map((breadcrumb, key) => (
+            <BreadcrumbItem key={key}>
               {breadcrumb.href !== null ? (
                 <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
               ) : (

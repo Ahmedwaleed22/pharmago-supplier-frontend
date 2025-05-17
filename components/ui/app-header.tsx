@@ -3,9 +3,11 @@ import { Search, Menu } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import SearchBar from "./search-bar";
+import NotificationMenu from "./notification-menu";
 
 function AppHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
 
   return (
     <>
@@ -30,11 +32,16 @@ function AppHeader() {
                 alt="notification"
                 width={22}
                 height={22}
+                onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
               />
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
                 2
               </div>
             </div>
+            <NotificationMenu
+              isOpen={isNotificationMenuOpen} 
+              onClose={() => setIsNotificationMenuOpen(false)} 
+            />
           </div>
           <div className="flex items-center gap-2">
             <Image
