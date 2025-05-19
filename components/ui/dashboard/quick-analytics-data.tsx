@@ -1,27 +1,32 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React from 'react'
+import { useQuery } from '@tanstack/react-query';
+import createDashboardAnalyticsQueryOptions from '@/query-options/dashboard-analytics-query-options';
+import {formatPrice} from "@/helpers/products";
 
 function QuickAnalyticsData() {
+  const { data: analytics } = useQuery<Dashboard.Analytics>(createDashboardAnalyticsQueryOptions());
+
   const data = [
     {
       icon: "ph:money-light",
-      value: "19,050 SAR New Income (14.6%)",
+      value: `${formatPrice(analytics?.gross_volume?.current_revenue as number, analytics?.pharmacy?.country?.currency as Product.Currency)} (${analytics?.gross_volume.growth.toFixed(1)}%)`,
     },
     {
       icon: "ri:shopping-cart-line",
-      value: "1,200 New Orders",
+      value: analytics?.cards.orders.count.toString() + " New Orders",
     },
     {
       icon: "mdi:cube-outline",
-      value: "3,509 Products"
+      value: `${analytics?.medicine_count?.toString()} Product${analytics?.medicine_count && analytics?.medicine_count > 1 ? "s" : ""}`
     },
     {
       icon: "solar:buildings-outline",
-      value: "15 Branch"
+      value: `${analytics?.pharmacy.branches_count} Branch${analytics?.pharmacy.branches_count && analytics?.pharmacy.branches_count > 1 ? "s" : ""}`
     },
     {
       icon: "solar:users-group-rounded-linear",
-      value: "210 New Clients"
+      value: analytics?.new_clients_count.toString() + " New Clients"
     }
   ];
   

@@ -10,9 +10,10 @@ interface StatisticCardProps {
   value: string;
   icon: string;
   growth?: number;
+  trend_direction?: "up" | "down" | "neutral";
 }
 
-function StatisticCard({ className, title, value, icon, growth = 0 }: StatisticCardProps) {
+function StatisticCard({ className, title, value, icon, growth = 0, trend_direction = "neutral" }: StatisticCardProps) {
   return (
     <DashboardCard className={cn("flex gap-10 flex-col", className)}>
       <div className="flex gap-10 flex-col text-blue-gray">
@@ -22,7 +23,7 @@ function StatisticCard({ className, title, value, icon, growth = 0 }: StatisticC
         </div>
         <div className="flex items-center gap-2 justify-between">
           <span className="text-2xl font-bold">{value}</span>
-          <GrowthRate growth={growth} className="mt-auto" />
+          <GrowthRate growth={growth} className="mt-auto" trend_direction={trend_direction} />
         </div>
       </div>
     </DashboardCard>

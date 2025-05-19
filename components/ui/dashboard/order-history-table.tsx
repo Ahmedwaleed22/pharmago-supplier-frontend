@@ -26,72 +26,12 @@ type Column = {
   sortable?: boolean;
 };
 
-type UserType = {
-  id: number;
-  name: string;
-  request: string;
-  status: string;
-  date: string;
-  avatar: string;
-  email?: string;
-  team?: string;
-  [key: string]: any; // Index signature to allow string indexing
-};
-
 export const columns: Column[] = [
   { name: "ID", uid: "id", sortable: true },
   { name: "Name", uid: "name", sortable: true },
   { name: "Request", uid: "request", sortable: true },
   { name: "Status", uid: "status", sortable: true },
   { name: "Date", uid: "date" },
-];
-
-export const users: UserType[] = [
-  {
-    id: 1,
-    name: "Tony Reichert",
-    role: "Client",
-    request: "Tech Lead",
-    status: "Development",
-    date: "2025-01-01",
-    avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-  },
-  {
-    id: 2,
-    name: "Zoey Lang",
-    role: "Client",
-    request: "Tech Lead",
-    status: "Development",
-    date: "2025-01-01",
-    avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-  },
-  {
-    id: 3,
-    name: "Jane Fisher",
-    role: "Client",
-    request: "Tech Lead",
-    status: "Development",
-    date: "2025-01-01",
-    avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-  },
-  {
-    id: 4,
-    name: "William Howard",
-    role: "Client",
-    request: "Tech Lead",
-    status: "Development",
-    date: "2025-01-01",
-    avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-  },
-  {
-    id: 5,
-    name: "Kristen Copper",
-    role: "Client",
-    request: "Tech Lead",
-    status: "Development",
-    date: "2025-01-01",
-    avatar: "https://i.pravatar.cc/150?u=a092581d4ef9026700d",
-  },
 ];
 
 export function capitalize(s: string): string {
@@ -141,21 +81,18 @@ type StatusColor =
   | "secondary";
 
 const statusColorMap: Record<string, StatusColor> = {
-  active: "success",
-  paused: "danger",
-  vacation: "warning",
+  delivered: "success",
+  pending: "warning",
+  cancelled: "danger",
 };
 
 const INITIAL_VISIBLE_COLUMNS = ["id", "name", "request", "status", "date"];
 
-const statusOptions = ["active", "paused", "vacation"];
+interface OrderHistoryTableProps {
+  orders: Dashboard.OrderHistoryItem[];
+}
 
-type CustomSortDescriptor = {
-  column: string;
-  direction: "ascending" | "descending";
-};
-
-export default function App() {
+export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([])
@@ -166,9 +103,9 @@ export default function App() {
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] =
-    React.useState<CustomSortDescriptor>({
-      column: "age",
-      direction: "ascending",
+    React.useState<{column: string; direction: "ascending" | "descending"}>({
+      column: "date",
+      direction: "descending",
     });
   const [page, setPage] = React.useState(1);
 
@@ -183,24 +120,24 @@ export default function App() {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredOrders = [...orders];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase())
+      filteredOrders = filteredOrders.filter((order) =>
+        order.user.name.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
     if (
       statusFilter !== "all" &&
-      Array.from(statusFilter as Set<string>).length !== statusOptions.length
+      Array.from(statusFilter as Set<string>).length !== Object.keys(statusColorMap).length
     ) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter as Set<string>).includes(user.status)
+      filteredOrders = filteredOrders.filter((order) =>
+        Array.from(statusFilter as Set<string>).includes(order.status)
       );
     }
 
-    return filteredUsers;
-  }, [users, filterValue, statusFilter]);
+    return filteredOrders;
+  }, [orders, filterValue, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -212,58 +149,58 @@ export default function App() {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: UserType, b: UserType) => {
-      const first = a[sortDescriptor.column];
-      const second = b[sortDescriptor.column];
-
-      // Handle potential undefined values
-      if (first === undefined && second === undefined) return 0;
-      if (first === undefined) return -1;
-      if (second === undefined) return 1;
-
+    return [...items].sort((a: Dashboard.OrderHistoryItem, b: Dashboard.OrderHistoryItem) => {
+      const first = a.id;
+      const second = b.id;
+      
       const cmp = first < second ? -1 : first > second ? 1 : 0;
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((user: UserType, columnKey: string) => {
-    const cellValue = user[columnKey];
-
+  const renderCell = React.useCallback((order: Dashboard.OrderHistoryItem, columnKey: string) => {
     switch (columnKey) {
+      case "id":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-small capitalize">{order.id.substring(0, 8)}...</p>
+          </div>
+        );
       case "name":
         return (
           <User
-            avatarProps={{ radius: "lg", src: user.avatar }}
-            description={user.role}
-            name={cellValue as string}
+            avatarProps={{ radius: "lg", src: order.user.avatar || undefined }}
+            description={order.user.type}
+            name={order.user.name}
           >
-            {user.role}
+            {order.user.type}
           </User>
         );
       case "request":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">
-              {cellValue as string}
-            </p>
-            <p className="text-bold text-tiny capitalize text-default-400">
-              {user.team}
-            </p>
+            <p className="text-bold text-small capitalize">{order.request}</p>
           </div>
         );
       case "status":
         return (
           <Chip
             className="capitalize"
-            color={(statusColorMap[user.status] || "default") as StatusColor}
+            color={statusColorMap[order.status] || "default"}
             size="sm"
             variant="flat"
           >
-            {cellValue as string}
+            {order.status}
           </Chip>
         );
+      case "date":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-small">{order.start_date}</p>
+          </div>
+        );
       default:
-        return cellValue as string;
+        return <></>;
     }
   }, []);
 
@@ -279,9 +216,35 @@ export default function App() {
     }
   }, [page]);
 
+  const onRowsPerPageChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setRowsPerPage(Number(e.target.value));
+      setPage(1);
+    },
+    []
+  );
+
+  const onSearchChange = React.useCallback((value: string) => {
+    if (value) {
+      setFilterValue(value);
+      setPage(1);
+    } else {
+      setFilterValue("");
+    }
+  }, []);
+
+  const onClear = React.useCallback(() => {
+    setFilterValue("");
+    setPage(1);
+  }, []);
+
+  const topContent = React.useMemo(() => {
+    return null;
+  }, []);
+
   const bottomContent = React.useMemo(() => {
     return (
-      <div className="py-2 px-2 flex justify-between items-center">
+      <div className="flex w-full justify-center">
         <Pagination
           isCompact
           showControls
@@ -290,56 +253,22 @@ export default function App() {
           page={page}
           total={pages}
           onChange={setPage}
-          classNames={{
-            item: "cursor-pointer",
-          }}
         />
-        <div className="flex gap-4 items-center w-max">
-          <span className="w-max text-small text-default-400">
-            {selectedKeys === "all"
-              ? "All items selected"
-              : `${(selectedKeys as Set<string>).size} of ${
-                  filteredItems.length
-                } selected`}
-          </span>
-          <div className="hidden sm:flex w-max justify-end gap-2">
-            <Button
-              isDisabled={pages === 1}
-              size="sm"
-              variant="flat"
-              onPress={onPreviousPage}
-            >
-              Previous
-            </Button>
-            <Button
-              isDisabled={pages === 1}
-              size="sm"
-              variant="flat"
-              onPress={onNextPage}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
       </div>
     );
-  }, [selectedKeys, filteredItems.length, page, pages]);
+  }, [page, pages]);
 
   return (
     <Table
+      aria-label="Order History Table"
       isHeaderSticky
-      aria-label="Example table with custom cells, pagination and sorting"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "max-h-[382px] shadow-none p-0",
+        wrapper: "max-h-[382px]",
       }}
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      sortDescriptor={sortDescriptor as unknown as SortDescriptor}
+      topContent={topContent}
       topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys as (keys: Selection) => void}
-      onSortChange={setSortDescriptor as (descriptor: SortDescriptor) => void}
     >
       <TableHeader columns={headerColumns}>
         {(column) => (
@@ -352,7 +281,7 @@ export default function App() {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No users found"} items={sortedItems}>
+      <TableBody emptyContent={"No orders found"} items={sortedItems}>
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => (

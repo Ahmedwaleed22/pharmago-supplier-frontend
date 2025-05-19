@@ -23,4 +23,17 @@ declare module Product {
     };
     is_whitelisted: boolean;
   }
+
+  export interface Currency {
+    id: number;
+    country_id: number;
+    name: string;
+    code: string;
+    precision: number;
+    symbol: string;
+    symbol_native: string;
+    symbol_first: number;
+    decimal_mark: string;
+    thousands_separator: string;
+  }
 }

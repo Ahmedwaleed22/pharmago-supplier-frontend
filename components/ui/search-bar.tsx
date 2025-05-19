@@ -19,6 +19,10 @@ function SearchBar({
   value,
   setValue,
 }: SearchBarProps) {
+  const handleClear = () => {
+    setValue("");
+  };
+
   return (
     <div
       className={cn(
@@ -35,7 +39,10 @@ function SearchBar({
         onChange={(e) => setValue(e.target.value)}
       />
       {value && value.length > 0 && (
-        <div className="absolute right-3 border-2 border-red-500 text-red-500 hover:border-red-600 hover:text-red-600 transition-all duration-300 rounded-full cursor-pointer">
+        <div 
+          onClick={handleClear}
+          className="absolute right-3 border-2 border-red-500 text-red-500 hover:border-red-600 hover:text-red-600 transition-all duration-300 rounded-full cursor-pointer"
+        >
           <X className="w-4 h-4 font-light" />
         </div>
       )}

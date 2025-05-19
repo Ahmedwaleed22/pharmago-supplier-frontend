@@ -2,12 +2,45 @@ import React from "react";
 import { Plus } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { getCurrency } from "@/store/authSlice";
+import { formatPrice } from "@/helpers/products";
+import { createMainCategoriesQueryOptions } from "@/query-options/categories-query-options";
+import { useQuery } from "@tanstack/react-query";
+import { createSubCategoriesQueryOptions } from "@/query-options/categories-query-options";
 
-function ProductPreview() {
+interface ProductPreviewProps {
+  className?: string;
+}
+
+function ProductPreview({ className }: ProductPreviewProps) {
   const productData = useSelector((state: any) => state.productCreation);
+  const currency = useSelector(getCurrency);
   const router = useRouter();
 
-  // Get the primary image URL, either from the images array or the legacy image field
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError
+  } = useQuery<Category.Category[]>(createMainCategoriesQueryOptions());
+
+  const {
+    data: subCategories = [],
+    isLoading: subCategoriesLoading,
+    isError: subCategoriesError
+  } = useQuery<Category.Category[]>(createSubCategoriesQueryOptions(productData.category));
+
+
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find((cat: any) => cat.id === categoryId);
+    return category ? category.name : "Main Category";
+  };
+
+  const getSubCategoryName = (subCategoryId: string) => {
+    const subCategory = subCategories.find((subCat: any) => subCat.id === subCategoryId);
+    return subCategory ? subCategory.name : "Sub-Category";
+  };
+
   const getPrimaryImageUrl = () => {
     if (productData.images && productData.images.length > 0) {
       const primaryImage = productData.images.find((img: any) => img.isPrimary);
@@ -24,7 +57,7 @@ function ProductPreview() {
   const imageUrl = getPrimaryImageUrl();
 
   return (
-    <div className="w-1/2 max-w-[407px]">
+    <div className={cn("w-1/2 max-w-[407px]", className)}>
       <h2 className="mb-2 text-xl font-semibold text-[#414651]">Preview</h2>
       <p className="mb-6 text-[#717171]">
         This is how your product will appear.
@@ -56,7 +89,7 @@ function ProductPreview() {
 
         <div className="mb-2 flex items-center">
           <div className="text-sm text-[#717171]">
-            {productData.category || "Main Category"} · {productData.subCategory || "Sub-Category"}
+            {getCategoryName(productData.category) || "Main Category"} · {getSubCategoryName(productData.subCategory) || "Sub-Category"}
           </div>
           <div className="ml-auto flex items-center">
             <span className="mr-2 text-xs text-[#717171]">Logo</span>
@@ -75,12 +108,12 @@ function ProductPreview() {
 
         <div className="mb-4 flex items-baseline">
           <div className="text-2xl font-bold text-[#2970ff]">
-            {productData.price ? `${productData.price} L.E` : "0.00 L.E"}
+            {productData.price ? `${formatPrice(productData.price - (productData.price * productData.discount / 100), currency)}` : `${formatPrice(0, currency)}`}
           </div>
           {productData.discount > 0 && (
             <>
               <div className="ml-2 text-sm text-[#a0a0a0]">
-                {(productData.price - (productData.price * productData.discount / 100)).toFixed(2)} L.E
+                {productData.price ? `${formatPrice(productData.price, currency)}` : `${formatPrice(0, currency)}`}
               </div>
               <div className="ml-2 rounded bg-[#f4f4f5] px-2 py-0.5 text-xs text-[#717171]">
                 -{productData.discount}%

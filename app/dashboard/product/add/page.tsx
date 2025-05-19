@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import ProductCreationLayout from "@/layouts/product-creation-layout";
 import LabeledInput from "@/components/labeled-input";
+import { SelectBoxOption } from "@/components/labeled-input";
 import ProductPreview from "@/components/product-preview";
 import { 
   setName, 
@@ -14,6 +15,11 @@ import {
   setProductDetails,
   setPharmacyLogo
 } from "@/store/ProductCreationSlice";
+import {useQuery} from "@tanstack/react-query";
+import {
+  createMainCategoriesQueryOptions,
+  createSubCategoriesQueryOptions
+} from "@/query-options/categories-query-options";
 
 function ProductAddPage() {
   const router = useRouter();
@@ -23,6 +29,20 @@ function ProductAddPage() {
   const NextPage = () => {
     router.push("/dashboard/product/add/step-2");
   };
+
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError
+  } = useQuery<Category.Category[]>(createMainCategoriesQueryOptions());
+
+  // Fetch subcategories when a category is selected
+  const {
+    data: subCategories = [],
+    isLoading: subCategoriesLoading,
+    isError: subCategoriesError,
+    refetch: refetchSubCategories
+  } = useQuery<Category.Category[]>(createSubCategoriesQueryOptions(productData.category));
 
   return (
     <ProductCreationLayout>
@@ -50,14 +70,24 @@ function ProductAddPage() {
             value={productData.subName}
             onChange={(value) => dispatch(setSubName(value))}
           />
-
+          
           <LabeledInput
             id="category"
             label="Category"
             type="select"
             value={productData.category}
             onChange={(value) => dispatch(setCategory(value))}
-            options={[{ label: "Category 01", value: "Category 01" }]}
+            options={[
+              {
+                label: "Select Category",
+                value: "",
+                disabled: true
+              },
+              ...categories.map((category) => ({
+                label: category.name,
+                value: category.id
+              }))
+            ]}
           />
 
           <LabeledInput
@@ -66,21 +96,10 @@ function ProductAddPage() {
             type="select"
             value={productData.subCategory}
             onChange={(value) => dispatch(setSubCategory(value))}
-            options={[{ label: "Sub-Category 02", value: "Sub-Category 02" }]}
-          />
-
-          <LabeledInput
-            id="pharmacy-logo"
-            label="Pharmacy Logo"
-            type="select"
-            value={productData.pharmacyLogo}
-            onChange={(value) => dispatch(setPharmacyLogo(value))}
-            options={[
-              {
-                label: "Pharmacy Logo Company",
-                value: "Pharmacy Logo Company",
-              },
-            ]}
+            options={subCategories.map((subCategory) => ({
+              label: subCategory.name,
+              value: subCategory.id
+            }))}
           />
 
           <LabeledInput

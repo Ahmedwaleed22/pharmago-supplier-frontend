@@ -8,6 +8,12 @@ interface LabdeledInputClassName {
   input?: string;
 }
 
+export interface SelectBoxOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
+}
+
 type InputType = "text" | "select" | "textarea" | "tags" | "file";
 
 interface LabeledInputProps {
@@ -18,7 +24,7 @@ interface LabeledInputProps {
   type?: InputType;
   value?: any;
   onChange?: (value: any) => void;
-  options?: { label: string; value: string }[];
+  options?: SelectBoxOption[];
   rows?: number;
   tags?: string[];
   setTags?: (tags: string[]) => void;
@@ -54,7 +60,7 @@ function LabeledInput({
               )}
             >
               {options.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={option.value} disabled={option.disabled}>
                   {option.label}
                 </option>
               ))}

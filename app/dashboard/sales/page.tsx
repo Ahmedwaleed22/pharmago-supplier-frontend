@@ -1,42 +1,71 @@
+"use client";
+
 import React from "react";
 import StatisticCard from "@/components/ui/dashboard/statistic-card";
 import GrowthVolume from "@/components/ui/dashboard/growth-volume";
 import OrderHistory from "@/components/ui/dashboard/order-history";
 import QuickAnalytics from "@/components/ui/dashboard/quick-analytics";
+import { useQuery } from "@tanstack/react-query";
+import createDashboardAnalyticsQueryOptions from "@/query-options/dashboard-analytics-query-options";
 
 function SalesPage() {
+  const {
+    data: analytics,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Dashboard.Analytics>(createDashboardAnalyticsQueryOptions());
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading dashboard data: {(error as Error).message}</div>;
+  }
+
+  if (!analytics) {
+    return <div>No data available</div>;
+  }
+
   const statistics = [
     {
       title: "Orders",
-      value: "154",
+      value: analytics.cards.orders.count.toString(),
       icon: "/images/dashboard/order.svg",
-      growth: 12,
+      growth: analytics.cards.orders.trend,
+      trend_direction: analytics.cards.orders.trend_direction,
     },
     {
       title: "Prescriptions",
-      value: "154",
+      value: analytics.cards.prescriptions.count.toString(),
       icon: "/images/dashboard/order.svg",
-      growth: 12,
+      growth: analytics.cards.prescriptions.trend,
+      trend_direction: analytics.cards.prescriptions.trend_direction,
     },
     {
       title: "Sales",
-      value: "154",
+      value: analytics.cards.sales.count.toString(),
       icon: "/images/dashboard/sales.svg",
-      growth: -12,
+      growth: analytics.cards.sales.trend,
+      trend_direction: analytics.cards.sales.trend_direction,
     },
     {
       title: "Delivery",
-      value: "154",
+      value: analytics.cards.deliveries.count.toString(),
       icon: "/images/dashboard/delivery.svg",
-      growth: 12,
+      growth: analytics.cards.deliveries.trend,
+      trend_direction: analytics.cards.deliveries.trend_direction,
     },
     {
       title: "Visits",
-      value: "154",
+      value: analytics.cards.visits.count.toString(),
       icon: "/images/dashboard/visits.svg",
-      growth: 12,
+      growth: analytics.cards.visits.trend,
+      trend_direction: analytics.cards.visits.trend_direction,
     },
   ];
+
   return (
     <>
       <div className="flex gap-4 my-10 w-full overflow-auto pb-1">
@@ -53,14 +82,18 @@ function SalesPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 grid-flow-row gap-4 mt-8">
         <div className="col-span-1 md:col-span-2 h-full">
-          <GrowthVolume className={{ graph: "w-full h-[250px] min-h-[250px]" }} />
+          <GrowthVolume
+            data={analytics.gross_volume}
+            currency={analytics.pharmacy.country.currency}
+            className={{ graph: "w-full h-[250px] min-h-[250px]" }}
+          />
         </div>
         <div className="col-span-1 h-full">
           <QuickAnalytics />
         </div>
       </div>
       <div className="mt-8">
-        <OrderHistory />
+        <OrderHistory orders={analytics.orders_history} />
       </div>
     </>
   );

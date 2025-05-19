@@ -1,103 +1,162 @@
+"use client";
+
+import Link from "next/link";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/api";
 
-export default function Home() {
+function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  
+  const { login, isLoading, error } = useAuth();
+
+  useEffect(() => {
+    // If user is already authenticated, redirect to dashboard
+    if (isAuthenticated()) {
+      router.push("/dashboard");
+    }
+  }, [router]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    login.mutate({ email, password, remember: rememberMe });
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="flex h-screen w-full bg-[#F4F4F4]">
+      <div className="relative flex-1 hidden lg:block">
+        <div className="absolute inset-0">
+          <Image 
+            src="/images/pharmacy-login-bg.png" 
+            alt="Pharmacist" 
+            fill 
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/75 to-transparent"></div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        
+        <div className="absolute top-8 left-8 flex flex-col items-center">
+          <div className="flex items-center gap-2">
+            <Image src="/images/logo.svg" alt="PharmaGo Logo" width={24} height={24} />
+            <div className="flex flex-col">
+              <h1 className="text-white font-semibold text-base leading-6">PharmaGo</h1>
+              <p className="text-white font-medium text-[10px] leading-4 tracking-tight">Bringing Pharmacy to Your Door</p>
+            </div>
+          </div>
+        </div>
+        
+        <Image 
+          src="/images/vector-with-logo.png" 
+          alt="Vector"
+          width={600}
+          height={600}
+          className="absolute inset-0 m-auto w-[100%] h-[80%] object-contain" 
+        />
+      </div>
+      
+      <div className="flex flex-col justify-center items-center flex-1 p-4">
+        <div className="w-full max-w-[384px] bg-white rounded-2xl shadow-md p-6 lg:p-8">
+          <div className="mb-8">
+            <h1 className="text-[30px] font-semibold text-[#414651] leading-tight">Log In</h1>
+          </div>
+          
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+              {error instanceof Error ? error.message : "Login failed. Please try again."}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <div className="flex flex-col">
+              <label htmlFor="email" className="text-sm text-[#414651] mb-3 px-0.5">Email</label>
+              <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex flex-col">
+              <label htmlFor="password" className="text-sm text-[#414651] mb-3 px-0.5">Password</label>
+              <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
+                  required
+                />
+                {/* <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="ml-2"
+                >
+                  <Image 
+                    src={`/images/eye-icon${showPassword ? '2' : '1'}.svg`} 
+                    alt={showPassword ? "Hide password" : "Show password"} 
+                    width={20} 
+                    height={20} 
+                  />
+                </button> */}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between mt-1">
+              <div className="flex items-center">
+                <div 
+                  className={`h-5 w-5 rounded-md border-2 flex items-center justify-center mr-2 cursor-pointer ${
+                    rememberMe ? 'bg-primary-blue border-primary-blue' : 'border-primary-blue'
+                  }`}
+                  onClick={() => setRememberMe(!rememberMe)}
+                >
+                  {rememberMe && (
+                    <Image src="/images/tick.svg" alt="Checked" width={14} height={14} />
+                  )}
+                </div>
+                <label htmlFor="remember-me" className="text-sm text-[#414651] cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
+                  Remember me
+                </label>
+              </div>
+              
+              <button type="button" className="text-sm text-[#71717A] font-medium">
+                Forgot password?
+              </button>
+            </div>
+            
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-primary-blue text-white py-3 rounded-xl mt-4 text-sm font-medium disabled:opacity-70"
+            >
+              {isLoading ? "Logging in..." : "Log In"}
+            </button>
+          </form>
+          
+          <div className="mt-10 flex justify-center gap-1 text-sm">
+            <span className="text-[#414651]">Need to create an account?</span>
+            <Link href="/signup" className="text-primary-blue">
+              Sign Up
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+} 
+
+export default LoginPage;

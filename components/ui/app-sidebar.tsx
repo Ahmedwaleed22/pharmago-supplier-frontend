@@ -39,6 +39,7 @@ import {
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import React from "react";
+import LogoutButton from "@/components/logout-button";
 
 // Menu items.
 const items = [
@@ -208,10 +209,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarFooter className="mt-auto px-5">
-          <span className="flex items-center gap-2 cursor-pointer text-red-400 w-max">
-            <LogOut className="w-5 h-5" />
-            Log Out
-          </span>
+          <LogoutButton />
         </SidebarFooter>
       </SidebarContent>
     </Sidebar>

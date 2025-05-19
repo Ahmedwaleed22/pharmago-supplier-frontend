@@ -1,6 +1,10 @@
+// "use client";
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import QueryClientProvider from "@/components/providers/QueryClientProvider";
+import ReduxProvider from "@/components/providers/ReduxProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,7 +26,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased`}
       >
-        {children}
+        <QueryClientProvider>
+          <ReduxProvider>{children}</ReduxProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );
