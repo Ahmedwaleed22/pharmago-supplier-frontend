@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { niceBytes } from "@/helpers/upload";
@@ -16,6 +16,9 @@ interface ExistingImage {
   url: string;
   isPrimary: boolean;
   id?: string;
+  name: string;
+  size: number;
+  type?: string;
 }
 
 interface ImageUploadProps {
@@ -34,16 +37,73 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   className,
 }) => {
   // Track uploaded images locally
-  const [images, setImages] = useState<ImageFile[]>(() => {
-    return existingImages.map((img) => ({
+  const [images, setImages] = useState<ImageFile[]>([]);
+  // Flag to track if files are already processed to prevent double processing
+  const processingRef = useRef<boolean>(false);
+  
+  // Initialize or update images when existingImages changes
+  useEffect(() => {
+    // Processing existing images from props
+    if (existingImages.length === 0) {
+      // If there are no existing images, clear the local state
+      if (images.length > 0) {
+        images.forEach(img => { // Revoke any local blob URLs
+          if (img.url.startsWith('blob:')) {
+            URL.revokeObjectURL(img.url);
+          }
+        });
+        setImages([]);
+      }
+      return;
+    }
+
+    // Map existingImages to the ImageFile format
+    const potentialImages = existingImages.map(img => ({
       url: img.url,
-      name: img.url.split("/").pop() || "image.jpg",
-      size: 0,
-      isPrimary: img.isPrimary,
+      name: img.name,
+      size: img.size, // Assumed bytes
+      isPrimary: img.isPrimary || false,
       id: img.id || img.url,
-      file: new File([], img.url.split("/").pop() || "image.jpg"),
+      file: new File([], img.name || img.url.split("/").pop() || "image.jpg", { type: img.type || "image/jpeg" }),
     }));
-  });
+
+    // Deduplicate based on the derived 'id'
+    const uniqueByIdImages = potentialImages.filter((image, index, self) =>
+      index === self.findIndex((t) => t.id === image.id)
+    );
+
+    // Ensure only one image is primary
+    let primarySelected = false;
+    const finalImagesToSet = uniqueByIdImages.map(img => {
+      if (img.isPrimary) {
+        if (primarySelected) {
+          return { ...img, isPrimary: false };
+        }
+        primarySelected = true;
+        return img;
+      }
+      return img;
+    });
+
+    if (!primarySelected && finalImagesToSet.length > 0) {
+      finalImagesToSet[0].isPrimary = true;
+    }
+
+    const newImagesKey = finalImagesToSet.map(img => `${img.id}:${img.isPrimary}:${img.url}`).sort().join(',');
+    const currentImagesKeyForCompare = images.map(img => `${img.id}:${img.isPrimary}:${img.url}`).sort().join(',');
+
+    if (newImagesKey !== currentImagesKeyForCompare) {
+      images.forEach(currentImg => {
+        if (currentImg.url.startsWith('blob:')) {
+          const stillExistsInNew = finalImagesToSet.some(newImg => newImg.url === currentImg.url);
+          if (!stillExistsInNew) {
+            URL.revokeObjectURL(currentImg.url);
+          }
+        }
+      });
+      setImages(finalImagesToSet);
+    }
+  }, [existingImages]); // Depend only on existingImages
   
   // Upload progress simulation
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -58,19 +118,27 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     
     const filesArray = Array.from(files);
     
+    // Reset processing flag
+    processingRef.current = false;
+    
     // Start upload simulation
     setUploadProgress(0);
     setUploadingFile(filesArray[0].name);
     setUploadingFileSize(filesArray[0].size);
     
-    const interval = setInterval(() => {
+    // Store the timeout reference to clean it up later
+    const intervalRef = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev !== null && prev < 100) {
           return prev + 10;
-        } else {
-          clearInterval(interval);
+        } else if (prev !== null && prev >= 100 && !processingRef.current) {
+          // Clear the interval
+          clearInterval(intervalRef);
           
-          // Process files after upload "completes"
+          // Set flag to prevent double processing
+          processingRef.current = true;
+          
+          // Process files immediately rather than in setTimeout
           processUploadedFiles(filesArray);
           
           // Reset upload state
@@ -78,28 +146,70 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           setUploadingFileSize(null);
           
           return null;
+        } else {
+          // If we've already processed or progress is null, just return current value
+          return prev;
         }
       });
     }, 100);
   };
   
   // Process files after upload
-  const processUploadedFiles = (files: File[]) => {
+  const processUploadedFiles = (files: File[]) => {    
     // Create new image objects
-    const newImages: ImageFile[] = files.map((file) => ({
+    const newImageObjects: ImageFile[] = files.map((file) => ({
       file,
       url: URL.createObjectURL(file),
       name: file.name,
-      size: Math.round(file.size / 1024),
-      isPrimary: images.length === 0 && files.indexOf(file) === 0,
+      size: file.size, // Store raw size in bytes
+      isPrimary: false, 
       id: `${Date.now()}-${file.name}-${Math.random().toString(36).substr(2, 9)}`,
     }));
-    
-    // Replace existing images with new ones
-    setImages(newImages);
+        
+    setImages(prevImages => {
+      // Make all existing images not primary if new images are being added.
+      const updatedOldImages = prevImages.map(img => ({
+        ...img,
+        isPrimary: newImageObjects.length > 0 ? false : img.isPrimary,
+      }));
+
+      // If new images were added, set the first new one as primary.
+      if (newImageObjects.length > 0) {
+        newImageObjects[0].isPrimary = true;
+      }
+
+      // Revoke blob URLs from previous images that are blobs and are not part of newImageObjects (though newImageObjects are all new blobs)
+      // This step is more about cleaning up any previous blob state that might not be covered by the useEffect if existingImages prop itself changes.
+      updatedOldImages.forEach(img => {
+        if (img.url.startsWith('blob:') && !newImageObjects.find(n => n.id === img.id)) {
+           // Check if this old blob is truly gone or just had its primariness changed
+           // If we are just appending, old blobs from existing images should remain untouched unless they are replaced by an ID.
+           // The current logic is to append, so existing non-blob URLs are fine. Existing blob URLs are from previous uploads.
+           // If an existing image was a blob URL (from a previous upload in this session not yet saved to backend), it should be preserved.
+           // The main revocation of old blobs from `prevImages` happens if they are being fully replaced or removed.
+           // Here, we are concatenating.
+        }
+      });
+      
+      const allImages = [...updatedOldImages, ...newImageObjects];
+      
+      // Ensure at least one image is primary if there are any images
+      if (allImages.length > 0 && !allImages.some(img => img.isPrimary)) {
+        allImages[0].isPrimary = true;
+      }
+  
+      // Deduplicate, preferring newer items in case of ID collision (though IDs for new uploads should be unique)
+      const uniqueImages = allImages.reverse().filter((image, index, self) =>
+          index === self.findIndex((t) => (
+              t.id === image.id
+          ))
+      ).reverse();
+
+      return uniqueImages;
+    });
     
     // Notify parent of new files
-    onImagesChange(files);
+    onImagesChange(files); // Pass only the new File objects
     
     // Reset file input
     if (fileInputRef.current) {
@@ -134,30 +244,35 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     e.stopPropagation();
     e.preventDefault();
     
+    const imageToDelete = images[index];
+
     // Call parent's delete handler if provided
     if (onDeleteImage) {
-      onDeleteImage(index);
+      onDeleteImage(index); // Parent needs to map this index to its data or use ID if available
     }
     
     // Update local state
-    const newImages = [...images];
+    const newImages = images.filter((_, i) => i !== index);
     
-    // Revoke the blob URL to prevent memory leaks
-    if (newImages[index].url.startsWith("blob:")) {
-      URL.revokeObjectURL(newImages[index].url);
+    // Revoke the blob URL to prevent memory leaks if it was a blob
+    if (imageToDelete.url.startsWith("blob:")) {
+      URL.revokeObjectURL(imageToDelete.url);
     }
-    
-    // Remove the image
-    newImages.splice(index, 1);
-    
-    // Update primary image if needed
-    if (newImages.length > 0 && images[index].isPrimary) {
+        
+    // Update primary image if the deleted one was primary
+    if (newImages.length > 0 && imageToDelete.isPrimary) {
       newImages[0].isPrimary = true;
+    } else if (newImages.length === 0) {
+      // All images deleted, nothing to be primary
     }
     
     setImages(newImages);
     
-    // Update parent if no onDeleteImage was provided
+    // Update parent if no onDeleteImage was provided (by sending the remaining files)
+    // This part is tricky if onImagesChange is meant for *new* files.
+    // If onDeleteImage is not provided, managing deletions accurately via onImagesChange with File objects is hard
+    // for images that originated from `existingImages`.
+    // For simplicity, we assume if onDeleteImage is not there, onImagesChange might refresh the whole list based on files.
     if (!onDeleteImage) {
       const remainingFiles = newImages.map(img => img.file);
       onImagesChange(remainingFiles);
@@ -298,7 +413,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-[#535862]">{image.size} KB</p>
+                  <p className="text-xs text-[#535862]">{niceBytes(image.size)}</p>
                 </div>
               </div>
 

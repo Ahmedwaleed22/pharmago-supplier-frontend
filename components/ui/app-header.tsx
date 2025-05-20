@@ -4,8 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 import SearchBar from "./search-bar";
 import NotificationMenu from "./notification-menu";
+import { useSelector } from "react-redux";
+import { getPharmacy } from "@/store/authSlice";
 
 function AppHeader() {
+  const pharmacy = useSelector(getPharmacy);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
 
@@ -45,15 +48,15 @@ function AppHeader() {
           </div>
           <div className="flex items-center gap-2">
             <Image
-              src="/images/demo/el-ezaby.png"
-              alt="el-ezaby"
+              src={pharmacy?.logo || ""}
+              alt={pharmacy?.name || ""}
               width={40}
               height={40}
-              className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px]"
+              className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px] rounded-full"
             />
             <div className="flex flex-col sm:flex">
-              <h2 className="text-sm font-medium">Ezabawy Pharmacy</h2>
-              <h3 className="text-xs font-medium">Customer Support</h3>
+              <h2 className="text-sm font-medium text-blue-gray">{pharmacy?.name}</h2>
+              <h3 className="text-xs font-medium text-[#717171]">Pharmacy Admin</h3>
             </div>
           </div>
         </div>

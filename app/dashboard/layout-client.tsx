@@ -47,7 +47,9 @@ export default function DashboardRootLayout({
     (pathname.startsWith("/dashboard/prescription/requests/") &&
       pathname !== "/dashboard/prescription/requests/") ||
     (pathname.startsWith("/dashboard/delivery/live-tracking/") &&
-      pathname !== "/dashboard/delivery/live-tracking/");
+      pathname !== "/dashboard/delivery/live-tracking/") ||
+    (pathname.startsWith("/dashboard/product/edit/") &&
+      pathname !== "/dashboard/product/edit/");
 
   if (shouldExcludeFromDashboard) {
     return <Provider store={store}>{children}</Provider>;

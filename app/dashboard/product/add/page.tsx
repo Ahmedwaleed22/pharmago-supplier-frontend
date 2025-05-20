@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import ProductCreationLayout from "@/layouts/product-creation-layout";
+import ProductLayout from "@/layouts/product-layout";
 import LabeledInput from "@/components/labeled-input";
 import { SelectBoxOption } from "@/components/labeled-input";
 import ProductPreview from "@/components/product-preview";
@@ -13,7 +13,7 @@ import {
   setCategory, 
   setSubCategory, 
   setProductDetails,
-  setPharmacyLogo
+  setNotes
 } from "@/store/ProductCreationSlice";
 import {useQuery} from "@tanstack/react-query";
 import {
@@ -45,7 +45,7 @@ function ProductAddPage() {
   } = useQuery<Category.Category[]>(createSubCategoriesQueryOptions(productData.category));
 
   return (
-    <ProductCreationLayout>
+    <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
           Add Product Details
@@ -64,9 +64,9 @@ function ProductAddPage() {
           />
 
           <LabeledInput
-            id="sub-name"
-            label="Sub-Name"
-            placeholder="Sub-Name"
+            id="product-short-description"
+            label="Product Short Description"
+            placeholder="Product Short Description"
             value={productData.subName}
             onChange={(value) => dispatch(setSubName(value))}
           />
@@ -104,7 +104,7 @@ function ProductAddPage() {
 
           <LabeledInput
             id="product-details"
-            label="Product Details"
+            label="Product Description"
             type="textarea"
             placeholder="Descriptions here"
             value={productData.productDetails}
@@ -122,7 +122,7 @@ function ProductAddPage() {
 
       {/* Preview Section */}
       <ProductPreview />
-    </ProductCreationLayout>
+    </ProductLayout>
   );
 }
 

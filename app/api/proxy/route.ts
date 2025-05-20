@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { headers as nextHeaders } from 'next/headers';
+import FormData from 'form-data';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL || '';
 
@@ -9,7 +11,7 @@ export async function OPTIONS() {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Target-URL',
       'Access-Control-Max-Age': '86400',
     },
   });
@@ -20,11 +22,83 @@ export async function POST(request: NextRequest) {
   try {
     console.log('POST proxy request received');
     
-    // Parse the request body
-    const body = await request.json();
-    console.log('Request body received:', JSON.stringify(body));
+    const headersList = nextHeaders();
+    const contentType = request.headers.get('Content-Type') || '';
+    const targetUrlHeader = request.headers.get('X-Target-URL');
     
-    const { endpoint, method = 'post', data = {}, headers = {} } = body;
+    // Handle FormData/multipart requests
+    if (contentType.includes('multipart/form-data')) {
+      if (!targetUrlHeader) {
+        console.error('Missing X-Target-URL header for multipart request');
+        return NextResponse.json({ message: 'X-Target-URL header is required for multipart requests' }, { status: 400 });
+      }
+      
+      // Get full URL to forward request to
+      const fullUrl = `${API_BASE_URL}/${targetUrlHeader.startsWith('/') ? targetUrlHeader.slice(1) : targetUrlHeader}`;
+      console.log(`Forwarding multipart request to: ${fullUrl}`);
+      
+      // Get FormData from request
+      const formData = await request.formData();
+      
+      // Forward headers except host and other hop-by-hop headers
+      const forwardedHeaders: Record<string, string> = {};
+      request.headers.forEach((value, key) => {
+        if (!['host', 'connection', 'content-length'].includes(key.toLowerCase())) {
+          forwardedHeaders[key] = value;
+        }
+      });
+      
+      // Forward the request with FormData
+      try {
+        const response = await axios.post(fullUrl, formData, {
+          headers: forwardedHeaders
+        });
+        
+        return NextResponse.json(response.data, {
+          status: response.status,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Target-URL',
+          }
+        });
+      } catch (error: any) {
+        console.error('Multipart request error:', error);
+        
+        // Log more detailed error information
+        if (error.response) {
+          console.error('Error response:', {
+            status: error.response.status,
+            data: error.response.data
+          });
+        }
+        
+        return NextResponse.json(
+          { message: error.message, error: error.response?.data || 'Unknown error' },
+          { 
+            status: error.response?.status || 500,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Target-URL',
+            }
+          }
+        );
+      }
+    }
+    
+    // Handle JSON requests (original implementation)
+    // Parse the request body
+    let body;
+    try {
+      body = await request.json();
+      console.log('Request body received:', JSON.stringify(body));
+    } catch (e) {
+      console.error('Error parsing JSON body:', e);
+      return NextResponse.json({ message: 'Invalid JSON body' }, { status: 400 });
+    }
+    
+    const { endpoint, method = 'post', data = {}, headers = {}, formData = null, isFormData = false } = body;
 
     if (!endpoint) {
       console.error('Missing endpoint parameter');
@@ -42,29 +116,72 @@ export async function POST(request: NextRequest) {
     // Safe URL construction using string concatenation
     const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
     const endpointPath = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-    const targetUrl = baseUrl + '/' + endpointPath;
+    const apiTargetUrl = baseUrl + '/' + endpointPath;
     
-    console.log(`Making ${method.toUpperCase()} request to: ${targetUrl}`);
+    console.log(`Making ${method.toUpperCase()} request to: ${apiTargetUrl}`);
     
     // Set common headers
     const requestHeaders = {
       ...headers,
-      'Content-Type': 'application/json'
+      'Content-Type': isFormData ? 'multipart/form-data' : 'application/json'
     };
 
     let response;
     
     try {
-      // Use axios with the appropriate method
-      if (method.toLowerCase() === 'get') {
-        response = await axios.get(targetUrl, { headers: requestHeaders });
-      } else if (method.toLowerCase() === 'put') { 
-        response = await axios.put(targetUrl, data, { headers: requestHeaders });
-      } else if (method.toLowerCase() === 'delete') {
-        response = await axios.delete(targetUrl, { headers: requestHeaders });
+      // Special handling for FormData passed as JSON
+      if (isFormData && formData) {
+        console.log('Processing FormData request');
+        
+        // Create a new FormData object
+        const serverFormData = new FormData();
+        
+        // Recreate the form data on the server side
+        Object.entries(formData).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            value.forEach(item => {
+              if (item && typeof item === 'object' && 'name' in item && 'type' in item && 'data' in item) {
+                // This is a file object
+                const buffer = Buffer.from(item.data);
+                serverFormData.append(key, buffer, {
+                  filename: item.name,
+                  contentType: item.type
+                });
+              } else {
+                serverFormData.append(key, item);
+              }
+            });
+          } else if (value && typeof value === 'object' && 'name' in value && 'type' in value && 'data' in value) {
+            // This is a file object
+            const buffer = Buffer.from(value.data);
+            serverFormData.append(key, buffer, {
+              filename: value.name,
+              contentType: value.type
+            });
+          } else {
+            serverFormData.append(key, value);
+          }
+        });
+        
+        // Send the form data
+        response = await axios.post(apiTargetUrl, serverFormData, {
+          headers: {
+            ...requestHeaders,
+            ...serverFormData.getHeaders()
+          }
+        });
       } else {
-        // Default to POST
-        response = await axios.post(targetUrl, data, { headers: requestHeaders });
+        // Use axios with the appropriate method
+        if (method.toLowerCase() === 'get') {
+          response = await axios.get(apiTargetUrl, { headers: requestHeaders });
+        } else if (method.toLowerCase() === 'put') { 
+          response = await axios.put(apiTargetUrl, data, { headers: requestHeaders });
+        } else if (method.toLowerCase() === 'delete') {
+          response = await axios.delete(apiTargetUrl, { headers: requestHeaders });
+        } else {
+          // Default to POST
+          response = await axios.post(apiTargetUrl, data, { headers: requestHeaders });
+        }
       }
       
       console.log(`${method.toUpperCase()} request successful with status: ${response.status}`);
@@ -74,7 +191,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Target-URL',
         }
       });
     } catch (error: any) {
@@ -108,7 +225,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Target-URL',
         }
       }
     );
@@ -137,14 +254,14 @@ export async function GET(request: NextRequest) {
     }
     
     // Forward request to our POST handler by creating a similar payload
-    const headers: Record<string, string> = {};
+    const requestHeaders: Record<string, string> = {};
     const authHeader = request.headers.get('Authorization');
-    if (authHeader) headers['Authorization'] = authHeader;
+    if (authHeader) requestHeaders['Authorization'] = authHeader;
     
     const payload = {
       method: 'get',
       endpoint,
-      headers
+      headers: requestHeaders
     };
     
     // Reuse our POST handler logic

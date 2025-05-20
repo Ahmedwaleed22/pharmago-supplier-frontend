@@ -1,11 +1,13 @@
-export function formatPrice(price: number, currency: Product.Currency | null): string {
+export function formatPrice(price: number, currency: Product.Currency | null) {
+  price = Number(price);
+
   if (!currency) {
-    return price.toFixed(2);
+    return price?.toFixed(2);
   }
 
   if (currency?.symbol_first === 1) {
-    return `${currency?.symbol}${price.toFixed(currency?.precision)}`;
+    return `${currency?.symbol}${price?.toFixed(currency?.precision)}`;
   }
 
-  return `${price.toFixed(currency?.precision)}${currency?.symbol}`;
+  return `${price?.toFixed(currency?.precision)}${currency?.symbol}`;
 }

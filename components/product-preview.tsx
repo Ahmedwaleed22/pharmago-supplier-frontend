@@ -3,11 +3,12 @@ import { Plus } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { getCurrency } from "@/store/authSlice";
+import { getCurrency, getPharmacy } from "@/store/authSlice";
 import { formatPrice } from "@/helpers/products";
 import { createMainCategoriesQueryOptions } from "@/query-options/categories-query-options";
 import { useQuery } from "@tanstack/react-query";
 import { createSubCategoriesQueryOptions } from "@/query-options/categories-query-options";
+import Image from "next/image";
 
 interface ProductPreviewProps {
   className?: string;
@@ -16,6 +17,7 @@ interface ProductPreviewProps {
 function ProductPreview({ className }: ProductPreviewProps) {
   const productData = useSelector((state: any) => state.productCreation);
   const currency = useSelector(getCurrency);
+  const pharmacy = useSelector(getPharmacy);
   const router = useRouter();
 
   const {
@@ -56,6 +58,26 @@ function ProductPreview({ className }: ProductPreviewProps) {
 
   const imageUrl = getPrimaryImageUrl();
 
+  // Determine the path for the image editing page based on the current route
+  const getImageEditPath = () => {
+    // Default to the add flow
+    let path = "/dashboard/product/add/step-3";
+    
+    // Try to detect if we're in the edit flow by checking the URL
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/product/edit/')) {
+        // Extract the product ID from the URL
+        const matches = currentPath.match(/\/product\/edit\/([^/]+)/);
+        if (matches && matches[1]) {
+          path = `/dashboard/product/edit/${matches[1]}/step-3`;
+        }
+      }
+    }
+    
+    return path;
+  };
+
   return (
     <div className={cn("w-1/2 max-w-[407px]", className)}>
       <h2 className="mb-2 text-xl font-semibold text-[#414651]">Preview</h2>
@@ -64,13 +86,26 @@ function ProductPreview({ className }: ProductPreviewProps) {
       </p>
 
       <div className="rounded-lg bg-white p-6 max-w-[407px] shadow-sm">
-        <div onClick={() => router.push("/dashboard/product/add/step-3")} className={`mb-6 flex items-center justify-center rounded-lg bg-white min-h-[250px] ${!imageUrl ? "p-8 border border-dashed border-[#afafaf] cursor-pointer" : ""}`}>
+        <div 
+          onClick={() => router.push(getImageEditPath())} 
+          className={`mb-6 flex items-center justify-center rounded-lg bg-white min-h-[250px] ${!imageUrl ? "p-8 border border-dashed border-[#afafaf] cursor-pointer" : ""}`}
+          style={{ 
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
           {imageUrl ? (
-            <img 
-              src={imageUrl} 
-              alt={productData.name}
-              className="max-h-full max-w-full object-contain"
-            />
+            <div style={{ width: '100%', height: '100%', minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img 
+                src={imageUrl} 
+                alt={productData.name || "Product"}
+                style={{
+                  maxHeight: '100%',
+                  maxWidth: '100%',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
           ) : (
             <div className="text-center">
               <div className="mb-2 flex justify-center">
@@ -92,10 +127,9 @@ function ProductPreview({ className }: ProductPreviewProps) {
             {getCategoryName(productData.category) || "Main Category"} · {getSubCategoryName(productData.subCategory) || "Sub-Category"}
           </div>
           <div className="ml-auto flex items-center">
-            <span className="mr-2 text-xs text-[#717171]">Logo</span>
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#ebebeb] text-xs">
-              +
-            </div>
+            {pharmacy?.logo && (
+              <Image className="h-8 w-auto" src={pharmacy?.logo} alt={pharmacy?.name || ""} width={100} height={32} />
+            )}
           </div>
         </div>
 
@@ -113,7 +147,7 @@ function ProductPreview({ className }: ProductPreviewProps) {
           {productData.discount > 0 && (
             <>
               <div className="ml-2 text-sm text-[#a0a0a0]">
-                {productData.price ? `${formatPrice(productData.price, currency)}` : `${formatPrice(0, currency)}`}
+                {productData.price ? `${formatPrice(productData.price || 0, currency)}` : `${formatPrice(0.00, currency)}`}
               </div>
               <div className="ml-2 rounded bg-[#f4f4f5] px-2 py-0.5 text-xs text-[#717171]">
                 -{productData.discount}%
@@ -129,16 +163,14 @@ function ProductPreview({ className }: ProductPreviewProps) {
           <div className="text-sm text-[#717171]">
             {productData.productDetails || "Your Description will show here"}
           </div>
-          {productData.tags && productData.tags.length > 0 && (
+          {productData.tag && productData.tagColor && (
             <div className="mt-2 flex flex-wrap gap-1">
-              {productData.tags.map((tag: string) => (
-                <span
-                  key={tag}
-                  className="rounded-md bg-blue-100 px-2 py-0.5 text-xs text-blue-800"
-                >
-                  {tag}
-                </span>
-              ))}
+              <span
+                className={`rounded-md px-2 py-0.5 text-xs text-white`}
+                style={{ backgroundColor: productData.tagColor }}
+              >
+                {productData.tag}
+              </span>
             </div>
           )}
         </div>

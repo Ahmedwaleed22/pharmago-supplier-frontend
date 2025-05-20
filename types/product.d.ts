@@ -10,10 +10,11 @@ declare module Product {
     description: string;
     rating: string|number;
     notes: string;
-    tag: {
-      color: string;
-      title: string;
-    };
+    // tag: {
+    //   color: string;
+    //   title: string;
+    // };
+    tag: string;
     stock: string|number;
     in_stock: boolean;
     currency: {
@@ -22,6 +23,7 @@ declare module Product {
       code: string;
     };
     is_whitelisted: boolean;
+    category: Category.Category;
   }
 
   export interface Currency {
@@ -35,5 +37,10 @@ declare module Product {
     symbol_first: number;
     decimal_mark: string;
     thousands_separator: string;
+  }
+
+  export interface Tag {
+    color: string;
+    title: string;
   }
 }

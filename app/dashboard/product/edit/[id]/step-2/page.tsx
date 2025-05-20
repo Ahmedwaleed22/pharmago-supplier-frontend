@@ -14,23 +14,24 @@ import {
   setTagColor,
 } from "@/store/ProductCreationSlice";
 
-function ProductAddStep2Page() {
+function ProductEditStep2Page({ params }: { params: { id: string } }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const productData = useSelector((state: any) => state.productCreation);
+  const productId = params.id;
 
   const NextPage = () => {
-    router.push("/dashboard/product/add/step-3");
+    router.push(`/dashboard/product/edit/${productId}/step-3`);
   };
 
   return (
     <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
-          Add Product Details
+          Edit Product Details
         </h1>
         <p className="mb-8 text-[#717171]">
-          Boost sales with detailed product information
+          Update your product information
         </p>
 
         <div className="space-y-6">
@@ -93,4 +94,4 @@ function ProductAddStep2Page() {
   );
 }
 
-export default ProductAddStep2Page;
+export default ProductEditStep2Page; 

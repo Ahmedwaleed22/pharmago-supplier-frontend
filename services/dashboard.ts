@@ -36,6 +36,26 @@ export async function getDashboardProducts(categoryId: string, subCategoryId: st
   return response.data.data;
 }
 
+export async function getProductById(productId: string): Promise<Product.Medicine> {
+  const response = await axios.get(`/api/dashboard/products/${productId}`);
+
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch product details');
+  }
+  
+  return response.data.data;
+}
+
+export async function updateProduct(productId: string, formData: FormData): Promise<any> {
+  const response = await axios.put(`/api/dashboard/products/${productId}`, formData);
+
+  if (response.status !== 200) {
+    throw new Error('Failed to update product');
+  }
+  
+  return response.data;
+}
+
 export async function getMainCategories(): Promise<Category.Category[]> {
   const response = await axios.get('/api/categories/main');
 

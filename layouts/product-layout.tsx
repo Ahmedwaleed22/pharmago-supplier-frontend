@@ -9,27 +9,38 @@ import { ChevronLeft } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { removeAllItems } from "@/store/ProductCreationSlice";
 
-function ProductCreationLayout({ children }: { children: React.ReactNode }) {
+function ProductLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
-
+  
+  // Check if we're in edit mode
+  const isEditMode = pathname.includes("/edit");
+  
+  // Extract the product ID if in edit mode
+  const productId = isEditMode ? pathname.split('/edit/')[1]?.split('/')[0] : null;
+  
+  // Create the base path segment based on mode
+  const basePathSegment = isEditMode 
+    ? `/edit/${productId}`
+    : "/add";
+  
   const steps = [
     {
       label: "General Information",
-      href: "/dashboard/product/add",
+      href: `/dashboard/product${basePathSegment}`,
     },
     {
       label: "Product Details",
-      href: "/dashboard/product/add/step-2",
+      href: `/dashboard/product${basePathSegment}/step-2`,
     },
     {
       label: "Product Image",
-      href: "/dashboard/product/add/step-3",
+      href: `/dashboard/product${basePathSegment}/step-3`,
     },
     {
       label: "Summary",
-      href: "/dashboard/product/add/step-4",
+      href: `/dashboard/product${basePathSegment}/step-4`,
     },
   ];
 
@@ -38,10 +49,21 @@ function ProductCreationLayout({ children }: { children: React.ReactNode }) {
     router.push("/dashboard");
   };
 
-  const currentStep = steps.findIndex((step) => step.href === pathname);
+  // Determine current step based on pathname pattern instead of exact match
+  let currentStep = 0;  // Default to first step
+  
+  if (pathname.includes('/step-2')) {
+    currentStep = 1;
+  } else if (pathname.includes('/step-3')) {
+    currentStep = 2;
+  } else if (pathname.includes('/step-4')) {
+    currentStep = 3;
+  }
+
+  const pageTitle = isEditMode ? "Edit Product" : "Create Product";
 
   return (
-    <div className="flex min-h-screen bg-smooth-white">
+    <div className="flex h-screen bg-smooth-white">
       {/* Sidebar */}
       <div className="w-64 border-r border-gray-200 bg-white">
         <div className="px-4 py-16">
@@ -76,7 +98,7 @@ function ProductCreationLayout({ children }: { children: React.ReactNode }) {
           ))}
         </div>
       </div>
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-y-auto">
         <div className="mb-8">
           <span
             className="inline-flex items-center text-[#717171] hover:text-[#494949] transition-all duration-300 cursor-pointer"
@@ -92,4 +114,4 @@ function ProductCreationLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default ProductCreationLayout;
+export default ProductLayout;

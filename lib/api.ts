@@ -253,4 +253,42 @@ export async function fetchAuthenticatedUser(): Promise<any> {
     console.error("Error fetching authenticated user:", error);
     throw error;
   }
-} 
+}
+
+// Create a new medicine product
+export async function createMedicine(formData: FormData): Promise<any> {
+  try {
+    // Create form data for multipart/form-data request
+    // Log the FormData content for debugging
+    console.log("FormData content before sending:");
+    for (let pair of (formData as any).entries()) {
+      console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
+    }
+    
+    // Add X-Target-URL as a query parameter since it might be getting lost in the proxy
+    const response = await axios.post(
+      '/api/proxy',
+      {
+        endpoint: 'products/',
+        method: 'post',
+        formData: formData,
+        isFormData: true,
+        headers: {
+          ...getAuthHeader(),
+          'Content-Type': 'multipart/form-data'
+        }
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error creating medicine:", error);
+    throw error;
+  }
+}
+

@@ -1,13 +1,33 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ProductImage {
+  name?: string;
   url: string;
   isPrimary: boolean;
+  size?: number;
 }
 
-const initialState = {
+export interface ProductState {
+  name: string;
+  subName: string;
+  notes: string;
+  category: string;
+  subCategory: string;
+  pharmacyLogo: string;
+  productDetails: string;
+  price: string;
+  discount: string;
+  stock: string;
+  tag: string;
+  tagColor: string;
+  image: string; // Keep for backward compatibility
+  images: ProductImage[]; // New field for multiple images
+}
+
+const initialState: ProductState = {
   name: "",
   subName: "",
+  notes: "",
   category: "",
   subCategory: "",
   pharmacyLogo: "",
@@ -15,7 +35,8 @@ const initialState = {
   price: "",
   discount: "",
   stock: "",
-  tags: [],
+  tag: "",
+  tagColor: "#2970FF",
   image: "", // Keep for backward compatibility
   images: [] as ProductImage[], // New field for multiple images
 };
@@ -24,11 +45,17 @@ const productCreationSlice = createSlice({
   name: "productCreation",
   initialState,
   reducers: {
+    initializeProductData: (state, action: PayloadAction<Partial<ProductState>>) => {
+      return { ...initialState, ...action.payload };
+    },
     setName: (state, action) => {
       state.name = action.payload;
     },
     setSubName: (state, action) => {
       state.subName = action.payload;
+    },
+    setNotes: (state, action) => {
+      state.notes = action.payload;
     },
     setCategory: (state, action) => {
       state.category = action.payload;
@@ -51,8 +78,11 @@ const productCreationSlice = createSlice({
     setStock: (state, action) => {
       state.stock = action.payload;
     },
-    setTags: (state, action) => {
-      state.tags = action.payload;
+    setTag: (state, action) => {
+      state.tag = action.payload;
+    },
+    setTagColor: (state, action) => {
+      state.tagColor = action.payload;
     },
     setImage: (state, action) => {
       state.image = action.payload;
@@ -86,6 +116,8 @@ const productCreationSlice = createSlice({
     addImage: (state, action) => {
       const newImage = {
         url: action.payload.url,
+        name: action.payload.name,
+        size: action.payload.size,
         isPrimary: action.payload.isPrimary ?? false
       };
       
@@ -132,6 +164,7 @@ const productCreationSlice = createSlice({
     removeAllItems: (state) => {
       state.name = "";
       state.subName = "";
+      state.notes = "";
       state.category = "";
       state.subCategory = "";
       state.pharmacyLogo = "";
@@ -139,15 +172,19 @@ const productCreationSlice = createSlice({
       state.price = "";
       state.discount = "";
       state.stock = "";
-      state.tags = [];
+      state.tag = "";
+      state.tagColor = "";
       state.images = [];
-    }
+    },
+    resetProductCreation: () => initialState
   },
 });
 
 export const {
+  initializeProductData,
   setName,
   setSubName,
+  setNotes,
   setCategory,
   setSubCategory,
   setPharmacyLogo,
@@ -155,12 +192,14 @@ export const {
   setPrice,
   setDiscount,
   setStock,
-  setTags,
+  setTag,
+  setTagColor,
   setImage,
   addImage,
   removeImage,
   setPrimaryImage,
-  removeAllItems
+  removeAllItems,
+  resetProductCreation
 } = productCreationSlice.actions;
 
 export default productCreationSlice.reducer;

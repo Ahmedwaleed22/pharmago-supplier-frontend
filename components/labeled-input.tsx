@@ -28,6 +28,8 @@ interface LabeledInputProps {
   rows?: number;
   tags?: string[];
   setTags?: (tags: string[]) => void;
+  onColorChange?: (color: string) => void;
+  color?: string;
 }
 
 function LabeledInput({
@@ -42,6 +44,8 @@ function LabeledInput({
   rows = 4,
   tags = [],
   setTags,
+  onColorChange,
+  color
 }: LabeledInputProps) {
   const inputId = id || label.toLowerCase().replace(/\s+/g, "-");
 
@@ -60,7 +64,11 @@ function LabeledInput({
               )}
             >
               {options.map((option) => (
-                <option key={option.value} value={option.value} disabled={option.disabled}>
+                <option
+                  key={option.value}
+                  value={option.value}
+                  disabled={option.disabled}
+                >
                   {option.label}
                 </option>
               ))}
@@ -92,15 +100,29 @@ function LabeledInput({
         );
       case "tags":
         return (
-          <MultiTagInput
-            className={cn(
-              "w-full rounded-md bg-white border-0 px-4 py-2 focus:border-[#2970ff] focus:outline-none text-[#414651] placeholder:text-[#acb5c9] shadow-sm",
-              className?.input
-            )}
-            tags={tags || []}
-            setTags={setTags || (() => {})}
-            placeholder={placeholder}
-          />
+          <div className="flex relative">
+            <input
+              id={inputId}
+              type="text"
+              placeholder={placeholder}
+              value={value}
+              onChange={(e) => onChange?.(e.target.value)}
+              className={cn(
+                "w-full rounded-md bg-white border-0 px-4 py-2 focus:border-[#2970ff] focus:outline-none text-[#414651] placeholder:text-[#acb5c9] shadow-sm",
+                className?.input
+              )}
+            />
+            <div className="ml-2 flex items-center justify-center rounded-full overflow-hidden w-5 h-5 border border-gray-200 absolute right-2 bottom-0 top-0 my-auto">
+              <input
+                id={`${inputId}-color`}
+                type="color"
+                value={color}
+                onChange={(e) => onColorChange?.(e.target.value)}
+                className="w-12 h-12 border-0 cursor-pointer"
+                style={{ transform: 'scale(1.5)' }}
+              />
+            </div>
+          </div>
         );
       case "file":
         return (
@@ -136,7 +158,10 @@ function LabeledInput({
     <div className={cn("flex flex-col gap-2", className?.container)}>
       <label
         htmlFor={inputId}
-        className={cn("mb-2 block text-[#414651] font-medium", className?.label)}
+        className={cn(
+          "mb-2 block text-[#414651] font-medium",
+          className?.label
+        )}
       >
         {label}
       </label>

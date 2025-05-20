@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["picsum.photos", "localhost", "pharmago-test.b-cdn.net"],
+    domains: ["picsum.photos", "localhost", "pharmago-test.b-cdn.net", "pharmago-software.b-cdn.net"],
   },
   // Add async headers configuration for CORS
   async headers() {

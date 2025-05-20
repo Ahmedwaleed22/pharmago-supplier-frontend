@@ -12,10 +12,11 @@ import {
 } from "@/store/ProductCreationSlice";
 import ImageUpload from "@/components/image-upload";
 
-function ProductAddStep3Page() {
+function ProductEditStep3Page({ params }: { params: { id: string } }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const productData = useSelector((state: any) => state.productCreation);
+  const productId = params.id;
 
   const handleImagesChange = (files: File[]) => {
     // For each file, create an object URL and dispatch the addImage action
@@ -45,17 +46,17 @@ function ProductAddStep3Page() {
   };
 
   const NextPage = () => {
-    router.push("/dashboard/product/add/step-4");
+    router.push(`/dashboard/product/edit/${productId}/step-4`);
   };
 
   return (
     <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
-          Add Product Image
+          Edit Product Image
         </h1>
         <p className="mb-8 text-[#717171]">
-          Boost sales with detailed product information
+          Update your product images
         </p>
 
         <div className="space-y-6">
@@ -82,4 +83,4 @@ function ProductAddStep3Page() {
   );
 }
 
-export default ProductAddStep3Page;
+export default ProductEditStep3Page; 

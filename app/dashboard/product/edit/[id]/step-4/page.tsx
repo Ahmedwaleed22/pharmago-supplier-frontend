@@ -10,14 +10,15 @@ import { resetProductCreation } from "@/store/ProductCreationSlice";
 import axios from "axios";
 import { getAuthHeader, getAuthToken } from "@/lib/api";
 
-function ProductAddStep4Page() {
+function ProductEditStep4Page({ params }: { params: { id: string } }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const productData = useSelector((state: any) => state.productCreation);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-
+  const productId = params.id;
+  
   const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL;
 
   const prepareProductData = async (productData: any) => {
@@ -33,7 +34,7 @@ function ProductAddStep4Page() {
         "color": productData.tagColor
       }
     ) || "[]");
-    formData.append("category_id", productData.category);
+    formData.append("category_id", productData.subCategory || productData.category);
     formData.append("stock", productData.stock || "0");
     
     // Add notes if available
@@ -128,10 +129,10 @@ function ProductAddStep4Page() {
     return formData;
   };
 
-  const createProductMutation = useMutation({
+  const updateProductMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       // Create a Direct API call instead of using the proxy
-      const url = `${API_BASE_URL}/products/`;
+      const url = `${API_BASE_URL}/products/${productId}/`;
       
       console.log("Making direct API call to:", url);
       
@@ -147,7 +148,7 @@ function ProductAddStep4Page() {
       // Use XMLHttpRequest for more reliable FormData upload
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', url);
+        xhr.open('PUT', url);
         
         // Set auth header with the token from cookies
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -188,15 +189,16 @@ function ProductAddStep4Page() {
       });
     },
     onSuccess: (data) => {
-      console.log("Product created successfully:", data);
+      console.log("Product updated successfully:", data);
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
       queryClient.invalidateQueries({ queryKey: ['pharmacy-products'] });
       router.push("/dashboard/product"); // Correct redirect path
       dispatch(resetProductCreation());
     },
     onError: (error: any) => {
       setIsSubmitting(false);
-      console.error("Error creating product:", error);
-      setError(error.message || "Failed to create product");
+      console.error("Error updating product:", error);
+      setError(error.message || "Failed to update product");
     }
   });
 
@@ -205,7 +207,7 @@ function ProductAddStep4Page() {
       setIsSubmitting(true);
       setError("");
       const formData = await prepareProductData(productData);
-      createProductMutation.mutate(formData);
+      updateProductMutation.mutate(formData);
     } catch (error: any) {
       console.error("Error preparing data:", error);
       setIsSubmitting(false);
@@ -214,7 +216,7 @@ function ProductAddStep4Page() {
   };
 
   const goBack = () => {
-    router.push("/dashboard/product/add/step-3");
+    router.push(`/dashboard/product/edit/${productId}/step-3`);
   };
 
   return (
@@ -245,7 +247,7 @@ function ProductAddStep4Page() {
             disabled={isSubmitting}
             className="w-1/2 rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 disabled:bg-blue-300"
           >
-            {isSubmitting ? "Creating..." : "Create Product"}
+            {isSubmitting ? "Updating..." : "Update Product"}
           </button>
         </div>
       </div>
@@ -256,4 +258,4 @@ function ProductAddStep4Page() {
   );
 }
 
-export default ProductAddStep4Page;
+export default ProductEditStep4Page; 

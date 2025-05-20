@@ -50,5 +50,9 @@ export const getCurrency = (state: { auth: AuthState }) => {
   return state.auth.pharmacy?.country?.currency;
 };
 
+export const getPharmacy = (state: { auth: AuthState }) => {
+  return state.auth.pharmacy;
+};
+
 export const { setAuth, setLoading, setError, logout } = authSlice.actions;
 export default authSlice.reducer; 
