@@ -12,6 +12,8 @@ function PrescriptionRequestsPage() {
   const { data: prescriptions, isLoading } = useQuery({
     queryKey: ["approved-prescriptions"],
     queryFn: () => fetchApprovedPrescriptions(),
+    staleTime: Infinity,
+    structuralSharing: false
   });
 
   return (

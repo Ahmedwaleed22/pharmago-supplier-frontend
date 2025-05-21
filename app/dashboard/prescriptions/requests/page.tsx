@@ -11,6 +11,8 @@ function PrescriptionRequestsPage() {
   const { data: prescriptions, isLoading } = useQuery({
     queryKey: ["pending-prescriptions"],
     queryFn: () => fetchPendingPrescriptions(),
+    staleTime: Infinity,
+    structuralSharing: false
   });
 
   return (
