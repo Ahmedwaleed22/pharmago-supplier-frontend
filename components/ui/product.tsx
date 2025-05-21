@@ -8,7 +8,7 @@ function Product({ product }: { product: Product.Medicine }) {
 
   return (
     <Link
-      href={`/dashboard/product/edit/${product.id}`}
+      href={`/dashboard/products/edit/${product.id}`}
       className="block h-full w-full"
     >
       <div

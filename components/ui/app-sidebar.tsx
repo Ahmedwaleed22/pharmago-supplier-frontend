@@ -50,17 +50,17 @@ const items = [
   },
   {
     title: "Product",
-    url: "/dashboard/product",
+    url: "/dashboard/products",
     icon: Package,
     subItems: [
       {
         title: "Add Product",
-        url: "/dashboard/product/add",
+        url: "/dashboard/products/add",
         icon: CirclePlus,
       },
       {
         title: "Product List",
-        url: "/dashboard/product",
+        url: "/dashboard/products",
         icon: Package,
       },
     ],
@@ -72,27 +72,27 @@ const items = [
   },
   {
     title: "Prescription",
-    url: "/dashboard/prescription",
+    url: "/dashboard/prescriptions",
     icon: ScanSearch,
     subItems: [
       {
         title: "Approved",
-        url: "/dashboard/prescription/approved",
+        url: "/dashboard/prescriptions/approved",
         icon: CircleCheck,
       },
       {
         title: "Prescription Requests",
-        url: "/dashboard/prescription/requests",
+        url: "/dashboard/prescriptions/requests",
         icon: NotepadText,
       },
       {
         title: "RFQs Requests",
-        url: "/dashboard/prescription/rfqs",
+        url: "/dashboard/prescriptions/rfqs",
         icon: NotepadText,
       },
       {
         title: "Order History",
-        url: "/dashboard/prescription/order-history",
+        url: "/dashboard/prescriptions/order-history",
         icon: Clock,
       }
     ],

@@ -1,6 +1,8 @@
 import React from 'react'
 import DashboardCard from './dashboard-card';
 import OrderHistoryTable from './order-history-table';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllPrescriptions } from '@/services/prescriptions';
 
 interface OrderHistoryProps {
   className?: string;
@@ -9,6 +11,11 @@ interface OrderHistoryProps {
 }
 
 function OrderHistory({ className, noTitle, orders }: OrderHistoryProps) {
+  const { data: prescriptions, isLoading } = useQuery({
+    queryKey: ["prescriptions"],
+    queryFn: () => fetchAllPrescriptions(),
+  });
+  
   return (
     <DashboardCard className="p-0">
       <div className="flex flex-col gap-5 p-6">

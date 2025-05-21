@@ -1,22 +1,59 @@
 "use client";
 
-import React from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import CustomButton from "./custom-button";
 import { useRouter, useParams } from "next/navigation";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { cn } from "@/lib/utils";
+import { getPrescriptionName, formatPrescriptionDate, getTimeAgo } from "@/helpers/prescriptions";
+import { sendPrescriptionOffer } from "@/services/prescriptions";
 
 type PrescriptionCardStatus = "request" | "approved" | "tracking" | "offer" | "delivery-status";
 
 interface PrescriptionCardProps {
   status?: PrescriptionCardStatus;
   className?: string;
+  prescription: Prescription.Prescription;
+  price?: string;
+  setPrice?: Dispatch<SetStateAction<string>>;
+  discount?: string;
+  setDiscount?: Dispatch<SetStateAction<string>>;
 }
 
-function PrescriptionCard({ className, status = "request" }: PrescriptionCardProps) {
+function PrescriptionCard({ 
+  className, 
+  status = "request", 
+  prescription,
+  price,
+  setPrice,
+  discount,
+  setDiscount
+}: PrescriptionCardProps) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSendOffer = async () => {
+    if (!price) {
+      setError("Please enter a price");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      await sendPrescriptionOffer(prescription.id, price, discount);
+      alert("Offer sent successfully");
+      router.push("/dashboard/prescriptions/requests");
+    } catch (error) {
+      console.error("Error sending offer:", error);
+      setError("Failed to send offer. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -36,16 +73,16 @@ function PrescriptionCard({ className, status = "request" }: PrescriptionCardPro
         />
         <div>
           <h3 className="text-blue-gray font-semibold text-lg">
-            Prescription Request 01
+            {getPrescriptionName(prescription.created_at, prescription.id)}
           </h3>
           {status === "delivery-status" && (
             <div className="text-sm">
               <span className="text-blue-gray mr-1">By</span>
               <Link className="text-primary-blue font-semibold" href="">
-                Ahmed Mohamed (Client)
+                {prescription.patient.name} (Client)
               </Link>
               <div className="text-muted-gray mt-1">
-                10 Mar 2025, 07:03 PM (live: 5min ago)
+                {formatPrescriptionDate(prescription.created_at)} (live: {getTimeAgo(prescription.created_at)})
               </div>
             </div>
           )}
@@ -54,14 +91,23 @@ function PrescriptionCard({ className, status = "request" }: PrescriptionCardPro
       {status === "request" && (
         <div className="flex items-start justify-between">
           <div className="flex gap-3">
-            <Image
-              src="/images/prescriptions/image-prescription.svg"
-              alt="prescription"
-              width={40}
-              height={40}
-            />
+            {prescription.file_path ? (
+              <Image
+                src="/images/prescriptions/image-prescription.svg"
+                alt="prescription"
+                width={40}
+                height={40}
+              />
+            ) : (
+              <Image
+                src="/images/prescriptions/text-prescription.svg"
+                alt="prescription"
+                width={40}
+                height={40}
+              />
+            )}
             <p className="text-blue-gray font-medium text-sm">
-              Prescription Request 01
+              {getPrescriptionName(prescription.created_at, prescription.id)}
             </p>
           </div>
           <div className="flex gap-2">
@@ -72,7 +118,7 @@ function PrescriptionCard({ className, status = "request" }: PrescriptionCardPro
               width={24}
               height={24}
               onClick={() => {
-                router.push(`/dashboard/prescription/requests/prescription-request-01`);
+                router.push(`/dashboard/prescriptions/requests/${prescription.id}`);
               }}
             />
           </div>
@@ -82,10 +128,10 @@ function PrescriptionCard({ className, status = "request" }: PrescriptionCardPro
         <div className="text-sm">
           <span className="text-blue-gray mr-1">By</span>
           <Link className="text-primary-blue font-semibold" href="">
-            Ahmed Mohamed (Client)
+            {prescription.patient.name} (Client)
           </Link>
           <div className="text-muted-gray mt-1">
-            10 Mar 2025, 07:03 PM (live: 5min ago)
+            {formatPrescriptionDate(prescription.created_at)} (live: {getTimeAgo(prescription.created_at)})
           </div>
           {status === "approved" && (
             <CustomButton
@@ -115,14 +161,15 @@ function PrescriptionCard({ className, status = "request" }: PrescriptionCardPro
           )}
           {status === "offer" && (
             <div className="my-4">
-              <h3 className="text-blue-gray font-semibold text-lg">Location: Location 1</h3>
               <div className="flex gap-4 mt-4">
                 <div className="flex-1">
                   <p className="text-blue-gray mb-2">Price in L.E</p>
                   <input 
                     className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md" 
                     type="number"
-                    placeholder="0.00 L.E" 
+                    placeholder="0.00 L.E"
+                    value={price}
+                    onChange={(e) => setPrice && setPrice(e.target.value)}
                   />
                 </div>
                 <div className="flex-1">
@@ -130,15 +177,27 @@ function PrescriptionCard({ className, status = "request" }: PrescriptionCardPro
                   <input 
                     className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md" 
                     type="number"
-                    placeholder="ex. 20% or 10L.E" 
+                    placeholder="ex. 20% or 10L.E"
+                    value={discount}
+                    onChange={(e) => setDiscount && setDiscount(e.target.value)}
                   />
                 </div>
               </div>
+              {error && (
+                <p className="text-red-500 text-sm mt-2">{error}</p>
+              )}
               <div className="flex gap-4 mt-4">
-                <CustomButton className="w-2/3 h-[40px]">
-                  Send Offers
+                <CustomButton 
+                  className="w-2/3 h-[40px]"
+                  onClick={handleSendOffer}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending..." : "Send Offers"}
                 </CustomButton>
-                <CustomButton className="flex-1 bg-gray-100 text-red-500 hover:bg-gray-200 py-3 rounded-md">
+                <CustomButton 
+                  className="flex-1 bg-gray-100 text-red-500 hover:bg-gray-200 py-3 rounded-md"
+                  onClick={() => router.back()}
+                >
                   Cancel
                 </CustomButton>
               </div>

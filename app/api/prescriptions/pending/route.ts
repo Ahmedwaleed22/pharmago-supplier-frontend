@@ -2,12 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ categoryId: string }> }
+  request: NextRequest, 
 ) {
-  try {
-    const { categoryId } = await params;
-    
+  try {    
     // Get cookies from the request
     const cookieHeader = request.headers.get('cookie') || '';
     
@@ -21,7 +18,7 @@ export async function GET(
     
     // Forward the request to the actual API with the auth token
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/categories/main/${categoryId}/subcategories`, 
+      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/prescriptions/pending`, 
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -35,14 +32,12 @@ export async function GET(
     // Return the API response
     return NextResponse.json(response.data);
   } catch (error: any) {
-    const { categoryId } = await params;
-
-    console.error(`Subcategories API route error for category ${categoryId}:`, error);
+    console.error(`Pending prescriptions API route error:`, error);
     
     // Return appropriate error response
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch subcategories' },
+      { error: error.message || 'Failed to fetch pending prescriptions' },
       { status: error.response?.status || 500 }
     );
   }
-} 
+}

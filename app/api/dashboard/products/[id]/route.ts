@@ -3,10 +3,10 @@ import axios from 'axios';
 
 export async function GET(
   request: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const productId = params.id;
+    const { id: productId } = await params;
     
     // Get cookies from the request
     const cookieHeader = request.headers.get('cookie') || '';
@@ -35,7 +35,8 @@ export async function GET(
     // Return the API response
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error('Product API route error:', error);
+    const { id } = await params;
+    console.error(`Product API route error for id ${id}:`, error);
     
     // Return appropriate error response
     return NextResponse.json(
@@ -47,12 +48,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const data = await params;
-
-    const productId = data.id;
+    const { id: productId } = await params;
     
     // Get cookies from the request
     const cookieHeader = request.headers.get('cookie') || '';
@@ -88,7 +87,8 @@ export async function PUT(
     // Return the API response
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error('Product update API route error:', error);
+    const { id } = await params;
+    console.error(`Product update API route error for id ${id}:`, error);
     
     // Return appropriate error response
     return NextResponse.json(

@@ -153,10 +153,10 @@ export async function POST(request: NextRequest) {
             });
           } else if (value && typeof value === 'object' && 'name' in value && 'type' in value && 'data' in value) {
             // This is a file object
-            const buffer = Buffer.from(value.data);
+            const buffer = Buffer.from(value.data as string);
             serverFormData.append(key, buffer, {
-              filename: value.name,
-              contentType: value.type
+              filename: value.name as string,
+              contentType: value.type as string
             });
           } else {
             serverFormData.append(key, value);

@@ -31,25 +31,25 @@ export default function DashboardRootLayout({
   }
 
   const nonDashboardLayoutPages = [
-    "/dashboard/product/add",
-    "/dashboard/product/add/step-2",
-    "/dashboard/product/add/step-3",
-    "/dashboard/product/add/step-4",
-    "/dashboard/prescription/requests",
-    "/dashboard/prescription/approved",
-    "/dashboard/prescription/order-history",
+    "/dashboard/products/add",
+    "/dashboard/products/add/step-2",
+    "/dashboard/products/add/step-3",
+    "/dashboard/products/add/step-4",
+    "/dashboard/prescriptions/requests",
+    "/dashboard/prescriptions/approved",
+    "/dashboard/prescriptions/order-history",
     "/dashboard/delivery/live-tracking",
     "/dashboard/delivery/history",
   ];
 
   const shouldExcludeFromDashboard =
     nonDashboardLayoutPages.includes(pathname) ||
-    (pathname.startsWith("/dashboard/prescription/requests/") &&
-      pathname !== "/dashboard/prescription/requests/") ||
+    (pathname.startsWith("/dashboard/prescriptions/requests/") &&
+      pathname !== "/dashboard/prescriptions/requests/") ||
     (pathname.startsWith("/dashboard/delivery/live-tracking/") &&
       pathname !== "/dashboard/delivery/live-tracking/") ||
-    (pathname.startsWith("/dashboard/product/edit/") &&
-      pathname !== "/dashboard/product/edit/");
+    (pathname.startsWith("/dashboard/products/edit/") &&
+      pathname !== "/dashboard/products/edit/");
 
   if (shouldExcludeFromDashboard) {
     return <Provider store={store}>{children}</Provider>;

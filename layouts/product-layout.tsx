@@ -28,19 +28,19 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
   const steps = [
     {
       label: "General Information",
-      href: `/dashboard/product${basePathSegment}`,
+      href: `/dashboard/products${basePathSegment}`,
     },
     {
       label: "Product Details",
-      href: `/dashboard/product${basePathSegment}/step-2`,
+      href: `/dashboard/products${basePathSegment}/step-2`,
     },
     {
       label: "Product Image",
-      href: `/dashboard/product${basePathSegment}/step-3`,
+      href: `/dashboard/products${basePathSegment}/step-3`,
     },
     {
       label: "Summary",
-      href: `/dashboard/product${basePathSegment}/step-4`,
+      href: `/dashboard/products${basePathSegment}/step-4`,
     },
   ];
 

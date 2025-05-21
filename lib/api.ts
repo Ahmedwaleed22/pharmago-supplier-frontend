@@ -257,15 +257,7 @@ export async function fetchAuthenticatedUser(): Promise<any> {
 
 // Create a new medicine product
 export async function createMedicine(formData: FormData): Promise<any> {
-  try {
-    // Create form data for multipart/form-data request
-    // Log the FormData content for debugging
-    console.log("FormData content before sending:");
-    for (let pair of (formData as any).entries()) {
-      console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
-    }
-    
-    // Add X-Target-URL as a query parameter since it might be getting lost in the proxy
+  try {    
     const response = await axios.post(
       '/api/proxy',
       {
@@ -291,4 +283,3 @@ export async function createMedicine(formData: FormData): Promise<any> {
     throw error;
   }
 }
-

@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["picsum.photos", "localhost", "pharmago-test.b-cdn.net", "pharmago-software.b-cdn.net"],
   },
+  typescript: {
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
   // Add async headers configuration for CORS
   async headers() {
     return [

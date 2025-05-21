@@ -61,7 +61,7 @@ function ProductPreview({ className }: ProductPreviewProps) {
   // Determine the path for the image editing page based on the current route
   const getImageEditPath = () => {
     // Default to the add flow
-    let path = "/dashboard/product/add/step-3";
+    let path = "/dashboard/products/add/step-3";
     
     // Try to detect if we're in the edit flow by checking the URL
     if (typeof window !== 'undefined') {
@@ -70,7 +70,7 @@ function ProductPreview({ className }: ProductPreviewProps) {
         // Extract the product ID from the URL
         const matches = currentPath.match(/\/product\/edit\/([^/]+)/);
         if (matches && matches[1]) {
-          path = `/dashboard/product/edit/${matches[1]}/step-3`;
+          path = `/dashboard/products/edit/${matches[1]}/step-3`;
         }
       }
     }
