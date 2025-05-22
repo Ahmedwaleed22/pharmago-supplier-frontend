@@ -5,6 +5,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import QueryClientProvider from "@/components/providers/QueryClientProvider";
 import ReduxProvider from "@/components/providers/ReduxProvider";
+import PusherProvider from "@/components/providers/PusherProvider";
+import { PusherAutoInitializer } from "@/components/providers/PusherAutoInitializer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,7 +29,12 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
       >
         <QueryClientProvider>
-          <ReduxProvider>{children}</ReduxProvider>
+          <ReduxProvider>
+            <PusherProvider>
+              <PusherAutoInitializer />
+              {children}
+            </PusherProvider>
+          </ReduxProvider>
         </QueryClientProvider>
       </body>
     </html>

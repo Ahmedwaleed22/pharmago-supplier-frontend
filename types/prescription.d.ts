@@ -9,5 +9,6 @@ declare module Prescription {
     file_path: string | null;
     prescription_text: string | null;
     created_at: string;
+    status: string;
   }
 }

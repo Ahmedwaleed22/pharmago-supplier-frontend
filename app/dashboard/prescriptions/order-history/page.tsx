@@ -2,12 +2,19 @@
 
 import PrescriptionCard from "@/components/prescription-card";
 import DashboardWithBreadcrumbsLayout from "@/layouts/dashboard-with-breadcrumbs-layout";
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CustomButton from "@/components/custom-button";
 import {Icon} from "@iconify/react";
 import OrderHistory from "@/components/ui/dashboard/order-history";
+import { fetchAllPrescriptions } from "@/services/prescriptions";
+import { useQuery } from "@tanstack/react-query";
 
 function OrderHistoryPage() {
+  const { data: orders, isLoading, isError } = useQuery({
+    queryKey: ["orders"],
+    queryFn: () => fetchAllPrescriptions(),
+  });
+
   return (
     <DashboardWithBreadcrumbsLayout
       breadcrumbs={[
@@ -19,13 +26,14 @@ function OrderHistoryPage() {
     >
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-blue-gray">Orders History</h1>
-        <CustomButton className="bg-white text-blue-gray hover:bg-[#f8f8f8]">
-          <Icon className="mr-1" icon="lucide:cloud-download" width="24" height="24"/>
-          Download CSV
-        </CustomButton>
       </div>
       <div className="mt-6">
-        <OrderHistory noTitle={true} />
+        {orders && (
+          <OrderHistory 
+            noTitle={true} 
+            orders={orders}
+          />
+        )}
       </div>
     </DashboardWithBreadcrumbsLayout>
   );

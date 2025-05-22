@@ -18,7 +18,7 @@ export async function GET(
     
     // Forward the request to the actual API with the auth token
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/prescriptions/pending`, 
+      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/prescriptions/pending-or-offered`, 
       {
         headers: {
           'Authorization': `Bearer ${token}`,

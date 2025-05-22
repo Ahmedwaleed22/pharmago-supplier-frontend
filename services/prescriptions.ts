@@ -47,12 +47,12 @@ export async function sendPrescriptionOffer(
   return response.data;
 }
 
-export async function fetchAllPrescriptions(): Promise<Prescription.Prescription> {
+export async function fetchAllPrescriptions(): Promise<Prescription.Prescription[]> {
   const response = await axios.get(`/api/prescriptions`);
 
   if (response.status !== 200) {
     throw new Error('Failed to fetch prescription offers');
   }
 
-  return response.data.data as Prescription.Prescription;
+  return response.data.data as Prescription.Prescription[];
 }

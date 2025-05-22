@@ -13,7 +13,7 @@ import {
   Pagination,
   Selection,
 } from "@heroui/react";
-
+import { formatPrescriptionDate } from "@/helpers/prescriptions";
 type Column = {
   name: string;
   uid: string;
@@ -83,10 +83,11 @@ const statusColorMap: Record<string, StatusColor> = {
 const INITIAL_VISIBLE_COLUMNS = ["id", "name", "request", "status", "date"];
 
 interface OrderHistoryTableProps {
-  orders: Dashboard.OrderHistoryItem[];
+  orders: Prescription.Prescription[] | Dashboard.OrderHistoryItem[];
+  onSelectionChange?: (selectedIds: string[]) => void;
 }
 
-export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
+export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHistoryTableProps) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([])
@@ -118,7 +119,7 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 
     if (hasSearchFilter) {
       filteredOrders = filteredOrders.filter((order) =>
-        order.user.name.toLowerCase().includes(filterValue.toLowerCase())
+        (order as Prescription.Prescription).patient.name.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
     if (
@@ -126,7 +127,7 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
       Array.from(statusFilter as Set<string>).length !== Object.keys(statusColorMap).length
     ) {
       filteredOrders = filteredOrders.filter((order) =>
-        Array.from(statusFilter as Set<string>).includes(order.status)
+        Array.from(statusFilter as Set<string>).includes((order as Prescription.Prescription).prescription_text || "")
       );
     }
 
@@ -143,7 +144,7 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: Dashboard.OrderHistoryItem, b: Dashboard.OrderHistoryItem) => {
+    return [...items].sort((a: Prescription.Prescription | Dashboard.OrderHistoryItem, b: Prescription.Prescription | Dashboard.OrderHistoryItem) => {
       const first = a.id;
       const second = b.id;
       
@@ -152,7 +153,7 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((order: Dashboard.OrderHistoryItem, columnKey: string) => {
+  const renderCell = React.useCallback((order: Prescription.Prescription | Dashboard.OrderHistoryItem, columnKey: string) => {
     switch (columnKey) {
       case "id":
         return (
@@ -163,24 +164,26 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
       case "name":
         return (
           <User
-            avatarProps={{ radius: "lg", src: order.user.avatar || undefined }}
-            description={order.user.type}
-            name={order.user.name}
+            // avatarProps={{ radius: "lg", src: order.patient.avatar || undefined }}
+            description={(order as Prescription.Prescription).patient.name || ""}
+            name={(order as Prescription.Prescription).patient.name || ""}
           >
-            {order.user.type}
+            {(order as Prescription.Prescription).patient.name || ""}
           </User>
         );
       case "request":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{order.request}</p>
+            <p className="text-bold text-small capitalize">
+              {order && typeof order === 'object' && 'prescription_text' in order ? "Prescription / Rx" : (order as Dashboard.OrderHistoryItem).request || "N/A"}
+            </p>
           </div>
         );
       case "status":
         return (
           <Chip
             className="capitalize"
-            color={statusColorMap[order.status] || "default"}
+            color={"default"}
             size="sm"
             variant="flat"
           >
@@ -190,7 +193,7 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
       case "date":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small">{order.start_date}</p>
+            <p className="text-bold text-small">{formatPrescriptionDate((order as Prescription.Prescription).created_at, false)}</p>
           </div>
         );
       default:
@@ -252,6 +255,21 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
     );
   }, [page, pages]);
 
+  // Handle selection changes
+  const handleSelectionChange = (keys: Selection) => {
+    setSelectedKeys(keys);
+    
+    // If onSelectionChange callback is provided, pass selected IDs
+    if (onSelectionChange) {
+      const selectedIds = Array.from(keys)
+        .filter((key): key is string => typeof key === 'string')
+        .map((key) => key);
+      
+      console.log("Selected IDs:", selectedIds);
+      onSelectionChange(selectedIds);
+    }
+  };
+
   return (
     <Table
       aria-label="Order History Table"
@@ -261,6 +279,9 @@ export default function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
       classNames={{
         wrapper: "max-h-[382px]",
       }}
+      selectionMode="multiple"
+      selectedKeys={selectedKeys}
+      onSelectionChange={handleSelectionChange}
       topContent={topContent}
       topContentPlacement="outside"
     >

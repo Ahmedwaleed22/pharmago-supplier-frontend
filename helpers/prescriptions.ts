@@ -12,16 +12,16 @@ export function getPrescriptionName(createdDate: string, uuid: string) {
   return `PR-${year}${month}${day}-${uuidPart}`; // Format: PR-YYYYMMDD-UUID
 }
 
-export function formatPrescriptionDate(createdDate: string) {
+export function formatPrescriptionDate(createdDate: string, showTime: boolean = true) {
   if (!createdDate) return "";
 
   const date = new Date(createdDate);
   const day = date.getDate();
   const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();
-  const time = date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+  const time = showTime ? date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) : "";
 
-  return `${day} ${month} ${year}, ${time}`;
+  return `${day} ${month} ${year} ${time}`;
 }
 
 export function getTimeAgo(createdDate: string) {
@@ -48,4 +48,8 @@ export function getXmlValue(str: string, key: string) {
     str.lastIndexOf('<' + key + '>') + ('<' + key + '>').length,
     str.lastIndexOf('</' + key + '>')
   );
+}
+
+export function formatStatus(status: string) {
+  return status.replace(/_/g, " ");
 }

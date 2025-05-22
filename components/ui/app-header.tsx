@@ -16,8 +16,8 @@ function AppHeader() {
     <>
       <header className="w-full flex justify-between items-center">
         {/* Mobile menu button - only visible on small screens */}
-        <button 
-          className="lg:hidden mr-2" 
+        <button
+          className="lg:hidden mr-2"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           <Menu className="w-6 h-6" />
@@ -29,21 +29,23 @@ function AppHeader() {
         {/* Right side content */}
         <div className="flex justify-between items-center gap-2 sm:gap-5 ml-auto">
           <div className="relative">
-            <div className="relative cursor-pointer">
+            <div
+              className="relative cursor-pointer"
+              onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
+            >
               <Image
                 src="/images/notification.svg"
                 alt="notification"
                 width={22}
                 height={22}
-                onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
               />
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
                 2
               </div>
             </div>
             <NotificationMenu
-              isOpen={isNotificationMenuOpen} 
-              onClose={() => setIsNotificationMenuOpen(false)} 
+              isOpen={isNotificationMenuOpen}
+              onClose={() => setIsNotificationMenuOpen(false)}
             />
           </div>
           <div className="flex items-center gap-2">
@@ -57,8 +59,12 @@ function AppHeader() {
               />
             )}
             <div className="flex flex-col sm:flex">
-              <h2 className="text-sm font-medium text-blue-gray">{pharmacy?.name}</h2>
-              <h3 className="text-xs font-medium text-[#717171]">Pharmacy Admin</h3>
+              <h2 className="text-sm font-medium text-blue-gray">
+                {pharmacy?.name}
+              </h2>
+              <h3 className="text-xs font-medium text-[#717171]">
+                Pharmacy Admin
+              </h3>
             </div>
           </div>
         </div>
