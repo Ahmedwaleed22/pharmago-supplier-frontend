@@ -8,8 +8,10 @@ import { isAuthenticated } from "@/lib/api";
 import { useTranslation } from "@/contexts/i18n-context";
 import LanguageSwitcher from "@/components/language-switcher";
 import { rememberMeUtils } from "@/lib/remember-me";
+import { useRouter } from "next/navigation";
 
 function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +25,7 @@ function LoginPage() {
   useEffect(() => {
     // If user is already authenticated, redirect to dashboard
     if (isAuthenticated()) {
-      window.location.href = window.location.origin + "/dashboard";
-      return;
+      router.push("/dashboard");
     }
 
     // Load stored credentials if they exist
@@ -42,7 +43,7 @@ function LoginPage() {
       }
     }
     setIsFormReady(true);
-  }, []);
+  }, [router]);
 
   // Handle remember me toggle
   const handleRememberMeChange = (checked: boolean) => {
