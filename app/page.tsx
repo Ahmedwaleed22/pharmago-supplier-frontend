@@ -4,29 +4,102 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/api";
+import { useTranslation } from "@/contexts/i18n-context";
+import LanguageSwitcher from "@/components/language-switcher";
+import { rememberMeUtils } from "@/lib/remember-me";
 
 function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isFormReady, setIsFormReady] = useState(false);
   
   const { login, isLoading, error } = useAuth();
+  const { t, isRtl } = useTranslation();
 
+  // Load stored credentials on component mount
   useEffect(() => {
     // If user is already authenticated, redirect to dashboard
     if (isAuthenticated()) {
-      router.push("/dashboard");
+      window.location.href = window.location.origin + "/dashboard";
+      return;
     }
-  }, [router]);
+
+    // Load stored credentials if they exist
+    const storedCredentials = rememberMeUtils.getStoredCredentials();
+    if (storedCredentials) {
+      setEmail(storedCredentials.email || "");
+      setPassword(storedCredentials.password || "");
+      setRememberMe(true); // Only set to true if credentials were actually stored
+    } else {
+      // If no full credentials, try to load just the email (but don't auto-check remember me)
+      const storedEmail = rememberMeUtils.getStoredEmail();
+      if (storedEmail) {
+        setEmail(storedEmail);
+        // Don't automatically set rememberMe to true for just email
+      }
+    }
+    setIsFormReady(true);
+  }, []);
+
+  // Handle remember me toggle
+  const handleRememberMeChange = (checked: boolean) => {
+    setRememberMe(checked);
+    
+    // If unchecked, clear stored credentials
+    if (!checked) {
+      rememberMeUtils.clearStoredCredentials();
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Store credentials if remember me is checked
+    if (rememberMe) {
+      rememberMeUtils.storeCredentials(email, password);
+    } else {
+      // Clear credentials if remember me is unchecked
+      rememberMeUtils.clearStoredCredentials();
+    }
+    
     login.mutate({ email, password, remember: rememberMe });
   };
+
+  // Clear specific credential when user starts typing new values
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    
+    // If user changes email and remember me is on, update stored credentials
+    if (rememberMe && rememberMeUtils.hasStoredCredentials()) {
+      rememberMeUtils.updateStoredCredentials(newEmail, password);
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    
+    // If user changes password and remember me is on, update stored credentials
+    if (rememberMe && rememberMeUtils.hasStoredCredentials()) {
+      rememberMeUtils.updateStoredCredentials(email, newPassword);
+    }
+  };
+
+  // Show loading state while checking for stored credentials
+  if (!isFormReady) {
+    return (
+      <div className="flex h-screen w-full bg-[#F4F4F4] items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-blue mx-auto"></div>
+          <p className="mt-2 text-sm text-gray-600">{t('common.loading')}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-full bg-[#F4F4F4]">
@@ -42,14 +115,19 @@ function LoginPage() {
           <div className="absolute inset-0 bg-gradient-to-tr from-black/75 to-transparent"></div>
         </div>
         
-        <div className="absolute top-8 left-8 flex flex-col items-center">
+        <div className={`absolute top-8 ${isRtl ? 'right-8' : 'left-8'} flex flex-col items-center`}>
           <div className="flex items-center gap-2">
             <Image src="/images/logo.svg" alt="PharmaGo Logo" width={24} height={24} />
             <div className="flex flex-col">
-              <h1 className="text-white font-semibold text-base leading-6">PharmaGo</h1>
-              <p className="text-white font-medium text-[10px] leading-4 tracking-tight">Bringing Pharmacy to Your Door</p>
+              <h1 className="text-white font-semibold text-base leading-6">{t('brand.name')}</h1>
+              <p className="text-white font-medium text-[10px] leading-4 tracking-tight">{t('brand.tagline')}</p>
             </div>
           </div>
+        </div>
+        
+        {/* Language Switcher */}
+        <div className={`absolute top-8 ${isRtl ? 'left-8' : 'right-8'}`}>
+          <LanguageSwitcher />
         </div>
         
         <Image 
@@ -64,25 +142,25 @@ function LoginPage() {
       <div className="flex flex-col justify-center items-center flex-1 p-4">
         <div className="w-full max-w-[384px] bg-white rounded-2xl shadow-md p-6 lg:p-8">
           <div className="mb-8">
-            <h1 className="text-[30px] font-semibold text-[#414651] leading-tight">Log In</h1>
+            <h1 className="text-[30px] font-semibold text-[#414651] leading-tight">{t('auth.login')}</h1>
           </div>
           
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-              {error instanceof Error ? error.message : "Login failed. Please try again."}
+              {error}
             </div>
           )}
           
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col">
-              <label htmlFor="email" className="text-sm text-[#414651] mb-3 px-0.5">Email</label>
+              <label htmlFor="email" className="text-sm text-[#414651] mb-3 px-0.5">{t('auth.email')}</label>
               <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
                 <input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('auth.enterEmail')}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
                   required
                 />
@@ -90,14 +168,14 @@ function LoginPage() {
             </div>
             
             <div className="flex flex-col">
-              <label htmlFor="password" className="text-sm text-[#414651] mb-3 px-0.5">Password</label>
+              <label htmlFor="password" className="text-sm text-[#414651] mb-3 px-0.5">{t('auth.password')}</label>
               <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder={t('auth.enterPassword')}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
                   required
                 />
@@ -108,7 +186,7 @@ function LoginPage() {
                 >
                   <Image 
                     src={`/images/eye-icon${showPassword ? '2' : '1'}.svg`} 
-                    alt={showPassword ? "Hide password" : "Show password"} 
+                    alt={showPassword ? t('auth.hidePassword') : t('auth.showPassword')} 
                     width={20} 
                     height={20} 
                   />
@@ -122,35 +200,35 @@ function LoginPage() {
                   className={`h-5 w-5 rounded-md border-2 flex items-center justify-center mr-2 cursor-pointer ${
                     rememberMe ? 'bg-primary-blue border-primary-blue' : 'border-primary-blue'
                   }`}
-                  onClick={() => setRememberMe(!rememberMe)}
+                  onClick={() => handleRememberMeChange(!rememberMe)}
                 >
                   {rememberMe && (
                     <Image src="/images/tick.svg" alt="Checked" width={14} height={14} />
                   )}
                 </div>
-                <label htmlFor="remember-me" className="text-sm text-[#414651] cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
-                  Remember me
+                <label htmlFor="remember-me" className="text-sm text-[#414651] cursor-pointer" onClick={() => handleRememberMeChange(!rememberMe)}>
+                  {t('auth.rememberMe')}
                 </label>
               </div>
               
               <button type="button" className="text-sm text-[#71717A] font-medium">
-                Forgot password?
+                {t('auth.forgotPassword')}
               </button>
             </div>
             
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary-blue text-white py-3 rounded-xl mt-4 text-sm font-medium disabled:opacity-70"
+              className={`w-full bg-primary-blue text-white py-3 rounded-xl mt-4 text-sm font-medium disabled:opacity-70 cursor-pointer ${isLoading ? 'opacity-70 cursor-not-allowed' : 'isLoading'}`}
             >
-              {isLoading ? "Logging in..." : "Log In"}
+              {isLoading ? t('auth.loggingIn') : t('auth.login')}
             </button>
           </form>
           
           <div className="mt-10 flex justify-center gap-1 text-sm">
-            <span className="text-[#414651]">Need to create an account?</span>
+            <span className="text-[#414651]">{t('auth.needAccount')}</span>
             <Link href="/signup" className="text-primary-blue">
-              Sign Up
+              {t('auth.signUp')}
             </Link>
           </div>
         </div>

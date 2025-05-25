@@ -3,8 +3,10 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query';
 import createDashboardAnalyticsQueryOptions from '@/query-options/dashboard-analytics-query-options';
 import {formatPrice} from "@/helpers/products";
+import { useTranslation } from '@/contexts/i18n-context';
 
 function QuickAnalyticsData() {
+  const { t } = useTranslation();
   const { data: analytics } = useQuery<Dashboard.Analytics>(createDashboardAnalyticsQueryOptions());
 
   const data = [
@@ -14,19 +16,19 @@ function QuickAnalyticsData() {
     },
     {
       icon: "ri:shopping-cart-line",
-      value: analytics?.cards.orders.count.toString() + " New Orders",
+      value: `${analytics?.cards.orders.count.toString()} ${t('dashboard.newOrders')}`,
     },
     {
       icon: "mdi:cube-outline",
-      value: `${analytics?.medicine_count?.toString()} Product${analytics?.medicine_count && analytics?.medicine_count > 1 ? "s" : ""}`
+      value: `${analytics?.medicine_count?.toString()} ${analytics?.medicine_count && analytics?.medicine_count > 1 ? t('dashboard.products') : t('dashboard.product')}`
     },
     {
       icon: "solar:buildings-outline",
-      value: `${analytics?.pharmacy.branches_count} Branch${analytics?.pharmacy.branches_count && analytics?.pharmacy.branches_count > 1 ? "s" : ""}`
+      value: `${analytics?.pharmacy.branches_count} ${analytics?.pharmacy.branches_count && analytics?.pharmacy.branches_count > 1 ? t('dashboard.branches') : t('dashboard.branch')}`
     },
     {
       icon: "solar:users-group-rounded-linear",
-      value: analytics?.new_clients_count.toString() + " New Clients"
+      value: `${analytics?.new_clients_count.toString()} ${t('dashboard.newClients')}`
     }
   ];
   

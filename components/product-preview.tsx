@@ -9,6 +9,7 @@ import { createMainCategoriesQueryOptions } from "@/query-options/categories-que
 import { useQuery } from "@tanstack/react-query";
 import { createSubCategoriesQueryOptions } from "@/query-options/categories-query-options";
 import Image from "next/image";
+import { useTranslation } from "@/contexts/i18n-context";
 
 interface ProductPreviewProps {
   className?: string;
@@ -19,6 +20,7 @@ function ProductPreview({ className }: ProductPreviewProps) {
   const currency = useSelector(getCurrency);
   const pharmacy = useSelector(getPharmacy);
   const router = useRouter();
+  const { t, isRtl } = useTranslation();
 
   const {
     data: categories = [],
@@ -35,12 +37,12 @@ function ProductPreview({ className }: ProductPreviewProps) {
 
   const getCategoryName = (categoryId: string) => {
     const category = categories.find((cat: any) => cat.id === categoryId);
-    return category ? category.name : "Main Category";
+    return category ? category.name : t('products.mainCategory');
   };
 
   const getSubCategoryName = (subCategoryId: string) => {
     const subCategory = subCategories.find((subCat: any) => subCat.id === subCategoryId);
-    return subCategory ? subCategory.name : "Sub-Category";
+    return subCategory ? subCategory.name : t('products.subCategory');
   };
 
   const getPrimaryImageUrl = () => {
@@ -80,9 +82,9 @@ function ProductPreview({ className }: ProductPreviewProps) {
 
   return (
     <div className={cn("w-1/2 max-w-[407px]", className)}>
-      <h2 className="mb-2 text-xl font-semibold text-[#414651]">Preview</h2>
+      <h2 className="mb-2 text-xl font-semibold text-[#414651]">{t('products.preview')}</h2>
       <p className="mb-6 text-[#717171]">
-        This is how your product will appear.
+        {t('products.thisIsHowProductWillAppear')}
       </p>
 
       <div className="rounded-lg bg-white p-6 max-w-[407px] shadow-sm">
@@ -98,7 +100,7 @@ function ProductPreview({ className }: ProductPreviewProps) {
             <div style={{ width: '100%', height: '100%', minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img 
                 src={imageUrl} 
-                alt={productData.name || "Product"}
+                alt={productData.name || t('products.productName')}
                 style={{
                   maxHeight: '100%',
                   maxWidth: '100%',
@@ -114,7 +116,7 @@ function ProductPreview({ className }: ProductPreviewProps) {
                 </div>
               </div>
               <div className="text-sm text-[#717171]">
-                Product Image
+                {t('products.productImage')}
                 <br />
                 800×800
               </div>
@@ -122,11 +124,11 @@ function ProductPreview({ className }: ProductPreviewProps) {
           )}
         </div>
 
-        <div className="mb-2 flex items-center">
+        <div className={`mb-2 flex items-center ${isRtl ? 'flex-row-reverse' : ''}`}>
           <div className="text-sm text-[#717171]">
-            {getCategoryName(productData.category) || "Main Category"} · {getSubCategoryName(productData.subCategory) || "Sub-Category"}
+            {getCategoryName(productData.category)} · {getSubCategoryName(productData.subCategory)}
           </div>
-          <div className="ml-auto flex items-center">
+          <div className={`flex items-center ml-auto`}>
             {pharmacy?.logo && (
               <Image className="h-8 w-auto" src={pharmacy?.logo} alt={pharmacy?.name || ""} width={100} height={32} />
             )}
@@ -134,22 +136,22 @@ function ProductPreview({ className }: ProductPreviewProps) {
         </div>
 
         <div className="mb-1 text-lg font-medium text-[#414651]">
-          {productData.name || "Product Name will show here"}
+          {productData.name || t('products.productName')}
         </div>
         <div className="mb-4 text-sm text-[#717171]">
-          {productData.subName || "Sub-Name will show here"}
+          {productData.subName || t('products.subName')}
         </div>
 
-        <div className="mb-4 flex items-baseline">
+        <div className={`mb-4 flex items-baseline ${isRtl ? 'flex-row-reverse' : ''}`}>
           <div className="text-2xl font-bold text-[#2970ff]">
             {productData.price ? `${formatPrice(productData.price - (productData.price * productData.discount / 100), currency)}` : `${formatPrice(0, currency)}`}
           </div>
           {productData.discount > 0 && (
             <>
-              <div className="ml-2 text-sm text-[#a0a0a0]">
+              <div className={`text-sm text-[#a0a0a0] ${isRtl ? 'mr-2' : 'ml-2'}`}>
                 {productData.price ? `${formatPrice(productData.price || 0, currency)}` : `${formatPrice(0.00, currency)}`}
               </div>
-              <div className="ml-2 rounded bg-[#f4f4f5] px-2 py-0.5 text-xs text-[#717171]">
+              <div className={`rounded bg-[#f4f4f5] px-2 py-0.5 text-xs text-[#717171] ${isRtl ? 'mr-2' : 'ml-2'}`}>
                 -{productData.discount}%
               </div>
             </>
@@ -158,10 +160,10 @@ function ProductPreview({ className }: ProductPreviewProps) {
 
         <div>
           <div className="mb-1 text-sm font-medium text-[#414651]">
-            Product Details
+            {t('products.productDetails')}
           </div>
           <div className="text-sm text-[#717171]">
-            {productData.productDetails || "Your Description will show here"}
+            {productData.productDetails || t('products.yourDescription')}
           </div>
           {productData.tag && productData.tagColor && (
             <div className="mt-2 flex flex-wrap gap-1">

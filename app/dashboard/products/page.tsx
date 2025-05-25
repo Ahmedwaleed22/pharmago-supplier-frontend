@@ -9,8 +9,10 @@ import SearchBar from "@/components/ui/search-bar";
 import ProductsGrid from "@/components/ui/products-grid";
 import { getDashboardProducts } from "@/services/dashboard";
 import { useInView } from "react-intersection-observer";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductPage() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
@@ -197,21 +199,21 @@ function ProductPage() {
     <div className="py-8 text-blue-gray">
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Product", href: "/dashboard/products" },
+          { label: t('breadcrumbs.dashboard'), href: "/dashboard" },
+          { label: t('breadcrumbs.products'), href: "/dashboard/products" },
         ]}
       />
       <div className="flex justify-between items-center mt-1">
-        <h1 className="text-2xl font-bold">Product</h1>
+        <h1 className="text-2xl font-bold">{t('navigation.products')}</h1>
         <CustomButton href="/dashboard/products/add">
           <PlusIcon className="w-4 h-4" />
-          Add Product
+          {t('products.addProduct')}
         </CustomButton>
       </div>
       <div className="mt-4">
         <SearchBar
           className="w-full max-w-full mt-10"
-          placeholder="Search product"
+          placeholder={t('products.searchProduct')}
           value={searchTerm}
           setValue={handleSearch}
         />
@@ -220,17 +222,17 @@ function ProductPage() {
         </div>
         <div className="mt-10 font-semibold text-gray">
           {isInitialLoading ? (
-            <div className="text-center py-10">Loading products...</div>
+            <div className="text-center py-10">{t('common.loading')}</div>
           ) : (
             <>
-              <h3>Result of search</h3>
+              <h3>{t('products.resultOfSearch')}</h3>
               <div className="mt-3">
                 {isFilterLoading ? (
-                  <div className="text-center py-10">Filtering products...</div>
+                  <div className="text-center py-10">{t('common.loading')}</div>
                 ) : products.length > 0 ? (
                   <ProductsGrid products={products} />
                 ) : (
-                  <div className="text-center py-10">No products found</div>
+                  <div className="text-center py-10">{t('common.noData')}</div>
                 )}
                 
                 {/* Load More button */}
@@ -241,7 +243,7 @@ function ProductPage() {
                       disabled={isLoadingMore}
                       className="px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 disabled:opacity-50"
                     >
-                      {isLoadingMore ? 'Loading...' : 'Load More Products'}
+                      {isLoadingMore ? t('common.loading') : t('ui.showMore')}
                     </button>
                   </div>
                 )}
@@ -253,7 +255,7 @@ function ProductPage() {
                     className="h-20 w-full mt-2 flex items-center justify-center"
                   >
                     {isLoadingMore && (
-                      <div className="text-center py-4">Loading more products...</div>
+                      <div className="text-center py-4">{t('common.loading')}</div>
                     )}
                   </div>
                 )}

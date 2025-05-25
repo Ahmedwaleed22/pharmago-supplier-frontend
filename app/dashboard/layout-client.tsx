@@ -40,6 +40,8 @@ export default function DashboardRootLayout({
     "/dashboard/prescriptions/order-history",
     "/dashboard/delivery/live-tracking",
     "/dashboard/delivery/history",
+    "/dashboard/advertisements",
+    "/dashboard/advertisements/add",
   ];
 
   const shouldExcludeFromDashboard =

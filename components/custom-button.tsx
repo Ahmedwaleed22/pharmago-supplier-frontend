@@ -12,16 +12,18 @@ interface CustomButtonProps {
   className?: string;
   onClick?: () => void;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
-function CustomButton({ href, children, className, onClick, disabled }: CustomButtonProps) {
+function CustomButton({ href, children, className, onClick, disabled, type }: CustomButtonProps) {
   const router = useRouter();
 
   return (
     <Button 
-      onClick={onClick || (() => router.push(href as string))} 
+      onClick={onClick ? onClick : href ? () => router?.push(href as string) : undefined} 
       className={cn("gap-1 cursor-pointer", className)}
       disabled={disabled}
+      type={type}
     >
       {children}
     </Button>

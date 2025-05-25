@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { niceBytes } from "@/helpers/upload";
+import { useTranslation } from "@/contexts/i18n-context";
 
 interface ImageFile {
   file: File;
@@ -27,6 +28,7 @@ interface ImageUploadProps {
   onSetPrimaryImage?: (index: number) => void;
   existingImages?: ExistingImage[];
   className?: string;
+  isOnlyOneImage?: boolean;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -35,20 +37,24 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   onSetPrimaryImage,
   existingImages = [],
   className,
+  isOnlyOneImage = false,
 }) => {
+  const { t } = useTranslation();
+
   // Track uploaded images locally
   const [images, setImages] = useState<ImageFile[]>([]);
   // Flag to track if files are already processed to prevent double processing
   const processingRef = useRef<boolean>(false);
-  
+
   // Initialize or update images when existingImages changes
   useEffect(() => {
     // Processing existing images from props
     if (existingImages.length === 0) {
       // If there are no existing images, clear the local state
       if (images.length > 0) {
-        images.forEach(img => { // Revoke any local blob URLs
-          if (img.url.startsWith('blob:')) {
+        images.forEach((img) => {
+          // Revoke any local blob URLs
+          if (img.url.startsWith("blob:")) {
             URL.revokeObjectURL(img.url);
           }
         });
@@ -58,23 +64,25 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
 
     // Map existingImages to the ImageFile format
-    const potentialImages = existingImages.map(img => ({
+    const potentialImages = existingImages.map((img) => ({
       url: img.url,
       name: img.name,
       size: img.size, // Assumed bytes
       isPrimary: img.isPrimary || false,
       id: img.id || img.url,
-      file: new File([], img.name || img.url.split("/").pop() || "image.jpg", { type: img.type || "image/jpeg" }),
+      file: new File([], img.name || img.url.split("/").pop() || "image.jpg", {
+        type: img.type || "image/jpeg",
+      }),
     }));
 
     // Deduplicate based on the derived 'id'
-    const uniqueByIdImages = potentialImages.filter((image, index, self) =>
-      index === self.findIndex((t) => t.id === image.id)
+    const uniqueByIdImages = potentialImages.filter(
+      (image, index, self) => index === self.findIndex((t) => t.id === image.id)
     );
 
     // Ensure only one image is primary
     let primarySelected = false;
-    const finalImagesToSet = uniqueByIdImages.map(img => {
+    const finalImagesToSet = uniqueByIdImages.map((img) => {
       if (img.isPrimary) {
         if (primarySelected) {
           return { ...img, isPrimary: false };
@@ -89,13 +97,21 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       finalImagesToSet[0].isPrimary = true;
     }
 
-    const newImagesKey = finalImagesToSet.map(img => `${img.id}:${img.isPrimary}:${img.url}`).sort().join(',');
-    const currentImagesKeyForCompare = images.map(img => `${img.id}:${img.isPrimary}:${img.url}`).sort().join(',');
+    const newImagesKey = finalImagesToSet
+      .map((img) => `${img.id}:${img.isPrimary}:${img.url}`)
+      .sort()
+      .join(",");
+    const currentImagesKeyForCompare = images
+      .map((img) => `${img.id}:${img.isPrimary}:${img.url}`)
+      .sort()
+      .join(",");
 
     if (newImagesKey !== currentImagesKeyForCompare) {
-      images.forEach(currentImg => {
-        if (currentImg.url.startsWith('blob:')) {
-          const stillExistsInNew = finalImagesToSet.some(newImg => newImg.url === currentImg.url);
+      images.forEach((currentImg) => {
+        if (currentImg.url.startsWith("blob:")) {
+          const stillExistsInNew = finalImagesToSet.some(
+            (newImg) => newImg.url === currentImg.url
+          );
           if (!stillExistsInNew) {
             URL.revokeObjectURL(currentImg.url);
           }
@@ -104,28 +120,30 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       setImages(finalImagesToSet);
     }
   }, [existingImages]); // Depend only on existingImages
-  
+
   // Upload progress simulation
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadingFile, setUploadingFile] = useState<string | null>(null);
-  const [uploadingFileSize, setUploadingFileSize] = useState<number | null>(null);
-  
+  const [uploadingFileSize, setUploadingFileSize] = useState<number | null>(
+    null
+  );
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle file upload from input
   const handleFileUpload = (files: FileList | File[]) => {
     if (!files.length) return;
-    
+
     const filesArray = Array.from(files);
-    
+
     // Reset processing flag
     processingRef.current = false;
-    
+
     // Start upload simulation
     setUploadProgress(0);
     setUploadingFile(filesArray[0].name);
     setUploadingFileSize(filesArray[0].size);
-    
+
     // Store the timeout reference to clean it up later
     const intervalRef = setInterval(() => {
       setUploadProgress((prev) => {
@@ -134,17 +152,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         } else if (prev !== null && prev >= 100 && !processingRef.current) {
           // Clear the interval
           clearInterval(intervalRef);
-          
+
           // Set flag to prevent double processing
           processingRef.current = true;
-          
+
           // Process files immediately rather than in setTimeout
           processUploadedFiles(filesArray);
-          
+
           // Reset upload state
           setUploadingFile(null);
           setUploadingFileSize(null);
-          
+
           return null;
         } else {
           // If we've already processed or progress is null, just return current value
@@ -153,22 +171,24 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       });
     }, 100);
   };
-  
+
   // Process files after upload
-  const processUploadedFiles = (files: File[]) => {    
+  const processUploadedFiles = (files: File[]) => {
     // Create new image objects
     const newImageObjects: ImageFile[] = files.map((file) => ({
       file,
       url: URL.createObjectURL(file),
       name: file.name,
       size: file.size, // Store raw size in bytes
-      isPrimary: false, 
-      id: `${Date.now()}-${file.name}-${Math.random().toString(36).substr(2, 9)}`,
+      isPrimary: false,
+      id: `${Date.now()}-${file.name}-${Math.random()
+        .toString(36)
+        .substr(2, 9)}`,
     }));
-        
-    setImages(prevImages => {
+
+    setImages((prevImages) => {
       // Make all existing images not primary if new images are being added.
-      const updatedOldImages = prevImages.map(img => ({
+      const updatedOldImages = prevImages.map((img) => ({
         ...img,
         isPrimary: newImageObjects.length > 0 ? false : img.isPrimary,
       }));
@@ -180,37 +200,42 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
       // Revoke blob URLs from previous images that are blobs and are not part of newImageObjects (though newImageObjects are all new blobs)
       // This step is more about cleaning up any previous blob state that might not be covered by the useEffect if existingImages prop itself changes.
-      updatedOldImages.forEach(img => {
-        if (img.url.startsWith('blob:') && !newImageObjects.find(n => n.id === img.id)) {
-           // Check if this old blob is truly gone or just had its primariness changed
-           // If we are just appending, old blobs from existing images should remain untouched unless they are replaced by an ID.
-           // The current logic is to append, so existing non-blob URLs are fine. Existing blob URLs are from previous uploads.
-           // If an existing image was a blob URL (from a previous upload in this session not yet saved to backend), it should be preserved.
-           // The main revocation of old blobs from `prevImages` happens if they are being fully replaced or removed.
-           // Here, we are concatenating.
+      updatedOldImages.forEach((img) => {
+        if (
+          img.url.startsWith("blob:") &&
+          !newImageObjects.find((n) => n.id === img.id)
+        ) {
+          // Check if this old blob is truly gone or just had its primariness changed
+          // If we are just appending, old blobs from existing images should remain untouched unless they are replaced by an ID.
+          // The current logic is to append, so existing non-blob URLs are fine. Existing blob URLs are from previous uploads.
+          // If an existing image was a blob URL (from a previous upload in this session not yet saved to backend), it should be preserved.
+          // The main revocation of old blobs from `prevImages` happens if they are being fully replaced or removed.
+          // Here, we are concatenating.
         }
       });
-      
+
       const allImages = [...updatedOldImages, ...newImageObjects];
-      
+
       // Ensure at least one image is primary if there are any images
-      if (allImages.length > 0 && !allImages.some(img => img.isPrimary)) {
+      if (allImages.length > 0 && !allImages.some((img) => img.isPrimary)) {
         allImages[0].isPrimary = true;
       }
-  
+
       // Deduplicate, preferring newer items in case of ID collision (though IDs for new uploads should be unique)
-      const uniqueImages = allImages.reverse().filter((image, index, self) =>
-          index === self.findIndex((t) => (
-              t.id === image.id
-          ))
-      ).reverse();
+      const uniqueImages = allImages
+        .reverse()
+        .filter(
+          (image, index, self) =>
+            index === self.findIndex((t) => t.id === image.id)
+        )
+        .reverse();
 
       return uniqueImages;
     });
-    
+
     // Notify parent of new files
     onImagesChange(files); // Pass only the new File objects
-    
+
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -243,38 +268,38 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleDelete = (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     const imageToDelete = images[index];
 
     // Call parent's delete handler if provided
     if (onDeleteImage) {
       onDeleteImage(index); // Parent needs to map this index to its data or use ID if available
     }
-    
+
     // Update local state
     const newImages = images.filter((_, i) => i !== index);
-    
+
     // Revoke the blob URL to prevent memory leaks if it was a blob
     if (imageToDelete.url.startsWith("blob:")) {
       URL.revokeObjectURL(imageToDelete.url);
     }
-        
+
     // Update primary image if the deleted one was primary
     if (newImages.length > 0 && imageToDelete.isPrimary) {
       newImages[0].isPrimary = true;
     } else if (newImages.length === 0) {
       // All images deleted, nothing to be primary
     }
-    
+
     setImages(newImages);
-    
+
     // Update parent if no onDeleteImage was provided (by sending the remaining files)
     // This part is tricky if onImagesChange is meant for *new* files.
     // If onDeleteImage is not provided, managing deletions accurately via onImagesChange with File objects is hard
     // for images that originated from `existingImages`.
     // For simplicity, we assume if onDeleteImage is not there, onImagesChange might refresh the whole list based on files.
     if (!onDeleteImage) {
-      const remainingFiles = newImages.map(img => img.file);
+      const remainingFiles = newImages.map((img) => img.file);
       onImagesChange(remainingFiles);
     }
   };
@@ -283,14 +308,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const setPrimaryImage = (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     // Update local state
     const newImages = images.map((img, i) => ({
       ...img,
       isPrimary: i === index,
     }));
     setImages(newImages);
-    
+
     // Call parent handler if provided
     if (onSetPrimaryImage) {
       onSetPrimaryImage(index);
@@ -300,37 +325,66 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Upload Area */}
-      <div
-        className="border border-dashed border-[#E9EAEB] rounded-xl p-6 flex flex-col items-center justify-center bg-white cursor-pointer"
-        onClick={() => fileInputRef.current?.click()}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        <div className="w-10 h-10 rounded-full bg-[#F4F4F5] flex items-center justify-center mb-3 border border-[#E9EAEB]">
-          <Image
-            src="/images/upload-icon.svg"
-            alt="Upload"
-            width={24}
-            height={24}
+      {(isOnlyOneImage && !existingImages.length) || !isOnlyOneImage ? (
+        <div
+          className="border border-dashed border-[#E9EAEB] rounded-xl p-6 flex flex-col items-center justify-center bg-white cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+        >
+          <div className="w-10 h-10 rounded-full bg-[#F4F4F5] flex items-center justify-center mb-3 border border-[#E9EAEB]">
+            <Image
+              src="/images/upload-icon.svg"
+              alt="Upload"
+              width={24}
+              height={24}
+            />
+          </div>
+          <div className="text-center">
+            <span className="text-[#2970ff] font-semibold">
+              {t("ui.clickToUpload")}
+            </span>
+            <span className="text-[#535862]"> {t("ui.orDragAndDrop")}</span>
+          </div>
+          <p className="text-xs text-[#535862] mt-1">
+            {t("ui.uploadFileFormat")}
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/png, image/jpeg"
+            onChange={handleFileChange}
+            className="hidden"
           />
         </div>
-        <div className="text-center">
-          <span className="text-[#2970ff] font-semibold">Click to upload</span>
-          <span className="text-[#535862]"> or drag and drop</span>
-        </div>
-        <p className="text-xs text-[#535862] mt-1">
-          PNG and JPG (max. 800×800px) up to 5MB.
-        </p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/png, image/jpeg"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-      </div>
-      
+      ) : (
+        isOnlyOneImage &&
+        existingImages.length && (
+          <div className="flex items-center p-4 bg-white border border-[#E9EAEB] rounded-xl shadow-sm w-full relative">
+            <Image
+              src={existingImages[0].url}
+              alt="Upload"
+              width={350}
+              height={150}
+              objectFit="contain"
+            />
+            <div
+              className="absolute bottom-5 right-5 bg-white hover:bg-gray-100 transition-colors duration-300 rounded-md p-2 cursor-pointer"
+              onClick={(e) => handleDelete(0, e)}
+            >
+              <Image
+                src="/images/trash-icon.svg"
+                alt="Delete"
+                width={15}
+                height={15}
+                objectFit="contain"
+              />
+            </div>
+          </div>
+        )
+      )}
+
       {/* Upload Progress */}
       {uploadProgress !== null && uploadingFile && (
         <div className="flex items-center p-4 bg-white border border-[#E9EAEB] rounded-xl shadow-sm w-full">
@@ -372,7 +426,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       )}
 
       {/* Image List */}
-      {images.length > 0 && (
+      {images.length > 0 && !isOnlyOneImage && (
         <div className="space-y-2">
           {images.map((image, index) => (
             <div
@@ -409,11 +463,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                           width={12}
                           height={12}
                         />
-                        <span className="text-xs text-[#2970FF]">Primary</span>
+                        <span className="text-xs text-[#2970FF]">
+                          {t("ui.primary")}
+                        </span>
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-[#535862]">{niceBytes(image.size)}</p>
+                  <p className="text-xs text-[#535862]">
+                    {niceBytes(image.size)}
+                  </p>
                 </div>
               </div>
 

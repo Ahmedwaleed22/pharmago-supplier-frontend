@@ -4,6 +4,7 @@ import OrderHistoryTable from './order-history-table';
 import { Icon } from "@iconify/react";
 import CustomButton from '@/components/custom-button';
 import { exportOrdersToCsv } from '@/helpers/export';
+import { useTranslation } from '@/contexts/i18n-context';
 
 interface OrderHistoryProps {
   className?: string;
@@ -13,6 +14,8 @@ interface OrderHistoryProps {
 }
 
 function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps) {
+  const { t } = useTranslation();
+  
   // State to store selected order IDs
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   // State for custom dropdown
@@ -106,7 +109,7 @@ function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps)
       <div className="flex flex-col gap-5 p-6">
         <div className="flex justify-between items-center">
           {!noTitle && (
-            <h3 className="text-[#414651] font-bold text-lg">Order History</h3>
+            <h3 className="text-[#414651] font-bold text-lg">{t('orderHistory.title')}</h3>
           )}
           
           <div className="relative ml-auto" ref={dropdownRef}>
@@ -115,7 +118,7 @@ function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps)
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <Icon className="mr-1" icon="lucide:cloud-download" width="24" height="24"/>
-              Download CSV
+              {t('common.download')}
             </CustomButton>
             
             {isDropdownOpen && (
@@ -126,7 +129,7 @@ function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps)
                     role="menuitem"
                     onClick={() => handleExport(false)}
                   >
-                    Export All Data
+                    {t('common.exportAll')}
                   </button>
                   <button
                     className={`w-full text-left px-4 py-3 text-sm rounded-br-md rounded-bl-md transition-all duration-100 ${selectedOrderIds.length === 0 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100 cursor-pointer'}`}
@@ -134,7 +137,7 @@ function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps)
                     onClick={() => selectedOrderIds.length > 0 && handleExport(true)}
                     disabled={selectedOrderIds.length === 0}
                   >
-                    Export Selected Data
+                    {t('common.exportSelected')}
                   </button>
                 </div>
               </div>

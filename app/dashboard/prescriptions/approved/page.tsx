@@ -6,9 +6,11 @@ import DashboardWithBreadcrumbsLayout from "@/layouts/dashboard-with-breadcrumbs
 import { useQuery } from "@tanstack/react-query";
 import { fetchApprovedPrescriptions } from "@/services/prescriptions";
 import Loading from "@/components/loading";
-
+import { useTranslation } from "@/contexts/i18n-context";
 
 function PrescriptionRequestsPage() {
+  const { t } = useTranslation();
+  
   const { data: prescriptions, isLoading } = useQuery({
     queryKey: ["approved-prescriptions"],
     queryFn: () => fetchApprovedPrescriptions(),
@@ -16,17 +18,19 @@ function PrescriptionRequestsPage() {
     structuralSharing: false
   });
 
+  const breadcrumbs = [
+    { label: t('breadcrumbs.dashboard'), href: "/dashboard" },
+    { label: t('breadcrumbs.prescription'), href: null },
+    { label: t('breadcrumbs.approved'), href: "/dashboard/prescriptions/approved" },
+  ];
+
   return (
     <DashboardWithBreadcrumbsLayout
-      breadcrumbs={[
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "Prescription", href: null },
-        { label: "Approved", href: "/dashboard/prescriptions/approved" },
-      ]}
-      title="Prescription"
+      breadcrumbs={breadcrumbs}
+      title={t('prescriptions.title')}
     >
       <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-bold text-blue-gray">Approved</h1>
+        <h1 className="text-2xl font-bold text-blue-gray">{t('prescriptions.approved')}</h1>
         {prescriptions && prescriptions.length > 0 && (
           <span className="text-sm bg-[#FF6363] font-bold h-[calc(var(--spacing)_*_5.5)] w-[calc(var(--spacing)_*_5.5)] rounded-full flex items-center justify-center text-white">
             {prescriptions.length}

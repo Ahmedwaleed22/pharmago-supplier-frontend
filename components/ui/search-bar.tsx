@@ -3,6 +3,7 @@
 import { Search, X } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/contexts/i18n-context";
 
 interface SearchBarProps {
   className?: string;
@@ -19,6 +20,8 @@ function SearchBar({
   value,
   setValue,
 }: SearchBarProps) {
+  const { isRtl } = useI18n();
+  
   const handleClear = () => {
     setValue("");
   };
@@ -29,19 +32,26 @@ function SearchBar({
         "bg-white w-full max-w-[264px] h-[40px] rounded-md lg:flex items-center gap-2 px-3 hidden shadow-sm relative",
         className
       )}
+      dir={isRtl ? "rtl" : "ltr"}
     >
       <Search className={cn("w-5 h-5", logoClassName)} />
       <input
         type="text"
         placeholder={placeholder}
-        className="w-full h-full outline-none"
+        className={cn(
+          "w-full h-full outline-none text-left",
+        )}
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        dir={isRtl ? "rtl" : "ltr"}
       />
       {value && value.length > 0 && (
         <div 
           onClick={handleClear}
-          className="absolute right-3 border-2 border-red-500 text-red-500 hover:border-red-600 hover:text-red-600 transition-all duration-300 rounded-full cursor-pointer"
+          className={cn(
+            "absolute border-2 border-red-500 text-red-500 hover:border-red-600 hover:text-red-600 transition-all duration-300 rounded-full cursor-pointer",
+            isRtl ? "left-3" : "right-3"
+          )}
         >
           <X className="w-4 h-4 font-light" />
         </div>

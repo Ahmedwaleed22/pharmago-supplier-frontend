@@ -1,4 +1,4 @@
-import {getDashboardAnalytics, getMainCategories, getSubCategories} from "@/services/dashboard";
+import { getMainCategories, getSubCategories } from "@/services/dashboard";
 
 import { queryOptions } from "@tanstack/react-query";
 

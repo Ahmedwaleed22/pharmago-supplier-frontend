@@ -11,8 +11,10 @@ import {
   setPrimaryImage
 } from "@/store/ProductCreationSlice";
 import ImageUpload from "@/components/image-upload";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductEditStep3Page({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch();
   const productData = useSelector((state: any) => state.productCreation);
@@ -55,10 +57,10 @@ function ProductEditStep3Page({ params }: { params: Promise<{ id: string }> }) {
     <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
-          Edit Product Image
+          {t('products.productImageStep')}
         </h1>
         <p className="mb-8 text-[#717171]">
-          Update your product images
+          {t('products.boostSalesWithDetails')}
         </p>
 
         <div className="space-y-6">
@@ -74,7 +76,7 @@ function ProductEditStep3Page({ params }: { params: Promise<{ id: string }> }) {
             className="w-full rounded-lg bg-[#2970ff] py-3 text-center font-semibold text-white hover:bg-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={productData.images.length === 0}
           >
-            Next
+            {t('common.next')}
           </button>
         </div>
       </div>

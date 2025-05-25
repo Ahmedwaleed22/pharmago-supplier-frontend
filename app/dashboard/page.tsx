@@ -8,6 +8,7 @@ import GrowthVolume from "@/components/ui/dashboard/growth-volume";
 import OrderHistory from "@/components/ui/dashboard/order-history";
 import { getDashboardAnalytics } from "@/services/dashboard";
 import createDashboardAnalyticsQueryOptions from "@/query-options/dashboard-analytics-query-options";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function Page() {
   const { 
@@ -16,50 +17,52 @@ function Page() {
     isError,
     error
   } = useQuery<Dashboard.Analytics>(createDashboardAnalyticsQueryOptions());
+  
+  const { t } = useTranslation();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   if (isError) {
-    return <div>Error loading dashboard data: {(error as Error).message}</div>;
+    return <div>{t('dashboard.errorLoadingData')}: {(error as Error).message}</div>;
   }
 
   if (!analytics) {
-    return <div>No data available</div>;
+    return <div>{t('common.noData')}</div>;
   }
 
   const statistics = [
     {
-      title: "Orders",
+      title: t('dashboard.orders'),
       value: analytics.cards.orders.count.toString(),
       icon: "/images/dashboard/order.svg",
       growth: analytics.cards.orders.trend,
       trend_direction: analytics.cards.orders.trend_direction
     },
     {
-      title: "Prescriptions",
+      title: t('dashboard.prescriptions'),
       value: analytics.cards.prescriptions.count.toString(),
       icon: "/images/dashboard/order.svg",
       growth: analytics.cards.prescriptions.trend,
       trend_direction: analytics.cards.prescriptions.trend_direction
     },
     {
-      title: "Sales",
+      title: t('dashboard.sales'),
       value: analytics.cards.sales.count.toString(),
       icon: "/images/dashboard/sales.svg",
       growth: analytics.cards.sales.trend,
       trend_direction: analytics.cards.sales.trend_direction
     },
     {
-      title: "Delivery",
+      title: t('dashboard.delivery'),
       value: analytics.cards.deliveries.count.toString(),
       icon: "/images/dashboard/delivery.svg",
       growth: analytics.cards.deliveries.trend,
       trend_direction: analytics.cards.deliveries.trend_direction
     },
     {
-      title: "Visits",
+      title: t('dashboard.visits'),
       value: analytics.cards.visits.count.toString(),
       icon: "/images/dashboard/visits.svg",
       growth: analytics.cards.visits.trend,

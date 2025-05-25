@@ -41,13 +41,8 @@ export default function PusherProvider({
   const setUserId = (newUserId: string | number) => {
     console.log('PusherProvider: Setting user ID:', newUserId);
     
-    // Store in localStorage and cookies for persistence across pages
-    try {
-      localStorage.setItem('user_id', newUserId.toString());
-      Cookies.set('user_id', newUserId.toString(), { path: '/' });
-    } catch (err) {
-      console.error('Error saving user ID:', err);
-    }
+    // Store in cookies for persistence across pages
+    Cookies.set('user_id', newUserId.toString(), { path: '/' });
     
     setPusherUserId(newUserId);
     setUserIdState(newUserId);
@@ -88,7 +83,7 @@ export default function PusherProvider({
   
   // Get the user ID from cookies when the component mounts
   useEffect(() => {
-    console.log('PusherProvider: Checking for user ID in cookies/localStorage');
+    console.log('PusherProvider: Checking for user ID in cookies');
     
     // Don't run if we already have a user ID
     if (userId) {
@@ -104,20 +99,8 @@ export default function PusherProvider({
       return;
     }
     
-    // If not in cookies, try localStorage as fallback
-    try {
-      const userIdFromLocalStorage = localStorage.getItem('user_id');
-      if (userIdFromLocalStorage) {
-        console.log('PusherProvider: Found user ID in localStorage:', userIdFromLocalStorage);
-        setUserId(userIdFromLocalStorage);
-        return;
-      }
-    } catch (err) {
-      console.error('PusherProvider: Error accessing localStorage:', err);
-    }
-    
-    console.log('PusherProvider: No user ID found in cookies or localStorage');
-  }, [userId]);
+    console.log('PusherProvider: No user ID found in cookies');
+  }, []); // Removed userId from dependencies to prevent infinite loop
   
   // Subscribe to channel when userId changes and Pusher is initialized
   useEffect(() => {

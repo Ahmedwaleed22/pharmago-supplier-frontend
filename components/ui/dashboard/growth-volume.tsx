@@ -5,6 +5,7 @@ import DashboardCard from "./dashboard-card";
 import GrowthRate from "./growth-rate";
 import GrowthVolumeGraph from "./growth-volume-graph";
 import {formatPrice} from "@/helpers/products";
+import { useTranslation } from "@/contexts/i18n-context";
 
 interface GrowthVolumeProps {
   className?: {
@@ -15,6 +16,7 @@ interface GrowthVolumeProps {
 }
 
 function GrowthVolume({ className, data, currency }: GrowthVolumeProps) {
+  const { t } = useTranslation();
   const [activePoint, setActivePoint] = useState<{date: string; revenue: number} | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
@@ -30,7 +32,7 @@ function GrowthVolume({ className, data, currency }: GrowthVolumeProps) {
       <div className="flex flex-col gap-5 p-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <h3 className="text-[#414651] font-bold text-lg">Gross volume</h3>
+            <h3 className="text-[#414651] font-bold text-lg">{t('dashboard.growthVolume')}</h3>
             <GrowthRate
               growth={data.growth}
               className="!text-[#F5A524] !bg-[#F5A524]/20 font-semibold text-2xl !px-3 !py-[.35em] !rounded-xl"

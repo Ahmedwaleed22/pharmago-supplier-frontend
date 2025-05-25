@@ -12,9 +12,10 @@ interface DashboardWithBreadcrumbsLayoutProps {
     href: string | null;
   }[];
   title: string;
+  action?: React.ReactNode;
 }
 
-function DashboardWithBreadcrumbsLayout({ children, breadcrumbs, title }: DashboardWithBreadcrumbsLayoutProps) {
+function DashboardWithBreadcrumbsLayout({ children, breadcrumbs, title, action }: DashboardWithBreadcrumbsLayoutProps) {
   return (
     <DashboardLayout>
       <div className="mt-7">
@@ -29,7 +30,10 @@ function DashboardWithBreadcrumbsLayout({ children, breadcrumbs, title }: Dashbo
             </BreadcrumbItem>
           ))}
         </Breadcrumbs>
-        <h1 className="text-2xl font-semibold text-blue-gray mt-3">{title}</h1>
+        <div className="flex justify-between items-center mt-3">
+          <h1 className="text-2xl font-semibold text-blue-gray mt-3">{title}</h1>
+          {action}
+        </div>
       </div>
       <div className="flex-1 py-6">
         {children}

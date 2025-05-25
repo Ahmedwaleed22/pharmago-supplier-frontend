@@ -9,6 +9,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { cn } from "@/lib/utils";
 import { getPrescriptionName, formatPrescriptionDate, getTimeAgo } from "@/helpers/prescriptions";
 import { sendPrescriptionOffer } from "@/services/prescriptions";
+import { useTranslation } from "@/contexts/i18n-context";
 
 type PrescriptionCardStatus = "request" | "approved" | "tracking" | "offer" | "delivery-status";
 
@@ -32,24 +33,29 @@ function PrescriptionCard({
   setDiscount
 }: PrescriptionCardProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   const handleSendOffer = async () => {
     if (!price) {
-      setError("Please enter a price");
+      setError(t('forms.required'));
       return;
     }
-    
+
+    setIsSubmitting(true);
+    setError("");
+
     try {
-      setIsSubmitting(true);
-      setError(null);
       await sendPrescriptionOffer(prescription.id, price, discount);
-      alert("Offer sent successfully");
-      router.push("/dashboard/prescriptions/requests");
-    } catch (error) {
-      console.error("Error sending offer:", error);
-      setError("Failed to send offer. Please try again.");
+      
+      // Success - could show a success message or redirect
+      console.log(t('prescriptions.offerSent'));
+      
+      // Optionally redirect back
+      router.back();
+    } catch (err: any) {
+      setError(err.message || t('prescriptions.failedToSend'));
     } finally {
       setIsSubmitting(false);
     }
@@ -77,12 +83,12 @@ function PrescriptionCard({
           </h3>
           {status === "delivery-status" && (
             <div className="text-sm">
-              <span className="text-blue-gray mr-1">By</span>
+              <span className="text-blue-gray mr-1">{t('prescriptions.by')}</span>
               <Link className="text-primary-blue font-semibold" href="">
-                {prescription.patient.name} (Client)
+                {prescription.patient.name} ({t('prescriptions.client')})
               </Link>
               <div className="text-muted-gray mt-1">
-                {formatPrescriptionDate(prescription.created_at)} (live: {getTimeAgo(prescription.created_at)})
+                {formatPrescriptionDate(prescription.created_at)} ({t('prescriptions.live')}: {getTimeAgo(prescription.created_at)})
               </div>
             </div>
           )}
@@ -126,12 +132,12 @@ function PrescriptionCard({
       )}
       {status !== "delivery-status" && (
         <div className="text-sm">
-          <span className="text-blue-gray mr-1">By</span>
+          <span className="text-blue-gray mr-1">{t('prescriptions.by')}</span>
           <Link className="text-primary-blue font-semibold" href="">
-            {prescription.patient.name} (Client)
+            {prescription.patient.name} ({t('prescriptions.client')})
           </Link>
           <div className="text-muted-gray mt-1">
-            {formatPrescriptionDate(prescription.created_at)} (live: {getTimeAgo(prescription.created_at)})
+            {formatPrescriptionDate(prescription.created_at)} ({t('prescriptions.live')}: {getTimeAgo(prescription.created_at)})
           </div>
           {status === "approved" && (
             <CustomButton
@@ -146,7 +152,7 @@ function PrescriptionCard({
                 width={20}
                 height={20}
               />
-              Request to delivery
+              {t('prescriptions.requestToDelivery')}
             </CustomButton>
           )}
           {status === "tracking" && (
@@ -156,28 +162,28 @@ function PrescriptionCard({
                 router.push(`/dashboard/delivery/live-tracking/prescription-request-01`);
               }}
             >
-              View Status
+              {t('prescriptions.viewStatus')}
             </CustomButton>
           )}
           {status === "offer" && (
             <div className="my-4">
               <div className="flex gap-4 mt-4">
                 <div className="flex-1">
-                  <p className="text-blue-gray mb-2">Price in L.E</p>
+                  <p className="text-blue-gray mb-2">{t('products.priceInLE')}</p>
                   <input 
                     className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md" 
                     type="number"
-                    placeholder="0.00 L.E"
+                    placeholder={t('forms.pricePlaceholder')}
                     value={price}
                     onChange={(e) => setPrice && setPrice(e.target.value)}
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="text-blue-gray mb-2">Discount</p>
+                  <p className="text-blue-gray mb-2">{t('prescriptions.discount')}</p>
                   <input 
                     className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md" 
                     type="number"
-                    placeholder="ex. 20% or 10L.E"
+                    placeholder={t('forms.discountPlaceholder')}
                     value={discount}
                     onChange={(e) => setDiscount && setDiscount(e.target.value)}
                   />
@@ -192,13 +198,13 @@ function PrescriptionCard({
                   onClick={handleSendOffer}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Sending..." : "Send Offers"}
+                  {isSubmitting ? t('common.sending') : t('prescriptions.sendOffers')}
                 </CustomButton>
                 <CustomButton 
                   className="flex-1 bg-gray-100 text-red-500 hover:bg-gray-200 py-3 rounded-md"
                   onClick={() => router.back()}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </CustomButton>
               </div>
             </div>

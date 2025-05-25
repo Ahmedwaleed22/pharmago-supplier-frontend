@@ -58,4 +58,28 @@ declare module Dashboard {
     id: string;
     name: string;
   }
+
+  export interface Notification {
+    id: string;
+    user_id: string;
+    title: string;
+    logo: string | null;
+    short_description: string;
+    description: string;
+    link: string;
+    type: string;
+    category: string;
+    is_read: boolean;
+    created_at: string;
+    updated_at: string;
+  }
+
+  export interface NotificationResponse {
+    data: Notification[];
+    meta: {
+      unread_count: number;
+      total?: number;
+      has_more?: boolean;
+    };
+  }
 }

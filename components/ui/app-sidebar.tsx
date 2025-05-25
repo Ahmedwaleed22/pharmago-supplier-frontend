@@ -40,84 +40,105 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import React from "react";
 import LogoutButton from "@/components/logout-button";
-
-// Menu items.
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Product",
-    url: "/dashboard/products",
-    icon: Package,
-    subItems: [
-      {
-        title: "Add Product",
-        url: "/dashboard/products/add",
-        icon: CirclePlus,
-      },
-      {
-        title: "Product List",
-        url: "/dashboard/products",
-        icon: Package,
-      },
-    ],
-  },
-  {
-    title: "Sales",
-    url: "/dashboard/sales",
-    icon: Search,
-  },
-  {
-    title: "Prescription",
-    url: "/dashboard/prescriptions",
-    icon: ScanSearch,
-    subItems: [
-      {
-        title: "Approved",
-        url: "/dashboard/prescriptions/approved",
-        icon: CircleCheck,
-      },
-      {
-        title: "Prescription Requests",
-        url: "/dashboard/prescriptions/requests",
-        icon: NotepadText,
-      },
-      {
-        title: "RFQs Requests",
-        url: "/dashboard/prescriptions/rfqs",
-        icon: NotepadText,
-      },
-      {
-        title: "Order History",
-        url: "/dashboard/prescriptions/order-history",
-        icon: Clock,
-      }
-    ],
-  },
-  {
-    title: "Delivery",
-    url: "/dashboard/delivery",
-    icon: Truck,
-    subItems: [
-      {
-        title: "Live Tracking",
-        url: "/dashboard/delivery/live-tracking",
-        icon: Map,
-      },
-      {
-        title: "Delivery History",
-        url: "/dashboard/delivery/history",
-        icon: Clock,
-      },
-    ],
-  },
-];
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useTranslation } from "@/contexts/i18n-context";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { t } = useTranslation();
+
+  // Menu items with translation keys
+  const items = [
+    {
+      title: t('navigation.dashboard'),
+      url: "/dashboard",
+      icon: "solar:home-2-linear",
+    },
+    {
+      title: t('navigation.products'),
+      url: "/dashboard/products",
+      icon: "ph:squares-four-light",
+      subItems: [
+        {
+          title: t('products.addProduct'),
+          url: "/dashboard/products/add",
+          icon: "hugeicons:add-square",
+        },
+        {
+          title: t('products.productList'),
+          url: "/dashboard/products",
+          icon: "ph:squares-four-light",
+        },
+      ],
+    },
+    {
+      title: t('navigation.sales'),
+      url: "/dashboard/sales",
+      icon: "lets-icons:paper-light",
+    },
+    {
+      title: t('navigation.prescriptions'),
+      url: "/dashboard/prescriptions",
+      icon: "solar:scanner-outline",
+      subItems: [
+        {
+          title: t('prescriptions.approved'),
+          url: "/dashboard/prescriptions/approved",
+          icon: "solar:check-circle-linear",
+        },
+        {
+          title: t('breadcrumbs.prescriptionRequests'),
+          url: "/dashboard/prescriptions/requests",
+          icon: "fontisto:prescription",
+        },
+        {
+          title: t('navigation.rfqsRequests'),
+          url: "/dashboard/prescriptions/rfqs",
+          icon: "fontisto:prescription",
+        },
+        {
+          title: t('breadcrumbs.ordersHistory'),
+          url: "/dashboard/prescriptions/order-history",
+          icon: "solar:clock-circle-linear",
+        }
+      ],
+    },
+    {
+      title: t('navigation.delivery'),
+      url: "/dashboard/delivery",
+      icon: "material-symbols:delivery-truck-speed-outline",
+      subItems: [
+        {
+          title: t('breadcrumbs.liveTracking'),
+          url: "/dashboard/delivery/live-tracking",
+          icon: "ph:gps-light",
+        },
+        {
+          title: t('navigation.deliveryHistory'),
+          url: "/dashboard/delivery/history",
+          icon: "solar:clock-circle-linear",
+        },
+      ],
+    },
+    {
+      title: t('navigation.advertisement'),
+      url: "/dashboard/advertisements",
+      icon: "solar:gallery-bold",
+      subItems: [
+        {
+          title: t('advertisements.addAdvertisement'),
+          url: "/dashboard/advertisements/add",
+          icon: "hugeicons:add-square",
+        },
+        {
+          title: t('navigation.advertisementList'),
+          url: "/dashboard/advertisements",
+          icon: "ph:squares-four-light",
+        },
+      ],
+    },
+  ];
+
   const [openItems, setOpenItems] = React.useState<Record<string, boolean>>(() => {
     // Initialize with open state for items whose URL is in the pathname
     const initialState: Record<string, boolean> = {};
@@ -151,7 +172,7 @@ export function AppSidebar() {
           </Link>
         </SidebarHeader>
         <SidebarGroup>
-          <SidebarGroupLabel>Overview</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('navigation.overview')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) =>
@@ -165,7 +186,7 @@ export function AppSidebar() {
                     <SidebarMenuItem className="px-1 py-2">
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton className={cn("px-3 py-[calc(var(--spacing)_*_5.7)] rounded-xl cursor-pointer")}>
-                          <item.icon className="!w-5 !h-5 !font-normal" />
+                          <Icon icon={item.icon} className="!w-5 !h-5 !font-normal" />
                           <span>{item.title}</span>
                           {openItems[item.title] ? (
                             <ChevronUp className="ml-auto" />
@@ -182,7 +203,7 @@ export function AppSidebar() {
                                 href={subItem.url}
                                 className="px-2 py-3 rounded-xl flex gap-2"
                               >
-                                <subItem.icon className="!w-5 !h-5 !font-normal" />
+                                <Icon icon={subItem.icon} className="!w-5 !h-5 !font-normal" />
                                 <span>{subItem.title}</span>
                               </NavLink>
                             </SidebarMenuSubItem>
@@ -198,7 +219,7 @@ export function AppSidebar() {
                         href={item.url}
                         className="px-3 py-[calc(var(--spacing)_*_5.7)] rounded-xl"
                       >
-                        <item.icon className="!w-5 !h-5 !font-normal" />
+                        <Icon icon={item.icon} className="!w-5 !h-5 !font-normal" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>

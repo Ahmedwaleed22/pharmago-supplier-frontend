@@ -11,8 +11,10 @@ import {
   setPrimaryImage
 } from "@/store/ProductCreationSlice";
 import ImageUpload from "@/components/image-upload";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductAddStep3Page() {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch();
   const productData = useSelector((state: any) => state.productCreation);
@@ -52,10 +54,10 @@ function ProductAddStep3Page() {
     <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
-          Add Product Image
+          {t('products.productImageStep')}
         </h1>
         <p className="mb-8 text-[#717171]">
-          Boost sales with detailed product information
+          {t('products.boostSalesWithDetails')}
         </p>
 
         <div className="space-y-6">
@@ -71,7 +73,7 @@ function ProductAddStep3Page() {
             className="w-full rounded-lg bg-[#2970ff] py-3 text-center font-semibold text-white hover:bg-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={productData.images.length === 0}
           >
-            Next
+            {t('common.next')}
           </button>
         </div>
       </div>

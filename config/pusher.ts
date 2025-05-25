@@ -13,6 +13,7 @@ export const PUSHER_CONFIG = {
  */
 export enum PUSHER_EVENTS {
   NEW_PRESCRIPTION = 'new-prescription',
+  USER_NOTIFICATION = 'user_notification',
   PRESCRIPTION_UPDATED = 'prescription-updated',
   NEW_ORDER = 'new-order',
   ORDER_STATUS_UPDATED = 'order-status-updated',

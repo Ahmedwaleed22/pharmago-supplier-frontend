@@ -5,14 +5,16 @@ import CustomButton from "../custom-button";
 import SelectBox from "./select-box";
 import { useQuery } from "@tanstack/react-query";
 import {createMainCategoriesQueryOptions, createSubCategoriesQueryOptions} from "@/query-options/categories-query-options";
+import { useTranslation } from "@/contexts/i18n-context";
 
 interface CategoriesFilterProps {
   onFilter?: (category: string, subCategory: string) => void;
 }
 
 function CategoriesFilter({ onFilter }: CategoriesFilterProps) {
-  const [selectedCategoryName, setSelectedCategoryName] = useState<string>("All");
-  const [selectedSubCategoryName, setSelectedSubCategoryName] = useState<string>("All");
+  const { t } = useTranslation();
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>(t('categories.all'));
+  const [selectedSubCategoryName, setSelectedSubCategoryName] = useState<string>(t('categories.all'));
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
 
@@ -34,10 +36,10 @@ function CategoriesFilter({ onFilter }: CategoriesFilterProps) {
   // Handle category change
   const handleCategoryChange = (value: string) => {
     setSelectedCategoryName(value);
-    setSelectedSubCategoryName("All");
+    setSelectedSubCategoryName(t('categories.all'));
     setSelectedSubCategoryId(null);
 
-    if (value === "All") {
+    if (value === t('categories.all')) {
       setSelectedCategoryId(null);
     } else {
       const category = categories.find(cat => cat.name === value);
@@ -49,7 +51,7 @@ function CategoriesFilter({ onFilter }: CategoriesFilterProps) {
   const handleSubCategoryChange = (value: string) => {
     setSelectedSubCategoryName(value);
     
-    if (value === "All") {
+    if (value === t('categories.all')) {
       setSelectedSubCategoryId(null);
     } else {
       const subCategory = subCategories.find(subCat => subCat.name === value);
@@ -58,8 +60,8 @@ function CategoriesFilter({ onFilter }: CategoriesFilterProps) {
   };
 
   // Format categories for SelectBox
-  const categoryOptions = ["All", ...categories.map(cat => cat.name)];
-  const subCategoryOptions = ["All", ...subCategories.map(subCat => subCat.name)];
+  const categoryOptions = [t('categories.all'), ...categories.map(cat => cat.name)];
+  const subCategoryOptions = [t('categories.all'), ...subCategories.map(subCat => subCat.name)];
 
   // Handle search button click
   const handleSearch = () => {
@@ -74,9 +76,9 @@ function CategoriesFilter({ onFilter }: CategoriesFilterProps) {
   return (
     <div className="flex gap-5">
       <div className="flex flex-col flex-1 gap-2">
-        <label htmlFor="category">Category</label>
+        <label htmlFor="category">{t('products.category')}</label>
         <SelectBox
-          label="Category"
+          label={t('products.category')}
           id="category"
           options={categoryOptions}
           onChange={handleCategoryChange}
@@ -86,13 +88,13 @@ function CategoriesFilter({ onFilter }: CategoriesFilterProps) {
           className="mt-2"
           onClick={handleSearch}
         >
-          Search
+          {t('common.search')}
         </CustomButton>
       </div>
       <div className="flex flex-col flex-1 gap-2">
-        <label htmlFor="subcategory">Sub Category</label>
+        <label htmlFor="subcategory">{t('products.subCategory')}</label>
         <SelectBox
-          label="Sub Category"
+          label={t('products.subCategory')}
           id="subcategory"
           options={subCategoryOptions}
           onChange={handleSubCategoryChange}

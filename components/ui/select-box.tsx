@@ -1,5 +1,7 @@
 import { ChevronDownIcon } from "lucide-react";
 import React, { useEffect, useRef } from "react";
+import { useI18n } from "@/contexts/i18n-context";
+import { cn } from "@/lib/utils";
 
 interface SelectBoxProps {
   label: string;
@@ -10,6 +12,7 @@ interface SelectBoxProps {
 }
 
 function SelectBox({ label, id, options, onChange, selectedOption }: SelectBoxProps) {
+  const { isRtl } = useI18n();
   const selectBox = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
@@ -20,7 +23,17 @@ function SelectBox({ label, id, options, onChange, selectedOption }: SelectBoxPr
 
   return (
     <div onClick={() => selectBox.current?.focus()} className="relative bg-white rounded-md shadow-sm">
-      <select defaultValue={selectedOption} className="w-full outline-none py-2 px-3 cursor-pointer appearance-none" id={id} ref={selectBox} onChange={(e) => onChange(e.target.value)}>
+      <select 
+        defaultValue={selectedOption} 
+        className={cn(
+          "w-full outline-none py-2 cursor-pointer appearance-none",
+          isRtl ? "text-left pr-10 pl-3" : "text-left pl-3 pr-10",
+        )}
+        id={id} 
+        ref={selectBox} 
+        onChange={(e) => onChange(e.target.value)}
+        dir={isRtl ? "rtl" : "ltr"}
+      >
         <option disabled>
           {label}
         </option>
@@ -30,7 +43,10 @@ function SelectBox({ label, id, options, onChange, selectedOption }: SelectBoxPr
           </option>
         ))}
       </select>
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+      <div className={cn(
+        "absolute top-1/2 -translate-y-1/2 pointer-events-none",
+        isRtl ? "left-3" : "right-3"
+      )}>
         <ChevronDownIcon className="w-5 h-5 text-gray-400" />
       </div>
     </div>

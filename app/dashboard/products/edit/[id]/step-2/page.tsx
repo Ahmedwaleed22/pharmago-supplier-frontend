@@ -13,8 +13,10 @@ import {
   setTag,
   setTagColor,
 } from "@/store/ProductCreationSlice";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch();
   const productData = useSelector((state: any) => state.productCreation);
@@ -29,17 +31,17 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
     <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
-          Edit Product Details
+          {t('products.addProductDetails')}
         </h1>
         <p className="mb-8 text-[#717171]">
-          Update your product information
+          {t('products.boostSalesWithDetails')}
         </p>
 
         <div className="space-y-6">
           <LabeledInput
             id="price"
-            label="Price"
-            placeholder="Price"
+            label={t('products.price')}
+            placeholder={t('forms.pricePlaceholder')}
             value={productData.price}
             onChange={(value) => {
               // Allow only numbers and up to 2 decimal places
@@ -51,8 +53,8 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
 
           <LabeledInput
             id="discount"
-            label="Discount in %"
-            placeholder="20%"
+            label={t('products.discount')}
+            placeholder={t('products.discountPlaceholder')}
             value={productData.discount}
             onChange={(value) => {
               if (value <= 100 && value >= 0) {
@@ -63,16 +65,16 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
 
           <LabeledInput
             id="stock-qty"
-            label="Stock QTY"
-            placeholder="25 QTY"
+            label={t('products.stockQty')}
+            placeholder={t('products.stockPlaceholder')}
             value={productData.stock}
             onChange={(value) => dispatch(setStock(Number(value) || ""))}
           />
 
           <LabeledInput
             id="tag"
-            label="Tag"
-            placeholder="Enter tag"
+            label={t('products.tag')}
+            placeholder={t('products.enterTag')}
             value={productData.tag}
             type="tags"
             onChange={(value) => dispatch(setTag(value))}
@@ -84,7 +86,7 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
             onClick={NextPage}
             className="w-full rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 cursor-pointer"
           >
-            Next
+            {t('common.next')}
           </button>
         </div>
       </div>

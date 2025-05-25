@@ -8,9 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useState } from "react";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function PrescriptionDetailsPage() {
   const { slug } = useParams();
+  const { t } = useTranslation();
   const [price, setPrice] = useState<string>("");
   const [discount, setDiscount] = useState<string>("");
   
@@ -65,12 +67,12 @@ function PrescriptionDetailsPage() {
               <tr>
                 <th className="text-left pb-4">
                   <h4 className="text-blue-600 font-medium text-sm px-1">
-                    Medicine Name
+                    {t('prescriptions.medicineName')}
                   </h4>
                 </th>
                 <th className="text-center pb-4 w-20">
                   <h4 className="text-blue-600 font-medium text-sm px-1">
-                    QTY
+                    {t('prescriptions.qty')}
                   </h4>
                 </th>
               </tr>
@@ -101,18 +103,20 @@ function PrescriptionDetailsPage() {
     );
   };
 
+  const breadcrumbs = [
+    { label: t('breadcrumbs.dashboard'), href: "/dashboard" },
+    { label: t('breadcrumbs.prescription'), href: null },
+    {
+      label: t('breadcrumbs.prescriptionRequests'),
+      href: "/dashboard/prescriptions/requests",
+    },
+    { label: t('breadcrumbs.prescriptionDetails'), href: null },
+  ];
+
   return (
     <DashboardWithBreadcrumbsLayout
-      breadcrumbs={[
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "Prescription", href: null },
-        {
-          label: "Prescription Requests",
-          href: "/dashboard/prescriptions/requests",
-        },
-        { label: "Prescription Details", href: null },
-      ]}
-      title="Prescription Details"
+      breadcrumbs={breadcrumbs}
+      title={t('prescriptions.prescriptionDetails')}
     >
       {prescription && (
         <div className="flex flex-col lg:flex-row justify-between gap-4">

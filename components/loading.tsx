@@ -1,8 +1,11 @@
 import React from 'react'
+import { useTranslation } from '@/contexts/i18n-context'
 
 function Loading() {
+  const { t } = useTranslation();
+  
   return (
-    <div>Loading...</div>
+    <div>{t('common.loading')}</div>
   )
 }
 

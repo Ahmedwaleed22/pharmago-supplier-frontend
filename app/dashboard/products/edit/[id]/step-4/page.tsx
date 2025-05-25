@@ -9,8 +9,10 @@ import ProductPreview from "@/components/product-preview";
 import { resetProductCreation } from "@/store/ProductCreationSlice";
 import axios from "axios";
 import { getAuthHeader, getAuthToken } from "@/lib/api";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -143,7 +145,7 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
       
       if (!token) {
         console.error("No authentication token found");
-        throw new Error("Authentication failed - no token available");
+        throw new Error(t('errors.unauthorized'));
       }
       
       // Use XMLHttpRequest for more reliable FormData upload
@@ -166,7 +168,7 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
             console.error("Error response:", xhr.status, xhr.statusText, xhr.responseText);
             reject({
               status: xhr.status,
-              message: xhr.statusText || "Request failed",
+              message: xhr.statusText || t('errors.general'),
               response: xhr.responseText
             });
           }

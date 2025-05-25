@@ -19,11 +19,13 @@ import {
   createMainCategoriesQueryOptions,
   createSubCategoriesQueryOptions
 } from "@/query-options/categories-query-options";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductAddPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const productData = useSelector((state: any) => state.productCreation);
+  const { t } = useTranslation();
 
   const NextPage = () => {
     router.push("/dashboard/products/add/step-2");
@@ -47,38 +49,38 @@ function ProductAddPage() {
     <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
-          Add Product Details
+          {t('products.addProductDetails')}
         </h1>
         <p className="mb-8 text-[#717171]">
-          Boost sales with detailed product information
+          {t('products.boostSalesWithDetails')}
         </p>
 
         <div className="space-y-6">
           <LabeledInput
             id="product-name"
-            label="Product Name"
-            placeholder="Product Name"
+            label={t('products.productName')}
+            placeholder={t('products.productName')}
             value={productData.name}
             onChange={(value) => dispatch(setName(value))}
           />
 
           <LabeledInput
             id="product-short-description"
-            label="Product Short Description"
-            placeholder="Product Short Description"
+            label={t('products.productShortDescription')}
+            placeholder={t('products.productShortDescription')}
             value={productData.subName}
             onChange={(value) => dispatch(setSubName(value))}
           />
           
           <LabeledInput
             id="category"
-            label="Category"
+            label={t('products.category')}
             type="select"
             value={productData.category}
             onChange={(value) => dispatch(setCategory(value))}
             options={[
               {
-                label: "Select Category",
+                label: t('products.selectCategory'),
                 value: "",
                 disabled: true
               },
@@ -91,7 +93,7 @@ function ProductAddPage() {
 
           <LabeledInput
             id="sub-category"
-            label="Sub-Category"
+            label={t('products.subCategory')}
             type="select"
             value={productData.subCategory}
             onChange={(value) => dispatch(setSubCategory(value))}
@@ -103,9 +105,9 @@ function ProductAddPage() {
 
           <LabeledInput
             id="product-details"
-            label="Product Description"
+            label={t('products.productDescription')}
             type="textarea"
-            placeholder="Descriptions here"
+            placeholder={t('products.descriptionsHere')}
             value={productData.productDetails}
             onChange={(value) => dispatch(setProductDetails(value))}
           />
@@ -114,7 +116,7 @@ function ProductAddPage() {
             onClick={NextPage}
             className="w-full rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 cursor-pointer"
           >
-            Next
+            {t('common.next')}
           </button>
         </div>
       </div>

@@ -8,25 +8,27 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Input,
+  Button,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
   Chip,
   User,
   Pagination,
   Selection,
+  ChipProps,
+  SortDescriptor,
 } from "@heroui/react";
 import { formatPrescriptionDate } from "@/helpers/prescriptions";
+import { useTranslation } from "@/contexts/i18n-context";
+
 type Column = {
   name: string;
   uid: string;
   sortable?: boolean;
 };
-
-export const columns: Column[] = [
-  { name: "ID", uid: "id", sortable: true },
-  { name: "Name", uid: "name", sortable: true },
-  { name: "Request", uid: "request", sortable: true },
-  { name: "Status", uid: "status", sortable: true },
-  { name: "Date", uid: "date" },
-];
 
 export function capitalize(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
@@ -47,15 +49,16 @@ export const VerticalDotsIcon = ({
 }: IconProps) => {
   const width = widthProp || size;
   const height = heightProp || size;
+
   return (
     <svg
       aria-hidden="true"
       fill="none"
       focusable="false"
-      height={size || height}
+      height={height}
       role="presentation"
       viewBox="0 0 24 24"
-      width={size || width}
+      width={width}
       {...props}
     >
       <path
@@ -74,10 +77,10 @@ type StatusColor =
   | "primary"
   | "secondary";
 
-const statusColorMap: Record<string, StatusColor> = {
-  delivered: "success",
-  pending: "warning",
-  cancelled: "danger",
+const statusColorMap: Record<string, ChipProps["color"]> = {
+  active: "success",
+  paused: "danger",
+  vacation: "warning",
 };
 
 const INITIAL_VISIBLE_COLUMNS = ["id", "name", "request", "status", "date"];
@@ -88,20 +91,28 @@ interface OrderHistoryTableProps {
 }
 
 export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHistoryTableProps) {
+  const { t, isRtl } = useTranslation();
+  
+  const columns: Column[] = [
+    { name: t('orderHistory.id'), uid: "id", sortable: true },
+    { name: t('orderHistory.name'), uid: "name", sortable: true },
+    { name: t('orderHistory.request'), uid: "request", sortable: true },
+    { name: t('orderHistory.status'), uid: "status", sortable: false },
+    { name: t('orderHistory.date'), uid: "date", sortable: true },
+  ];
+
   const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
-    new Set([])
-  );
-  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
+  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
+  const [visibleColumns] = React.useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] =
-    React.useState<{column: string; direction: "ascending" | "descending"}>({
-      column: "date",
-      direction: "descending",
-    });
+  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
+    column: "age",
+    direction: "ascending",
+  });
+
   const [page, setPage] = React.useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
@@ -112,7 +123,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
     return columns.filter((column) =>
       Array.from(visibleColumns as Set<string>).includes(column.uid)
     );
-  }, [visibleColumns]);
+  }, [visibleColumns, columns]);
 
   const filteredItems = React.useMemo(() => {
     let filteredOrders = [...orders];
@@ -175,7 +186,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">
-              {order && typeof order === 'object' && 'prescription_text' in order ? "Prescription / Rx" : (order as Dashboard.OrderHistoryItem).request || "N/A"}
+              {order && typeof order === 'object' && 'prescription_text' in order ? t('prescriptions.prescriptionRx') : (order as Dashboard.OrderHistoryItem).request || "N/A"}
             </p>
           </div>
         );
@@ -187,7 +198,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
             size="sm"
             variant="flat"
           >
-            {order.status}
+            {order.status === 'pending' ? t('orderHistory.pending') : order.status}
           </Chip>
         );
       case "date":
@@ -199,7 +210,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
       default:
         return <></>;
     }
-  }, []);
+  }, [t]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -242,15 +253,67 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
   const bottomContent = React.useMemo(() => {
     return (
       <div className="flex w-full justify-center">
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color="primary"
-          page={page}
-          total={pages}
-          onChange={setPage}
-        />
+        <div className="ltr-force">
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            color="primary"
+            page={page}
+            total={pages}
+            onChange={setPage}
+            classNames={{
+              cursor: "!hidden",
+              item: "relative z-0",
+              prev: "relative z-0 bg-default-100",
+              next: "relative z-0 bg-default-100",
+            }}
+          />
+        </div>
+        <style jsx global>{`
+          .ltr-force {
+            direction: ltr !important;
+          }
+          .ltr-force * {
+            direction: ltr !important;
+          }
+          .ltr-force [data-slot="wrapper"] {
+            flex-direction: row !important;
+          }
+          .ltr-force [data-slot="cursor"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+          }
+          .ltr-force [data-slot="item"][data-active="true"] {
+            background-color: #3b82f6 !important; /* primary blue */
+            color: white !important;
+            box-shadow: var(--heroui-shadow-small) !important;
+          }
+          .ltr-force [data-slot="prev"] {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-top-left-radius: var(--heroui-radius-medium) !important;
+            border-bottom-left-radius: var(--heroui-radius-medium) !important;
+          }
+          .ltr-force [data-slot="next"] {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-top-right-radius: var(--heroui-radius-medium) !important;
+            border-bottom-right-radius: var(--heroui-radius-medium) !important;
+          }
+          .ltr-force [data-slot="item"]:first-of-type {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+          }
+          .ltr-force [data-slot="item"]:last-of-type {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+          }
+          .ltr-force [data-slot="item"]:not(:first-of-type):not(:last-of-type) {
+            border-radius: 0 !important;
+          }
+        `}</style>
       </div>
     );
   }, [page, pages]);
@@ -272,18 +335,23 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
 
   return (
     <Table
-      aria-label="Order History Table"
+      aria-label="Example table with custom cells, pagination and sorting"
       isHeaderSticky
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
         wrapper: "max-h-[382px]",
       }}
-      selectionMode="multiple"
       selectedKeys={selectedKeys}
-      onSelectionChange={handleSelectionChange}
+      selectionMode="multiple"
+      sortDescriptor={sortDescriptor}
       topContent={topContent}
       topContentPlacement="outside"
+      onSelectionChange={handleSelectionChange}
+      onSortChange={(descriptor) => setSortDescriptor({
+        column: String(descriptor.column),
+        direction: descriptor.direction as "ascending" | "descending"
+      })}
     >
       <TableHeader columns={headerColumns}>
         {(column) => (
@@ -296,7 +364,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No orders found"} items={sortedItems}>
+      <TableBody emptyContent={t('common.noData')} items={sortedItems}>
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => (

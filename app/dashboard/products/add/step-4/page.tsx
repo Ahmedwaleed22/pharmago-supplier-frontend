@@ -9,8 +9,10 @@ import ProductPreview from "@/components/product-preview";
 import { resetProductCreation } from "@/store/ProductCreationSlice";
 import axios from "axios";
 import { getAuthHeader, getAuthToken } from "@/lib/api";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductAddStep4Page() {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -40,28 +42,21 @@ function ProductAddStep4Page() {
     if (productData.notes) {
       formData.append("notes", productData.notes);
     }
-    
-    // Process images - start with debugging info
-    console.log("Images to process:", productData.images.length);
-    
+        
     // Create array to hold all processed image files
     const allImageFiles: File[] = [];
     
     // Process primary image first to ensure it's first in the array
     const primaryImage = productData.images.find((img: any) => img.isPrimary);
-    if (primaryImage) {
-      console.log("Processing primary image:", primaryImage.name, primaryImage.url.substring(0, 30) + "...");
-      
+    if (primaryImage) {      
       // If it's a Blob URL (new upload)
       if (primaryImage.url.startsWith('blob:')) {
         try {
           // Convert the object URL to a Blob/File
           const response = await fetch(primaryImage.url);
           const blob = await response.blob();
-          console.log("Primary blob created:", blob.type, blob.size);
           
           const file = new File([blob], primaryImage.name || "primary-image.jpg", { type: blob.type });
-          console.log("Primary file created:", file.name, file.type, file.size);
           
           // Add to our collection of files
           allImageFiles.push(file);
@@ -73,16 +68,13 @@ function ProductAddStep4Page() {
     
     // Process additional images
     const additionalImages = productData.images.filter((img: any) => !img.isPrimary);
-    if (additionalImages.length > 0) {
-      console.log("Processing additional images:", additionalImages.length);
-      
+    if (additionalImages.length > 0) {      
       // Convert each image to File if it's a Blob URL
       try {
         const additionalFiles = await Promise.all(
           additionalImages.map(async (image: any, index: number) => {
             if (image.url.startsWith('blob:')) {
               try {
-                console.log(`Processing additional image ${index}:`, image.name);
                 const response = await fetch(image.url);
                 const blob = await response.blob();
                 return new File([blob], image.name || `additional-image-${index}.jpg`, { type: blob.type });
@@ -106,23 +98,11 @@ function ProductAddStep4Page() {
     
     // Now add all images to the formData under images[]
     if (allImageFiles.length > 0) {
-      console.log(`Adding ${allImageFiles.length} images to formData as images[]`);
       allImageFiles.forEach((file, index) => {
         formData.append("images[]", file);
-        console.log(`Appended image ${index}:`, file.name);
       });
     } else {
       console.warn("No image files processed successfully");
-    }
-    
-    // Debug the FormData content
-    console.log("FormData entries:");
-    for (let pair of formData.entries()) {
-      if (pair[1] instanceof File) {
-        console.log(pair[0], pair[1].name, pair[1].type, pair[1].size);
-      } else {
-        console.log(pair[0], pair[1]);
-      }
     }
     
     return formData;
@@ -132,16 +112,13 @@ function ProductAddStep4Page() {
     mutationFn: async (formData: FormData) => {
       // Create a Direct API call instead of using the proxy
       const url = `${API_BASE_URL}/products/`;
-      
-      console.log("Making direct API call to:", url);
-      
+            
       // Get the auth token using the proper method from api.ts
       const token = getAuthToken();
-      console.log("Authentication token available:", !!token);
       
       if (!token) {
         console.error("No authentication token found");
-        throw new Error("Authentication failed - no token available");
+        throw new Error(t('errors.unauthorized'));
       }
       
       // Use XMLHttpRequest for more reliable FormData upload
@@ -164,7 +141,7 @@ function ProductAddStep4Page() {
             console.error("Error response:", xhr.status, xhr.statusText, xhr.responseText);
             reject({
               status: xhr.status,
-              message: xhr.statusText || "Request failed",
+              message: xhr.statusText || t('errors.general'),
               response: xhr.responseText
             });
           }
@@ -173,14 +150,13 @@ function ProductAddStep4Page() {
         xhr.onerror = function() {
           reject({
             status: xhr.status,
-            message: 'Network error occurred'
+            message: t('errors.network')
           });
         };
         
         xhr.upload.onprogress = function(event) {
           if (event.lengthComputable) {
             const percentComplete = (event.loaded / event.total) * 100;
-            console.log(`Upload progress: ${percentComplete.toFixed(2)}%`);
           }
         };
         
@@ -188,7 +164,6 @@ function ProductAddStep4Page() {
       });
     },
     onSuccess: (data) => {
-      console.log("Product created successfully:", data);
       queryClient.invalidateQueries({ queryKey: ['pharmacy-products'] });
       router.push("/dashboard/products"); // Correct redirect path
       dispatch(resetProductCreation());
@@ -196,7 +171,7 @@ function ProductAddStep4Page() {
     onError: (error: any) => {
       setIsSubmitting(false);
       console.error("Error creating product:", error);
-      setError(error.message || "Failed to create product");
+      setError(error.message || t('products.failedToUpdate'));
     }
   });
 
@@ -209,7 +184,7 @@ function ProductAddStep4Page() {
     } catch (error: any) {
       console.error("Error preparing data:", error);
       setIsSubmitting(false);
-      setError(error.message || "Failed to prepare data");
+      setError(error.message || t('errors.general'));
     }
   };
 
@@ -221,10 +196,10 @@ function ProductAddStep4Page() {
     <ProductLayout>
       <div className="w-1/2">
         <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
-          Product Review
+          {t('products.productReview')}
         </h1>
         <p className="mb-8 text-[#717171]">
-          Review your product details before submitting
+          {t('products.reviewBeforeSubmit')}
         </p>
 
         {error && (
@@ -238,14 +213,14 @@ function ProductAddStep4Page() {
             onClick={goBack}
             className="w-1/2 rounded-md border border-[#2970ff] bg-white py-2 text-center font-semibold text-[#2970ff] hover:bg-blue-50"
           >
-            Back
+            {t('common.back')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="w-1/2 rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 disabled:bg-blue-300"
           >
-            {isSubmitting ? "Creating..." : "Create Product"}
+            {isSubmitting ? t('products.creating') : t('products.createProduct')}
           </button>
         </div>
       </div>

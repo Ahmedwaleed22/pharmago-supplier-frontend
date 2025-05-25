@@ -5,6 +5,14 @@ import FormData from 'form-data';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL || '';
 
+// Helper function to get Accept-Language header from locale
+function getAcceptLanguageHeader(request: NextRequest): string {
+  // Try to get locale from cookie
+  const locale = request.cookies.get('locale')?.value || 'en';
+  
+  return locale || 'en';
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
@@ -47,6 +55,9 @@ export async function POST(request: NextRequest) {
           forwardedHeaders[key] = value;
         }
       });
+      
+      // Add Accept-Language header based on locale
+      forwardedHeaders['Accept-Language'] = getAcceptLanguageHeader(request);
       
       // Forward the request with FormData
       try {
@@ -123,7 +134,8 @@ export async function POST(request: NextRequest) {
     // Set common headers
     const requestHeaders = {
       ...headers,
-      'Content-Type': isFormData ? 'multipart/form-data' : 'application/json'
+      'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
+      'Accept-Language': getAcceptLanguageHeader(request)
     };
 
     let response;
@@ -167,7 +179,8 @@ export async function POST(request: NextRequest) {
         response = await axios.post(apiTargetUrl, serverFormData, {
           headers: {
             ...requestHeaders,
-            ...serverFormData.getHeaders()
+            ...serverFormData.getHeaders(),
+            'Accept-Language': getAcceptLanguageHeader(request)
           }
         });
       } else {
@@ -257,6 +270,9 @@ export async function GET(request: NextRequest) {
     const requestHeaders: Record<string, string> = {};
     const authHeader = request.headers.get('Authorization');
     if (authHeader) requestHeaders['Authorization'] = authHeader;
+    
+    // Add Accept-Language header based on locale
+    requestHeaders['Accept-Language'] = getAcceptLanguageHeader(request);
     
     const payload = {
       method: 'get',

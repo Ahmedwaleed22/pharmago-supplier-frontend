@@ -1,18 +1,20 @@
 "use client";
 
 import React from "react";
-
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { removeAllItems } from "@/store/ProductCreationSlice";
+import { useTranslation } from "@/contexts/i18n-context";
+import { cn } from "@/lib/utils";
 
 function ProductLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t, isRtl } = useTranslation();
   
   // Check if we're in edit mode
   const isEditMode = pathname.includes("/edit");
@@ -27,19 +29,19 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
   
   const steps = [
     {
-      label: "General Information",
+      label: t('products.generalInformation'),
       href: `/dashboard/products${basePathSegment}`,
     },
     {
-      label: "Product Details",
+      label: t('products.productDetails'),
       href: `/dashboard/products${basePathSegment}/step-2`,
     },
     {
-      label: "Product Image",
+      label: t('products.productImageStep'),
       href: `/dashboard/products${basePathSegment}/step-3`,
     },
     {
-      label: "Summary",
+      label: t('products.summary'),
       href: `/dashboard/products${basePathSegment}/step-4`,
     },
   ];
@@ -60,12 +62,14 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
     currentStep = 3;
   }
 
-  const pageTitle = isEditMode ? "Edit Product" : "Create Product";
+  const pageTitle = isEditMode ? t('products.editProduct') : t('products.addProduct');
+
+  const ChevronIcon = isRtl ? ChevronRight : ChevronLeft;
 
   return (
     <div className="flex h-screen bg-smooth-white">
       {/* Sidebar */}
-      <div className="w-64 border-r border-gray-200 bg-white">
+      <div className={`w-64 border-gray-200 bg-white ${isRtl ? 'border-l' : 'border-r'}`}>
         <div className="px-4 py-16">
           <Link href="/dashboard">
             <Image
@@ -83,14 +87,15 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
             <Link href={step.href} key={index}>
               <div
                 key={index}
-                className={`py-0 pl-5 ${
+                className={cn(
+                  "py-0 pl-5",
                   index === currentStep
-                    ? "border-r-4 border-[#2970ff]"
-                    : "border-r-4 border-transparent"
-                }`}
+                    ? `border-r-4 border-primary-blue text-primary-blue`
+                    : ''
+                )}
               >
                 <div className="text-xs text-[#787878]">
-                  Step {index + 1}/{steps.length}
+                  {t('products.step')} {index + 1}/{steps.length}
                 </div>
                 <div className="font-medium text-[#414651]">{step.label}</div>
               </div>
@@ -101,14 +106,14 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="mb-8">
           <span
-            className="inline-flex items-center text-[#717171] hover:text-[#494949] transition-all duration-300 cursor-pointer"
+            className={`inline-flex items-center text-[#717171] hover:text-[#494949] transition-all duration-300 cursor-pointer ${isRtl ? 'flex-row-reverse' : ''}`}
             onClick={BackToDashboard}
           >
-            <ChevronLeft className="mr-1 h-4 w-4" />
-            Back to Dashboard
+            <ChevronIcon className={`h-4 w-4 ${isRtl ? 'ml-1' : 'mr-1'}`} />
+            {t('ui.backToDashboard')}
           </span>
         </div>
-        <div className="flex gap-8 p-18 justify-between">{children}</div>
+        <div className={`flex gap-8 p-18 justify-between ${isRtl ? 'flex-row-reverse' : ''}`}>{children}</div>
       </div>
     </div>
   );

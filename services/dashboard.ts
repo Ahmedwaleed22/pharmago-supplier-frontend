@@ -118,3 +118,38 @@ export async function getSubCategories(categoryId: string): Promise<Category.Cat
   
   return response.data.data;
 }
+
+export async function getNotifications(skip: number = 0, limit: number = 3): Promise<Dashboard.NotificationResponse> {
+  const response = await axios.get('/api/notifications', {
+    params: {
+      skip,
+      limit
+    }
+  });
+
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch notifications');
+  }
+
+  return response.data as Dashboard.NotificationResponse;
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<void> {
+  console.log(`Marking notification ${notificationId} as read...`);
+  const response = await axios.patch(`/api/notifications/${notificationId}/read`);
+
+  if (response.status !== 200) {
+    throw new Error('Failed to mark notification as read');
+  }
+  console.log(`Notification ${notificationId} marked as read successfully`);
+}
+
+export async function markAllNotificationsAsRead(): Promise<void> {
+  console.log("Marking all notifications as read...");
+  const response = await axios.patch('/api/notifications/mark-all-read');
+
+  if (response.status !== 200) {
+    throw new Error('Failed to mark all notifications as read');
+  }
+  console.log("All notifications marked as read successfully");
+}
