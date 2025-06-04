@@ -3,14 +3,15 @@
 import React from "react";
 import PrescriptionCard from "@/components/prescription-card";
 import DashboardWithBreadcrumbsLayout from "@/layouts/dashboard-with-breadcrumbs-layout";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchApprovedPrescriptions } from "@/services/prescriptions";
 import Loading from "@/components/loading";
+import PrescriptionCardSkeleton from "@/components/ui/dashboard/prescription-card-skeleton";
 import { useTranslation } from "@/contexts/i18n-context";
 
 function PrescriptionRequestsPage() {
   const { t } = useTranslation();
-  
+  const queryClient = useQueryClient();
   const { data: prescriptions, isLoading } = useQuery({
     queryKey: ["approved-prescriptions"],
     queryFn: () => fetchApprovedPrescriptions(),
@@ -28,6 +29,10 @@ function PrescriptionRequestsPage() {
     <DashboardWithBreadcrumbsLayout
       breadcrumbs={breadcrumbs}
       title={t('prescriptions.title')}
+      refreshable={true}
+      refreshFn={() => {
+        queryClient.invalidateQueries({ queryKey: ["approved-prescriptions"] });
+      }}
     >
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-bold text-blue-gray">{t('prescriptions.approved')}</h1>
@@ -43,7 +48,9 @@ function PrescriptionRequestsPage() {
             <PrescriptionCard key={index} status="approved" prescription={prescription} />
           ))
         ) : (
-          <Loading />
+          [...Array(8)].map((_, index) => (
+            <PrescriptionCardSkeleton key={index} />
+          ))
         )}
       </div>
     </DashboardWithBreadcrumbsLayout>

@@ -88,9 +88,10 @@ const INITIAL_VISIBLE_COLUMNS = ["id", "name", "request", "status", "date"];
 interface OrderHistoryTableProps {
   orders: Prescription.Prescription[] | Dashboard.OrderHistoryItem[];
   onSelectionChange?: (selectedIds: string[]) => void;
+  noPagination?: boolean;
 }
 
-export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHistoryTableProps) {
+export default function OrderHistoryTable({ orders, onSelectionChange, noPagination }: OrderHistoryTableProps) {
   const { t, isRtl } = useTranslation();
   
   const columns: Column[] = [
@@ -145,14 +146,20 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
     return filteredOrders;
   }, [orders, filterValue, statusFilter]);
 
-  const pages = Math.ceil(filteredItems.length / rowsPerPage);
+  const pages = React.useMemo(() => {
+    return noPagination ? 1 : Math.ceil(filteredItems.length / rowsPerPage);
+  }, [filteredItems.length, rowsPerPage, noPagination]);
 
   const items = React.useMemo(() => {
+    if (noPagination) {
+      return filteredItems;
+    }
+    
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
+  }, [page, filteredItems, rowsPerPage, noPagination]);
 
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a: Prescription.Prescription | Dashboard.OrderHistoryItem, b: Prescription.Prescription | Dashboard.OrderHistoryItem) => {
@@ -251,6 +258,10 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
   }, []);
 
   const bottomContent = React.useMemo(() => {
+    if (noPagination) {
+      return null;
+    }
+    
     return (
       <div className="flex w-full justify-center">
         <div className="ltr-force">
@@ -316,7 +327,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange }: OrderHi
         `}</style>
       </div>
     );
-  }, [page, pages]);
+  }, [page, pages, noPagination]);
 
   // Handle selection changes
   const handleSelectionChange = (keys: Selection) => {

@@ -7,6 +7,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL;
 // For client-side storage
 const TOKEN_KEY = "pharmacy_auth_token";
 const USER_KEY = "pharmacy_user";
+const USER_ID_KEY = "user_id";
+
 // Default cookie expiration (30 days for remember me)
 const REMEMBER_ME_EXPIRY = 30;
 // Session cookies (no expiration - expires when browser closes)
@@ -105,7 +107,7 @@ export async function logout(): Promise<void> {
     // Clear cookies
     Cookies.remove(TOKEN_KEY);
     Cookies.remove(USER_KEY);
-
+    Cookies.remove(USER_ID_KEY);
     // Clear stored credentials from localStorage as well
     clearStoredCredentials();
   } catch (error) {
@@ -113,6 +115,7 @@ export async function logout(): Promise<void> {
     // Still remove the cookies and stored credentials even if the API call fails
     Cookies.remove(TOKEN_KEY);
     Cookies.remove(USER_KEY);
+    Cookies.remove(USER_ID_KEY);
     clearStoredCredentials();
   }
 }
@@ -138,8 +141,9 @@ export function setAuthData(
     Cookies.set(TOKEN_KEY, data.token, cookieOptions);
   }
 
-  if (data.pharmacy) {
-    Cookies.set(USER_KEY, JSON.stringify(data.pharmacy), cookieOptions);
+  if (data.user) {
+    Cookies.set(USER_KEY, JSON.stringify(data.user), cookieOptions);
+    Cookies.set(USER_ID_KEY, data.user.id, cookieOptions);
   }
 }
 

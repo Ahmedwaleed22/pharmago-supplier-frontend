@@ -28,7 +28,38 @@
     "ok": "OK",
     "download": "Descargar",
     "exportAll": "Exportar todos los datos",
-    "exportSelected": "Exportar datos seleccionados"
+    "exportSelected": "Exportar datos seleccionados",
+    "location": "Ubicación",
+    "trackingNo": "N° de seguimiento",
+    "processing": "Procesando",
+    "shipping": "Envío",
+    "delivered": "Entregado",
+    "canceled": "Cancelado",
+    "unknownCustomer": "Cliente desconocido",
+    "minute": "minuto",
+    "minutes": "minutos",
+    "hour": "hora",
+    "hours": "horas",
+    "ago": "hace",
+    "showing": "Mostrando",
+    "to": "a",
+    "of": "de",
+    "results": "resultados",
+    "page": "Página",
+    "months": {
+      "jan": "Ene",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dic"
+    }
   },
   "auth": {
     "login": "Iniciar sesión",
@@ -232,7 +263,12 @@
     "ready": "Listo",
     "shipped": "Enviado",
     "estimatedDelivery": "Entrega estimada",
-    "deliveryCompleted": "Entrega completada"
+    "deliveryCompleted": "Entrega completada",
+    "orderAccepted": "Pedido aceptado",
+    "pickUp": "Recolección",
+    "inProgress": "En progreso",
+    "dropOff": "Entrega",
+    "successRate": "Tasa de éxito"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -260,7 +296,8 @@
     "delivery": "Entrega",
     "liveTracking": "Seguimiento en vivo",
     "deliveryDetail": "Detalle de la entrega",
-    "sales": "Ventas"
+    "sales": "Ventas",
+    "profile": "Perfil"
   },
   "errors": {
     "general": "Ocurrió un error. Por favor, inténtalo de nuevo.",
@@ -317,6 +354,37 @@
     "addAdvertisement": "Agregar anuncio",
     "advertisementList": "Lista de anuncios"
   },
+  "profile": {
+    "title": "Perfil",
+    "generalInformation": "Información general",
+    "accountInformation": "Información de la cuenta",
+    "pharmacyName": "Nombre de la farmacia",
+    "enterPharmacyName": "Ingrese el nombre de la farmacia",
+    "emailAddress": "Dirección de correo electrónico",
+    "enterEmailAddress": "Ingrese la dirección de correo electrónico",
+    "fullAddress": "Dirección completa",
+    "enterFullAddress": "Ingrese la dirección completa",
+    "newPassword": "Nueva contraseña",
+    "enterNewPassword": "Ingrese la nueva contraseña",
+    "confirmNewPassword": "Confirmar nueva contraseña",
+    "confirmNewPasswordPlaceholder": "Confirmar nueva contraseña",
+    "passwordFieldsNote": "Deje los campos de contraseña vacíos si no desea cambiar su contraseña.",
+    "pharmacyAdmin": "Administrador de farmacia",
+    "saving": "Guardando...",
+    "profileUpdatedSuccess": "¡Perfil actualizado exitosamente!",
+    "logoPreview": "Vista previa del logo",
+    "pharmacyLogo": "Logo de la farmacia",
+    "selectValidImage": "Por favor seleccione un archivo de imagen válido",
+    "imageSizeLimit": "El tamaño de la imagen debe ser menor a 5MB",
+    "nameRequired": "El nombre es requerido",
+    "emailRequired": "El correo electrónico es requerido",
+    "addressRequired": "La dirección es requerida",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "invalidEmail": "Por favor ingrese una dirección de correo electrónico válida",
+    "updateError": "Ocurrió un error al actualizar su perfil",
+    "networkError": "Error de red. Por favor verifique su conexión e intente nuevamente."
+  },
   "forms": {
     "required": "Este campo es obligatorio",
     "invalidEmail": "Por favor, introduce una dirección de correo válida",
@@ -326,7 +394,7 @@
     "invalidDate": "Por favor, introduce una fecha válida",
     "fileTooLarge": "El archivo es demasiado grande",
     "invalidFileType": "Tipo de archivo inválido",
-    "discountPlaceholder": "ej. 20% o 10L.E",
+    "discountPlaceholder": "ej. 20%",
     "pricePlaceholder": "0.00 L.E"
   },
   "orderHistory": {
@@ -336,7 +404,8 @@
     "request": "Solicitud",
     "name": "Nombre",
     "id": "ID",
-    "pending": "Pendiente"
+    "pending": "Pendiente",
+    "totalOrders": "Total de pedidos"
   },
   "sidebar": {
     "dashboard": "Panel de control",

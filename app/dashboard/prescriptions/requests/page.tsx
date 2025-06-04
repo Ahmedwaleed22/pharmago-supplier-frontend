@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchPendingPrescriptions } from "@/services/prescriptions";
 import Loading from "@/components/loading";
+import PrescriptionCardSkeleton from "@/components/ui/dashboard/prescription-card-skeleton";
 import { usePusherEvent } from "@/hooks/usePusherEvent";
 import { PUSHER_EVENTS } from "@/config/pusher";
 import CustomButton from "@/components/custom-button";
@@ -154,8 +155,8 @@ function PrescriptionRequestsPage() {
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-blue-gray">{t('prescriptions.prescriptionRx')}</h1>
           {prescriptions && prescriptions.length > 0 && (
-            <span className="text-sm bg-[#FF6363] font-bold h-[calc(var(--spacing)_*_5.5)] w-[calc(var(--spacing)_*_5.5)] rounded-full flex items-center justify-center text-white">
-              {prescriptions.length}
+            <span className={`bg-[#FF6363] font-bold h-[calc(var(--spacing)_*_5.5)] w-[calc(var(--spacing)_*_5.5)] rounded-full flex items-center justify-center text-white ${prescriptions.length > 99 ? 'text-[0.5rem]' : 'text-sm'}`}>
+              {prescriptions.length > 99 ? '99+' : prescriptions.length}
             </span>
           )}
         </div>
@@ -185,7 +186,11 @@ function PrescriptionRequestsPage() {
           ))}
         </div>
       ) : (
-        <Loading />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-5">
+          {[...Array(8)].map((_, index) => (
+            <PrescriptionCardSkeleton key={index} />
+          ))}
+        </div>
       )}
 
       {/* Add the animation CSS */}

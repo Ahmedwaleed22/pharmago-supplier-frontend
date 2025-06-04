@@ -12,16 +12,63 @@ export function getPrescriptionName(createdDate: string, uuid: string) {
   return `PR-${year}${month}${day}-${uuidPart}`; // Format: PR-YYYYMMDD-UUID
 }
 
-export function formatPrescriptionDate(createdDate: string, showTime: boolean = true) {
+export function formatPrescriptionDate(
+  createdDate: string, 
+  showTime: boolean = true,
+  t?: (key: string) => string,
+  isRtl?: boolean
+) {
   if (!createdDate) return "";
 
   const date = new Date(createdDate);
   const day = date.getDate();
-  const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();
+  
+  // Use translation if available, otherwise fallback to English
+  const month = t 
+    ? t(`common.months.${date.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`)
+    : date.toLocaleString('en-US', { month: 'short' });
+  
   const time = showTime ? date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) : "";
 
-  return `${day} ${month} ${year} ${time}`;
+  // Handle RTL layout if translation context is available
+  
+  return `${day} ${month} ${year}`.trim();
+}
+
+export function getTranslatedTimeAgo(
+  createdDate: string,
+  t: (key: string) => string,
+  isRtl: boolean = false
+) {
+  if (!createdDate) return "";
+
+  const date = new Date(createdDate);
+  const time = date.getTime();
+  const now = new Date().getTime();
+
+  const diff = now - time;
+  const diffInMinutes = Math.floor(diff / (1000 * 60));
+
+  if (diffInMinutes < 60) {
+    const minuteKey = diffInMinutes === 1 ? "minute" : "minutes";
+    // Handle RTL languages (Arabic) differently
+    if (isRtl) {
+      return `${t("common.ago")} ${diffInMinutes} ${t(
+        `common.${minuteKey}`
+      )}`;
+    }
+    return `${diffInMinutes} ${t(`common.${minuteKey}`)} ${t("common.ago")}`;
+  }
+
+  const diffInHours = Math.round(diff / (1000 * 60 * 60));
+  const hourKey = diffInHours === 1 ? "hour" : "hours";
+
+  // Handle RTL languages (Arabic) differently
+  if (isRtl) {
+    return `${t("common.ago")} ${diffInHours} ${t(`common.${hourKey}`)}`;
+  }
+  return `${diffInHours} ${t(`common.${hourKey}`)} ${t("common.ago")}`;
 }
 
 export function getTimeAgo(createdDate: string) {

@@ -27,6 +27,7 @@ export default function useAuth() {
                 avatar: userData.avatar,
                 created_at: userData.created_at,
                 updated_at: userData.updated_at,
+                address: userData.address,
               },
               pharmacy: userData.pharmacy,
               token: getAuthToken() || '',

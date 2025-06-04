@@ -7,11 +7,22 @@ import CustomButton from "./custom-button";
 import { useRouter, useParams } from "next/navigation";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { cn } from "@/lib/utils";
-import { getPrescriptionName, formatPrescriptionDate, getTimeAgo } from "@/helpers/prescriptions";
+import {
+  getPrescriptionName,
+  formatPrescriptionDate,
+  getTimeAgo,
+  getTranslatedTimeAgo,
+} from "@/helpers/prescriptions";
 import { sendPrescriptionOffer } from "@/services/prescriptions";
 import { useTranslation } from "@/contexts/i18n-context";
+import { useQueryClient } from "@tanstack/react-query";
 
-type PrescriptionCardStatus = "request" | "approved" | "tracking" | "offer" | "delivery-status";
+type PrescriptionCardStatus =
+  | "request"
+  | "approved"
+  | "tracking"
+  | "offer"
+  | "delivery-status";
 
 interface PrescriptionCardProps {
   status?: PrescriptionCardStatus;
@@ -23,23 +34,40 @@ interface PrescriptionCardProps {
   setDiscount?: Dispatch<SetStateAction<string>>;
 }
 
-function PrescriptionCard({ 
-  className, 
-  status = "request", 
+function PrescriptionCard({
+  className,
+  status = "request",
   prescription,
   price,
   setPrice,
   discount,
-  setDiscount
+  setDiscount,
 }: PrescriptionCardProps) {
+  const queryClient = useQueryClient();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, isRtl } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Guard clause to prevent rendering with undefined prescription
+  if (!prescription || !prescription.id) {
+    return (
+      <div
+        className={cn(
+          "w-full h-full rounded-lg p-4 flex flex-col items-center justify-center",
+          "bg-white shadow-sm",
+          className
+        )}
+      >
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-blue"></div>
+        <p className="text-sm text-muted-gray mt-2">{t("common.loading")}</p>
+      </div>
+    );
+  }
+
   const handleSendOffer = async () => {
     if (!price) {
-      setError(t('forms.required'));
+      setError(t("forms.required"));
       return;
     }
 
@@ -48,14 +76,16 @@ function PrescriptionCard({
 
     try {
       await sendPrescriptionOffer(prescription.id, price, discount);
-      
+
       // Success - could show a success message or redirect
-      console.log(t('prescriptions.offerSent'));
-      
+      // console.log(t('prescriptions.offerSent'));
+
+      queryClient.invalidateQueries({ queryKey: ["pending-prescriptions"] });
+
       // Optionally redirect back
       router.back();
     } catch (err: any) {
-      setError(err.message || t('prescriptions.failedToSend'));
+      setError(err.message || t("prescriptions.failedToSend"));
     } finally {
       setIsSubmitting(false);
     }
@@ -65,17 +95,25 @@ function PrescriptionCard({
     <div
       className={cn(
         "w-full h-full rounded-lg p-4 flex flex-col",
-        status === "approved" || status === "delivery-status" ? "gap-1" : "gap-4",
+        status === "approved" || status === "delivery-status"
+          ? "gap-1"
+          : "gap-4",
         status !== "delivery-status" ? "bg-white shadow-sm" : "",
         className
       )}
     >
-      <div className={`flex ${status === "delivery-status" ? "flex-row items-center gap-3" : "gap-1 items-center"}`}>
-        <Icon 
-          icon="solar:document-text-outline" 
-          width={status === "delivery-status" ? "40" : "24"} 
-          height={status === "delivery-status" ? "40" : "24"} 
-          className="text-primary-blue" 
+      <div
+        className={`flex ${
+          status === "delivery-status"
+            ? "flex-row items-center gap-3"
+            : "gap-1 items-center"
+        } ${isRtl ? "flex-row-reverse" : ""}`}
+      >
+        <Icon
+          icon="solar:document-text-outline"
+          width={status === "delivery-status" ? "40" : "24"}
+          height={status === "delivery-status" ? "40" : "24"}
+          className="text-primary-blue"
         />
         <div>
           <h3 className="text-blue-gray font-semibold text-lg">
@@ -83,12 +121,17 @@ function PrescriptionCard({
           </h3>
           {status === "delivery-status" && (
             <div className="text-sm">
-              <span className="text-blue-gray mr-1">{t('prescriptions.by')}</span>
+              <span className="text-blue-gray mr-1">
+                {t("prescriptions.by")}
+              </span>
               <Link className="text-primary-blue font-semibold" href="">
-                {prescription.patient.name} ({t('prescriptions.client')})
+                {prescription.patient?.name || t("common.unknownCustomer")} (
+                {t("prescriptions.client")})
               </Link>
               <div className="text-muted-gray mt-1">
-                {formatPrescriptionDate(prescription.created_at)} ({t('prescriptions.live')}: {getTimeAgo(prescription.created_at)})
+                {formatPrescriptionDate(prescription.created_at, true, t, isRtl)} (
+                {t("prescriptions.live")}:{" "}
+                {getTranslatedTimeAgo(prescription.created_at, t, isRtl)})
               </div>
             </div>
           )}
@@ -124,7 +167,9 @@ function PrescriptionCard({
               width={24}
               height={24}
               onClick={() => {
-                router.push(`/dashboard/prescriptions/requests/${prescription.id}`);
+                router.push(
+                  `/dashboard/prescriptions/requests/${prescription.id}`
+                );
               }}
             />
           </div>
@@ -132,18 +177,21 @@ function PrescriptionCard({
       )}
       {status !== "delivery-status" && (
         <div className="text-sm">
-          <span className="text-blue-gray mr-1">{t('prescriptions.by')}</span>
+          <span className="text-blue-gray mr-1">{t("prescriptions.by")}</span>
           <Link className="text-primary-blue font-semibold" href="">
-            {prescription.patient.name} ({t('prescriptions.client')})
+            {prescription.patient?.name || t("common.unknownCustomer")} (
+            {t("prescriptions.client")})
           </Link>
           <div className="text-muted-gray mt-1">
-            {formatPrescriptionDate(prescription.created_at)} ({t('prescriptions.live')}: {getTimeAgo(prescription.created_at)})
+            {formatPrescriptionDate(prescription.created_at, true, t, isRtl)} (
+            {t("prescriptions.live")}:{" "}
+            {getTranslatedTimeAgo(prescription.created_at, t, isRtl)})
           </div>
-          {status === "approved" && (
+          {/* {status === "approved" && (
             <CustomButton
               className="mt-4 w-full h-[40px]"
               onClick={async () => {
-                console.log("clicked");
+                // Handle delivery request
               }}
             >
               <Image
@@ -152,59 +200,65 @@ function PrescriptionCard({
                 width={20}
                 height={20}
               />
-              {t('prescriptions.requestToDelivery')}
+              {t("prescriptions.requestToDelivery")}
             </CustomButton>
-          )}
+          )} */}
           {status === "tracking" && (
             <CustomButton
               className="mt-4 w-full h-[40px] bg-[#EEF4FF] hover:bg-[#d5e2fa] text-primary-blue"
               onClick={async () => {
-                router.push(`/dashboard/delivery/live-tracking/prescription-request-01`);
+                router.push(
+                  `/dashboard/delivery/live-tracking/${prescription.id}`
+                );
               }}
             >
-              {t('prescriptions.viewStatus')}
+              {t("prescriptions.viewStatus")}
             </CustomButton>
           )}
           {status === "offer" && (
             <div className="my-4">
               <div className="flex gap-4 mt-4">
                 <div className="flex-1">
-                  <p className="text-blue-gray mb-2">{t('products.priceInLE')}</p>
-                  <input 
-                    className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md" 
+                  <p className="text-blue-gray mb-2">
+                    {t("products.price")}
+                  </p>
+                  <input
+                    className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md"
                     type="number"
-                    placeholder={t('forms.pricePlaceholder')}
+                    placeholder={t("forms.pricePlaceholder")}
                     value={price}
                     onChange={(e) => setPrice && setPrice(e.target.value)}
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="text-blue-gray mb-2">{t('prescriptions.discount')}</p>
-                  <input 
-                    className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md" 
+                  <p className="text-blue-gray mb-2">
+                    {t("prescriptions.discount")}
+                  </p>
+                  <input
+                    className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md"
                     type="number"
-                    placeholder={t('forms.discountPlaceholder')}
+                    placeholder={t("forms.discountPlaceholder")}
                     value={discount}
                     onChange={(e) => setDiscount && setDiscount(e.target.value)}
                   />
                 </div>
               </div>
-              {error && (
-                <p className="text-red-500 text-sm mt-2">{error}</p>
-              )}
+              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
               <div className="flex gap-4 mt-4">
-                <CustomButton 
+                <CustomButton
                   className="w-2/3 h-[40px]"
                   onClick={handleSendOffer}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? t('common.sending') : t('prescriptions.sendOffers')}
+                  {isSubmitting
+                    ? t("common.sending")
+                    : t("prescriptions.sendOffers")}
                 </CustomButton>
-                <CustomButton 
+                <CustomButton
                   className="flex-1 bg-gray-100 text-red-500 hover:bg-gray-200 py-3 rounded-md"
                   onClick={() => router.back()}
                 >
-                  {t('common.cancel')}
+                  {t("common.cancel")}
                 </CustomButton>
               </div>
             </div>

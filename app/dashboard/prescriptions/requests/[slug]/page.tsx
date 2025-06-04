@@ -38,16 +38,6 @@ function PrescriptionDetailsPage() {
       );
     }
 
-    // Sample data for the table
-    // const prescriptionItems = [
-    //   { description: "Description 01", quantity: 2 },
-    //   { description: "Description 02", quantity: 2 },
-    //   { description: "Description 03", quantity: 2 },
-    //   { description: "Description 04", quantity: 2 },
-    //   { description: "Description 05", quantity: 2 },
-    //   { description: "Description 06", quantity: 1 },
-    // ];
-
     const prescriptionItems = prescription?.prescription_text
       ? Array.from(
           new DOMParser()

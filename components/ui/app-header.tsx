@@ -1,16 +1,20 @@
 import React from "react";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, User, LogOut } from "lucide-react";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import SearchBar from "./search-bar";
 import NotificationMenu from "./notification-menu";
 import { useSelector } from "react-redux";
 import { getPharmacy } from "@/store/authSlice";
+import { RootState } from "@/store/store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createNotificationsQueryOptions } from "@/query-options/notifications-query-options";
 import { usePusherEvent } from "@/hooks/usePusherEvent";
 import { PUSHER_EVENTS } from "@/config/pusher";
 import { useTranslation } from "@/contexts/i18n-context";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
+import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
 
 interface PusherNotificationEvent {
   type: string;
@@ -24,7 +28,9 @@ interface PusherNotificationEvent {
 function AppHeader() {
   const { t } = useTranslation();
   const pharmacy = useSelector(getPharmacy);
+  const isAuthLoading = useSelector((state: RootState) => state.auth.isLoading);
   const queryClient = useQueryClient();
+  const { logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [soundInitialized, setSoundInitialized] = useState(false);
@@ -32,6 +38,25 @@ function AppHeader() {
   // Get notifications data to show unread count (using default parameters)
   const { data: notificationResponse } = useQuery(createNotificationsQueryOptions(0, 1));
   const unreadCount = notificationResponse?.meta?.unread_count || 0;
+
+  // Handle global clicks to close notification menu
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      // Only close if clicking outside the notification area
+      const target = event.target as Element;
+      if (!target.closest('[data-notification-area]')) {
+        setIsNotificationMenuOpen(false);
+      }
+    };
+
+    if (isNotificationMenuOpen) {
+      document.addEventListener('click', handleGlobalClick);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, [isNotificationMenuOpen]);
 
   // Initialize audio on component mount
   useEffect(() => {
@@ -143,10 +168,13 @@ function AppHeader() {
 
         {/* Right side content */}
         <div className="flex justify-between items-center gap-2 sm:gap-5 ml-auto">
-          <div className="relative">
+          <div className="relative" data-notification-area>
             <div
               className="relative cursor-pointer"
-              onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsNotificationMenuOpen(!isNotificationMenuOpen);
+              }}
             >
               <Image
                 src="/images/notification.svg"
@@ -165,25 +193,63 @@ function AppHeader() {
               onClose={() => setIsNotificationMenuOpen(false)}
             />
           </div>
-          <div className="flex items-center gap-2">
-            {pharmacy?.logo && (
-              <Image
-                src={pharmacy?.logo}
-                alt={pharmacy?.name}
-                width={40}
-                height={40}
-                className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px] rounded-full"
-              />
-            )}
-            <div className="flex flex-col sm:flex">
-              <h2 className="text-sm font-medium text-blue-gray">
-                {pharmacy?.name}
-              </h2>
-              <h3 className="text-xs font-medium text-[#717171]">
-                {t('auth.pharmacyAdmin')}
-              </h3>
+          {isAuthLoading || !pharmacy ? (
+            // Loading skeleton
+            <div className="flex items-center gap-2 p-1">
+              <div className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px] rounded-full bg-gray-200 animate-pulse" />
+              <div className="flex flex-col gap-1">
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+              </div>
             </div>
-          </div>
+          ) : (
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger className="cursor-pointer">
+                <div className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors">
+                  {pharmacy?.logo && (
+                    <Image
+                      src={pharmacy?.logo}
+                      alt={pharmacy?.name}
+                      width={40}
+                      height={40}
+                      className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px] rounded-full"
+                    />
+                  )}
+                  <div className="flex flex-col sm:flex">
+                    <h2 className="text-sm font-medium text-blue-gray">
+                      {pharmacy?.name}
+                    </h2>
+                    <h3 className="text-xs font-medium text-[#717171]">
+                      {t('auth.pharmacyAdmin')}
+                    </h3>
+                  </div>
+                </div>
+              </DropdownTrigger>
+              <DropdownMenu 
+                aria-label="Profile Actions"
+                className="w-48"
+              >
+                <DropdownItem 
+                  key="profile"
+                  startContent={<User className="w-4 h-4" />}
+                  className="py-3"
+                >
+                  <Link href="/dashboard/profile" className="w-full block">
+                    {t('navigation.profile')}
+                  </Link>
+                </DropdownItem>
+                <DropdownItem 
+                  key="logout"
+                  startContent={<LogOut className="w-4 h-4" />}
+                  className="py-3 text-red-600"
+                  color="danger"
+                  onClick={logout}
+                >
+                  {t('navigation.logout')}
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          )}
         </div>
       </header>
 

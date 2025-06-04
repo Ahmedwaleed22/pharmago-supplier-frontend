@@ -25,7 +25,7 @@ export function LanguageSwitcher({ className, compact = false }: LanguageSwitche
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+          "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
           "bg-white border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
           compact && "px-2 py-1"
         )}
@@ -53,7 +53,7 @@ export function LanguageSwitcher({ className, compact = false }: LanguageSwitche
           {/* Dropdown menu */}
           <div className={cn(
             "absolute top-full mt-1 z-50 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1",
-            isRtl ? "left-0" : "right-0"
+            "right-0"
           )}>
             {locales.map((loc) => (
               <button

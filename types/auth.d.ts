@@ -7,6 +7,7 @@ declare module Auth {
     avatar: string | null;
     created_at: string;
     updated_at: string;
+    address?: string;
   }
 
   interface Pharmacy {
@@ -46,6 +47,7 @@ declare module Auth {
   interface LoginResponse {
     token: string;
     pharmacy: Pharmacy;
+    user: User;
     message?: string;
   }
 }

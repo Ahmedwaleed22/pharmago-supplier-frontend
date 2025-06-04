@@ -28,7 +28,7 @@ function QuickAnalyticsData() {
     },
     {
       icon: "solar:users-group-rounded-linear",
-      value: `${analytics?.new_clients_count.toString()} ${t('dashboard.newClients')}`
+      value: `${analytics?.new_clients?.count.toString()} ${t('dashboard.newClients')}`
     }
   ];
   

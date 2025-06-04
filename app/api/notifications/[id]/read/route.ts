@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get cookies from the request
@@ -17,7 +17,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const notificationId = params.id;
+    const notificationId = (await params).id;
     
     // Forward the request to mark the notification as read
     const response = await axios.post(

@@ -14,6 +14,7 @@ import {
   setTagColor,
 } from "@/store/ProductCreationSlice";
 import { useTranslation } from "@/contexts/i18n-context";
+import { ProductFormSkeleton, ProductPreviewSkeleton } from "@/components/ui/dashboard/product-form-skeleton";
 
 function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
   const { t } = useTranslation();
@@ -27,17 +28,27 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
     router.push(`/dashboard/products/edit/${productId}/step-3`);
   };
 
+  // Show skeleton while component is initializing
+  if (!productData) {
+    return (
+      <ProductLayout>
+        <ProductFormSkeleton showPriceFields />
+        <ProductPreviewSkeleton />
+      </ProductLayout>
+    );
+  }
+
   return (
     <ProductLayout>
-      <div className="w-1/2">
-        <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
+      <div className="w-full xl:w-1/2">
+        <h1 className="mb-2 text-xl xl:text-2xl font-semibold text-[#414651]">
           {t('products.addProductDetails')}
         </h1>
-        <p className="mb-8 text-[#717171]">
+        <p className="mb-6 xl:mb-8 text-[#717171]">
           {t('products.boostSalesWithDetails')}
         </p>
 
-        <div className="space-y-6">
+        <div className="space-y-4 xl:space-y-6">
           <LabeledInput
             id="price"
             label={t('products.price')}
@@ -63,13 +74,16 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
             }}
           />
 
-          <LabeledInput
-            id="stock-qty"
-            label={t('products.stockQty')}
-            placeholder={t('products.stockPlaceholder')}
-            value={productData.stock}
-            onChange={(value) => dispatch(setStock(Number(value) || ""))}
-          />
+          <div className="hidden">
+            <LabeledInput
+              id="stock-qty"
+              label={t('products.stockQty')}
+              placeholder={t('products.stockPlaceholder')}
+              // value={productData.stock}
+              value={999999999999999}
+              onChange={(value) => dispatch(setStock(Number(value) || ""))}
+            />
+          </div>
 
           <LabeledInput
             id="tag"

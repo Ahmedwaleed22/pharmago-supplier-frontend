@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createSubCategoriesQueryOptions } from "@/query-options/categories-query-options";
 import Image from "next/image";
 import { useTranslation } from "@/contexts/i18n-context";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProductPreviewProps {
   className?: string;
@@ -81,13 +82,13 @@ function ProductPreview({ className }: ProductPreviewProps) {
   };
 
   return (
-    <div className={cn("w-1/2 max-w-[407px]", className)}>
-      <h2 className="mb-2 text-xl font-semibold text-[#414651]">{t('products.preview')}</h2>
-      <p className="mb-6 text-[#717171]">
+    <div className={cn("w-full xl:w-1/2 xl:max-w-[407px]", className)}>
+      <h2 className="mb-2 text-lg xl:text-xl font-semibold text-[#414651]">{t('products.preview')}</h2>
+      <p className="mb-4 xl:mb-6 text-[#717171]">
         {t('products.thisIsHowProductWillAppear')}
       </p>
 
-      <div className="rounded-lg bg-white p-6 max-w-[407px] shadow-sm">
+      <div className="rounded-lg bg-white p-4 xl:p-6 w-full xl:max-w-[407px] shadow-sm">
         <div 
           onClick={() => router.push(getImageEditPath())} 
           className={`mb-6 flex items-center justify-center rounded-lg bg-white min-h-[250px] ${!imageUrl ? "p-8 border border-dashed border-[#afafaf] cursor-pointer" : ""}`}
@@ -126,7 +127,11 @@ function ProductPreview({ className }: ProductPreviewProps) {
 
         <div className={`mb-2 flex items-center ${isRtl ? 'flex-row-reverse' : ''}`}>
           <div className="text-sm text-[#717171]">
-            {getCategoryName(productData.category)} · {getSubCategoryName(productData.subCategory)}
+            {categoriesLoading || subCategoriesLoading ? (
+              <Skeleton className="h-4 w-32" />
+            ) : (
+              `${getCategoryName(productData.category)} · ${getSubCategoryName(productData.subCategory)}`
+            )}
           </div>
           <div className={`flex items-center ml-auto`}>
             {pharmacy?.logo && (

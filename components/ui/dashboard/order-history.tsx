@@ -11,9 +11,11 @@ interface OrderHistoryProps {
   noTitle?: boolean;
   orders: Prescription.Prescription[] | Dashboard.OrderHistoryItem[];
   onSelectionChange?: (selectedIds: string[]) => void;
+  noPagination?: boolean;
+  cardFooter?: React.ReactNode;
 }
 
-function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps) {
+function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFooter = <></> }: OrderHistoryProps) {
   const { t } = useTranslation();
   
   // State to store selected order IDs
@@ -106,7 +108,7 @@ function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps)
 
   return (
     <DashboardCard className="p-0">
-      <div className="flex flex-col gap-5 p-6">
+      <div className="flex flex-col gap-3 p-6">
         <div className="flex justify-between items-center">
           {!noTitle && (
             <h3 className="text-[#414651] font-bold text-lg">{t('orderHistory.title')}</h3>
@@ -144,10 +146,12 @@ function OrderHistory({ noTitle, orders, onSelectionChange }: OrderHistoryProps)
             )}
           </div>
         </div>
-        <OrderHistoryTable 
+        <OrderHistoryTable
           orders={orders} 
           onSelectionChange={handleSelectionChange}
+          noPagination={noPagination}
         />
+        {cardFooter}
       </div>
     </DashboardCard>
   )

@@ -13,6 +13,103 @@ declare module Dashboard {
     status: string;
     start_date: string;
   }
+
+  export interface OrderHistoryResponse {
+    message: string;
+    data: {
+      orders: DeliveryOrder[];
+      pagination: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number;
+        to: number;
+      };
+      stats: {
+        total_orders: number;
+        delivered_orders: number;
+        active_orders: number;
+        canceled_orders: number;
+        delivery_success_rate: number;
+        total_revenue: number;
+        total_delivery_fees: number;
+        average_delivery_time_minutes: number;
+      };
+    };
+  }
+
+  export interface DeliveryOrder {
+    id: string;
+    user_id: string;
+    subtotal: string;
+    delivery_fees: string;
+    discount: string;
+    total: string;
+    status: string;
+    payment_status: string;
+    payment_method: string;
+    order_type: string;
+    shipping_type: string | null;
+    estimated_delivery_time: string | null;
+    is_rated: boolean;
+    can_be_rated: boolean;
+    created_at: string;
+    updated_at: string;
+    user: {
+      name: string;
+      avatar: string | null;
+      account_type: string;
+    };
+    shipping_address: {
+      id: string;
+      address: string;
+      full_address: string;
+      city: string;
+      province: string;
+      country: string;
+      label: string;
+      phone_number: string;
+      latitude: string;
+      longitude: string;
+      is_primary: boolean;
+    };
+    items: DeliveryOrderItem[];
+  }
+
+  export interface DeliveryOrderItem {
+    id: string;
+    order_id: string;
+    orderable_id: string;
+    orderable_type: string;
+    quantity: number;
+    unit_price: string;
+    discount_percentage: string;
+    subtotal: string;
+    metadata: any;
+    created_at: string;
+    updated_at: string;
+    orderable: {
+      id: string;
+      name: string;
+      image: string;
+      images: string[];
+      details: string;
+      price: string;
+      discount_percentage: string;
+      discounted_price: string;
+      description: string;
+      rating: string;
+      tag: string[];
+      stock: number;
+      in_stock: boolean;
+      currency: {
+        id: number;
+        name: string;
+        code: string;
+      };
+    };
+  }
   
   export interface GrossVolumeData {
     trend: {
@@ -20,6 +117,7 @@ declare module Dashboard {
       revenue: number;
     }[];
     growth: number;
+    growth_direction: "up" | "down" | "neutral";
     current_revenue: number;
     current_month: string;
     data: {
@@ -47,7 +145,7 @@ declare module Dashboard {
     orders_history: OrderHistoryItem[];
     pharmacy: Auth.Pharmacy;
     medicine_count: number;
-    new_clients_count: number;
+    new_clients: StatisticCard;
   }
 
   export interface Products {

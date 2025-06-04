@@ -10,6 +10,7 @@ import { resetProductCreation } from "@/store/ProductCreationSlice";
 import axios from "axios";
 import { getAuthHeader, getAuthToken } from "@/lib/api";
 import { useTranslation } from "@/contexts/i18n-context";
+import { ProductFormSkeleton, ProductPreviewSkeleton } from "@/components/ui/dashboard/product-form-skeleton";
 
 function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
   const { t } = useTranslation();
@@ -222,13 +223,23 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
     router.push(`/dashboard/products/edit/${productId}/step-3`);
   };
 
+  // Show skeleton while component is initializing
+  if (!productData) {
+    return (
+      <ProductLayout>
+        <ProductFormSkeleton showReviewButtons />
+        <ProductPreviewSkeleton />
+      </ProductLayout>
+    );
+  }
+
   return (
     <ProductLayout>
-      <div className="w-1/2">
-        <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
+      <div className="w-full xl:w-1/2">
+        <h1 className="mb-2 text-xl xl:text-2xl font-semibold text-[#414651]">
           Product Review
         </h1>
-        <p className="mb-8 text-[#717171]">
+        <p className="mb-6 xl:mb-8 text-[#717171]">
           Review your product details before submitting
         </p>
 
@@ -238,17 +249,17 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
           </div>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={goBack}
-            className="w-1/2 rounded-md border border-[#2970ff] bg-white py-2 text-center font-semibold text-[#2970ff] hover:bg-blue-50"
+            className="w-full sm:w-1/2 rounded-md border border-[#2970ff] bg-white py-2 text-center font-semibold text-[#2970ff] hover:bg-blue-50"
           >
             Back
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-1/2 rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 disabled:bg-blue-300"
+            className="w-full sm:w-1/2 rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 disabled:bg-blue-300"
           >
             {isSubmitting ? "Updating..." : "Update Product"}
           </button>

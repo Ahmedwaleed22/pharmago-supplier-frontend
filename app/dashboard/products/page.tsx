@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { PlusIcon } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
 import Breadcrumb from "@/components/ui/breadcrumb";
 import CustomButton from "@/components/custom-button";
 import CategoriesFilter from "@/components/ui/categories-filter";
@@ -10,9 +12,12 @@ import ProductsGrid from "@/components/ui/products-grid";
 import { getDashboardProducts } from "@/services/dashboard";
 import { useInView } from "react-intersection-observer";
 import { useTranslation } from "@/contexts/i18n-context";
+import { resetProductCreation } from "@/store/ProductCreationSlice";
 
 function ProductPage() {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
@@ -195,6 +200,12 @@ function ProductPage() {
     }
   };
 
+  const handleAddProduct = () => {
+    // Reset the product creation state before navigating to add page
+    dispatch(resetProductCreation());
+    router.push("/dashboard/products/add");
+  };
+
   return (
     <div className="py-8 text-blue-gray">
       <Breadcrumb
@@ -205,7 +216,7 @@ function ProductPage() {
       />
       <div className="flex justify-between items-center mt-1">
         <h1 className="text-2xl font-bold">{t('navigation.products')}</h1>
-        <CustomButton href="/dashboard/products/add">
+        <CustomButton onClick={handleAddProduct}>
           <PlusIcon className="w-4 h-4" />
           {t('products.addProduct')}
         </CustomButton>

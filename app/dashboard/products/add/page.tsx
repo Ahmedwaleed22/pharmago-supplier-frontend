@@ -20,6 +20,8 @@ import {
   createSubCategoriesQueryOptions
 } from "@/query-options/categories-query-options";
 import { useTranslation } from "@/contexts/i18n-context";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ProductFormSkeleton, ProductPreviewSkeleton } from "@/components/ui/dashboard/product-form-skeleton";
 
 function ProductAddPage() {
   const router = useRouter();
@@ -45,17 +47,27 @@ function ProductAddPage() {
     refetch: refetchSubCategories
   } = useQuery<Category.Category[]>(createSubCategoriesQueryOptions(productData.category));
 
+  // Show full skeleton if categories are loading
+  if (categoriesLoading) {
+    return (
+      <ProductLayout>
+        <ProductFormSkeleton />
+        <ProductPreviewSkeleton />
+      </ProductLayout>
+    );
+  }
+
   return (
     <ProductLayout>
-      <div className="w-1/2">
-        <h1 className="mb-2 text-2xl font-semibold text-[#414651]">
+      <div className="w-full xl:w-1/2">
+        <h1 className="mb-2 text-xl xl:text-2xl font-semibold text-[#414651]">
           {t('products.addProductDetails')}
         </h1>
-        <p className="mb-8 text-[#717171]">
+        <p className="mb-6 xl:mb-8 text-[#717171]">
           {t('products.boostSalesWithDetails')}
         </p>
 
-        <div className="space-y-6">
+        <div className="space-y-4 xl:space-y-6">
           <LabeledInput
             id="product-name"
             label={t('products.productName')}
@@ -91,17 +103,24 @@ function ProductAddPage() {
             ]}
           />
 
-          <LabeledInput
-            id="sub-category"
-            label={t('products.subCategory')}
-            type="select"
-            value={productData.subCategory}
-            onChange={(value) => dispatch(setSubCategory(value))}
-            options={subCategories.map((subCategory) => ({
-              label: subCategory.name,
-              value: subCategory.id
-            }))}
-          />
+          {subCategoriesLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : (
+            <LabeledInput
+              id="sub-category"
+              label={t('products.subCategory')}
+              type="select"
+              value={productData.subCategory}
+              onChange={(value) => dispatch(setSubCategory(value))}
+              options={subCategories.map((subCategory) => ({
+                label: subCategory.name,
+                value: subCategory.id
+              }))}
+            />
+          )}
 
           <LabeledInput
             id="product-details"

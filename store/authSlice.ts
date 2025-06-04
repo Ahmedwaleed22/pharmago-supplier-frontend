@@ -54,5 +54,9 @@ export const getPharmacy = (state: { auth: AuthState }) => {
   return state.auth.pharmacy;
 };
 
+export const getUser = (state: { auth: AuthState }) => {
+  return state.auth.user;
+};
+
 export const { setAuth, setLoading, setError, logout } = authSlice.actions;
 export default authSlice.reducer; 

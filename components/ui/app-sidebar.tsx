@@ -91,11 +91,11 @@ export function AppSidebar() {
           url: "/dashboard/prescriptions/requests",
           icon: "fontisto:prescription",
         },
-        {
-          title: t('navigation.rfqsRequests'),
-          url: "/dashboard/prescriptions/rfqs",
-          icon: "fontisto:prescription",
-        },
+        // {
+        //   title: t('navigation.rfqsRequests'),
+        //   url: "/dashboard/prescriptions/rfqs",
+        //   icon: "fontisto:prescription",
+        // },
         {
           title: t('breadcrumbs.ordersHistory'),
           url: "/dashboard/prescriptions/order-history",

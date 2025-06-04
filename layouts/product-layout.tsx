@@ -48,7 +48,7 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
 
   const BackToDashboard = () => {
     dispatch(removeAllItems());
-    router.push("/dashboard");
+    window.location.href = "/dashboard";
   };
 
   // Determine current step based on pathname pattern instead of exact match
@@ -67,30 +67,30 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
   const ChevronIcon = isRtl ? ChevronRight : ChevronLeft;
 
   return (
-    <div className="flex h-screen bg-smooth-white">
+    <div className="flex flex-col lg:flex-row h-screen bg-smooth-white">
       {/* Sidebar */}
-      <div className={`w-64 border-gray-200 bg-white ${isRtl ? 'border-l' : 'border-r'}`}>
-        <div className="px-4 py-16">
+      <div className={`w-full lg:w-64 border-gray-200 bg-white ${isRtl ? 'lg:border-l border-b lg:border-b-0' : 'lg:border-r border-b lg:border-b-0'}`}>
+        <div className="px-4 py-4 lg:py-16">
           <Link href="/dashboard">
             <Image
               src="/images/sidebar-logo.png"
               alt="PharmaGo Logo"
               width={260}
               height={50}
-              className="w-full h-full"
+              className="w-full h-full max-w-[200px] lg:max-w-none"
             />
           </Link>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-row lg:flex-col gap-2 lg:gap-6 overflow-x-auto lg:overflow-x-visible px-4 lg:px-0 pb-4 lg:pb-0">
           {steps.map((step, index) => (
             <Link href={step.href} key={index}>
               <div
                 key={index}
                 className={cn(
-                  "py-0 pl-5",
+                  "py-2 lg:py-0 px-3 lg:px-0 lg:pl-5 whitespace-nowrap lg:whitespace-normal rounded lg:rounded-none",
                   index === currentStep
-                    ? `border-r-4 border-primary-blue text-primary-blue`
+                    ? `lg:border-r-4 border-primary-blue text-primary-blue bg-blue-50 lg:bg-transparent`
                     : ''
                 )}
               >
@@ -103,8 +103,8 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
           ))}
         </div>
       </div>
-      <div className="flex-1 p-8 overflow-y-auto">
-        <div className="mb-8">
+      <div className="flex-1 p-4 xl:p-8 overflow-y-auto">
+        <div className="mb-4 xl:mb-8">
           <span
             className={`inline-flex items-center text-[#717171] hover:text-[#494949] transition-all duration-300 cursor-pointer ${isRtl ? 'flex-row-reverse' : ''}`}
             onClick={BackToDashboard}
@@ -113,7 +113,7 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
             {t('ui.backToDashboard')}
           </span>
         </div>
-        <div className={`flex gap-8 p-18 justify-between ${isRtl ? 'flex-row-reverse' : ''}`}>{children}</div>
+        <div className={`flex flex-col xl:flex-row gap-4 xl:gap-8 xl:justify-between xl:p-12 ${isRtl ? 'xl:flex-row-reverse' : ''}`}>{children}</div>
       </div>
     </div>
   );

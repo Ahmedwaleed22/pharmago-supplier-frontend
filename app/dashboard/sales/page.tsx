@@ -5,6 +5,10 @@ import StatisticCard from "@/components/ui/dashboard/statistic-card";
 import GrowthVolume from "@/components/ui/dashboard/growth-volume";
 import OrderHistory from "@/components/ui/dashboard/order-history";
 import QuickAnalytics from "@/components/ui/dashboard/quick-analytics";
+import StatisticCardSkeleton from "@/components/ui/dashboard/statistic-card-skeleton";
+import ChartSkeleton from "@/components/ui/dashboard/chart-skeleton";
+import OrderHistorySkeleton from "@/components/ui/dashboard/order-history-skeleton";
+import QuickAnalyticsSkeleton from "@/components/ui/dashboard/quick-analytics-skeleton";
 import { useQuery } from "@tanstack/react-query";
 import createDashboardAnalyticsQueryOptions from "@/query-options/dashboard-analytics-query-options";
 import { useTranslation } from "@/contexts/i18n-context";
@@ -20,7 +24,26 @@ function SalesPage() {
   const { t } = useTranslation();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <div className="flex gap-4 my-10 w-full overflow-auto pb-1">
+          {[...Array(5)].map((_, index) => (
+            <StatisticCardSkeleton key={index} />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 grid-flow-row gap-4 mt-8">
+          <div className="col-span-1 md:col-span-2 h-full">
+            <ChartSkeleton className="w-full h-[250px] min-h-[250px]" />
+          </div>
+          <div className="col-span-1 h-full">
+            <QuickAnalyticsSkeleton />
+          </div>
+        </div>
+        <div className="mt-8">
+          <OrderHistorySkeleton />
+        </div>
+      </>
+    );
   }
 
   if (isError) {

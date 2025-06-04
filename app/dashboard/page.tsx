@@ -6,6 +6,9 @@ import DashboardLayout from "@/layouts/dashboard-layout";
 import StatisticCard from "@/components/ui/dashboard/statistic-card";
 import GrowthVolume from "@/components/ui/dashboard/growth-volume";
 import OrderHistory from "@/components/ui/dashboard/order-history";
+import StatisticCardSkeleton from "@/components/ui/dashboard/statistic-card-skeleton";
+import ChartSkeleton from "@/components/ui/dashboard/chart-skeleton";
+import OrderHistorySkeleton from "@/components/ui/dashboard/order-history-skeleton";
 import { getDashboardAnalytics } from "@/services/dashboard";
 import createDashboardAnalyticsQueryOptions from "@/query-options/dashboard-analytics-query-options";
 import { useTranslation } from "@/contexts/i18n-context";
@@ -21,7 +24,21 @@ function Page() {
   const { t } = useTranslation();
 
   if (isLoading) {
-    return <div>{t('common.loading')}</div>;
+    return (
+      <>
+        <div className="flex gap-4 my-10 w-full overflow-auto pb-1">
+          {[...Array(5)].map((_, index) => (
+            <StatisticCardSkeleton key={index} />
+          ))}
+        </div>
+        <div className="mt-8">
+          <ChartSkeleton />
+        </div>
+        <div className="mt-8">
+          <OrderHistorySkeleton />
+        </div>
+      </>
+    );
   }
 
   if (isError) {
