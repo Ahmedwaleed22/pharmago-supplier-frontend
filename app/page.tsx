@@ -25,7 +25,7 @@ function LoginPage() {
   useEffect(() => {
     // If user is already authenticated, redirect to dashboard
     if (isAuthenticated()) {
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     }
 
     // Load stored credentials if they exist
@@ -66,7 +66,11 @@ function LoginPage() {
       rememberMeUtils.clearStoredCredentials();
     }
     
-    login.mutate({ email, password, remember: rememberMe });
+    login.mutate({ email, password, remember: rememberMe }, {
+      onSuccess: () => {
+        window.location.href = "/dashboard";
+      }
+    });
   };
 
   // Clear specific credential when user starts typing new values

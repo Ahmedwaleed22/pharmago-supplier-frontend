@@ -15,6 +15,7 @@ import { useTranslation } from "@/contexts/i18n-context";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import { useSearchParams } from "next/navigation";
 
 interface PusherNotificationEvent {
   type: string;
@@ -27,6 +28,7 @@ interface PusherNotificationEvent {
 
 function AppHeader() {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
   const pharmacy = useSelector(getPharmacy);
   const isAuthLoading = useSelector((state: RootState) => state.auth.isLoading);
   const queryClient = useQueryClient();
@@ -34,6 +36,7 @@ function AppHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [soundInitialized, setSoundInitialized] = useState(false);
+  const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
 
   // Get notifications data to show unread count (using default parameters)
   const { data: notificationResponse } = useQuery(createNotificationsQueryOptions(0, 1));
@@ -161,8 +164,8 @@ function AppHeader() {
         {/* Search bar - width changes based on screen size */}
         <SearchBar 
           className="w-full" 
-          value={""} 
-          setValue={() => {}} 
+          value={searchValue} 
+          setValue={setSearchValue} 
           placeholder={t('ui.searchPlaceholder')}
         />
 
@@ -262,6 +265,8 @@ function AppHeader() {
               type="text"
               placeholder={t('ui.searchPlaceholder')}
               className="w-full h-full outline-none"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
             />
           </div>
         </div>

@@ -12,6 +12,7 @@ declare module Dashboard {
     request: string;
     status: string;
     start_date: string;
+    tracking_id: string;
   }
 
   export interface OrderHistoryResponse {

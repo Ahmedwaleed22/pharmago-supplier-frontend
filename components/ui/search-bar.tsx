@@ -1,9 +1,10 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/contexts/i18n-context";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchBarProps {
   className?: string;
@@ -21,9 +22,13 @@ function SearchBar({
   setValue,
 }: SearchBarProps) {
   const { isRtl } = useI18n();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search");
   
-  const handleClear = () => {
-    setValue("");
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    router.push(`/dashboard/delivery/history?search=${value}`);
   };
 
   return (
@@ -45,16 +50,18 @@ function SearchBar({
         onChange={(e) => setValue(e.target.value)}
         dir={isRtl ? "rtl" : "ltr"}
       />
-      {value && value.length > 0 && (
-        <div 
-          onClick={handleClear}
-          className={cn(
-            "absolute border-2 border-red-500 text-red-500 hover:border-red-600 hover:text-red-600 transition-all duration-300 rounded-full cursor-pointer",
-            isRtl ? "left-3" : "right-3"
-          )}
-        >
-          <X className="w-4 h-4 font-light" />
-        </div>
+      {((value && value.length > 0) || (search && search.length > 0)) && (
+        <form className={`absolute ${isRtl ? "left-2" : "right-2"}`} onSubmit={handleSearch}>
+          <button 
+            type="submit"
+            className={cn(
+              "text-2xl p-1 bg-[#fdfdfd] shadow-sm text-primary-blue hover:border-primary-blue-hover hover:text-primary-blue-hover transition-all duration-300 rounded-sm cursor-pointer",
+              isRtl ? "left-3" : "right-3"
+            )}
+          >
+            <Search className="w-4 h-4 font-light" />
+          </button>
+        </form>
       )}
     </div>
   );

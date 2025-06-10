@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-export async function getDeliveryHistory(status: string, page: number = 1): Promise<Dashboard.OrderHistoryResponse> {
+export async function getDeliveryHistory(status: string, page: number = 1, search: string = ""): Promise<Dashboard.OrderHistoryResponse> {
   // Use our internal API route which will handle auth token properly
   const response = await axios.get('/api/delivery/history', {
     params: {
       status,
       page,
+      search,
     },
   });
 

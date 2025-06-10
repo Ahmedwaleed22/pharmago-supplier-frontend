@@ -176,7 +176,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
       case "id":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{order.id.substring(0, 8)}...</p>
+            <p className="text-bold text-small capitalize">{order && typeof order === 'object' && 'tracking_id' in order ? order.tracking_id : order.id.substring(0, 8) + '...'}</p>
           </div>
         );
       case "name":

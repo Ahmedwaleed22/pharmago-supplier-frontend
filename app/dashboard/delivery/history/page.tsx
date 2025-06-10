@@ -10,11 +10,14 @@ import { Pagination } from "@heroui/pagination";
 import { useQuery } from "@tanstack/react-query";
 import { getDeliveryHistory } from "@/services/orders";
 import { useTranslation } from "@/contexts/i18n-context";
+import { useSearchParams } from "next/navigation";
 
 function DeliveryHistoryPage() {
   const { t } = useTranslation();
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search");
 
   const statusList = [
     { key: "all", label: t('categories.all') },
@@ -26,10 +29,10 @@ function DeliveryHistoryPage() {
   ];
 
   const { data: orders, isLoading, isError } = useQuery({
-    queryKey: ["order-history", status, page],
+    queryKey: ["order-history", status, page, search],
     queryFn: () => {
-      console.log(`Fetching delivery history for status: ${status}, page: ${page}`);
-      return getDeliveryHistory(status, page);
+      console.log(`Fetching delivery history for status: ${status}, page: ${page}, search: ${search}`);
+      return getDeliveryHistory(status, page, search || "");
     },
     placeholderData: (previousData, previousQuery) => previousData,
   });

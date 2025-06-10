@@ -27,12 +27,13 @@ export async function GET(request: NextRequest) {
     const page = searchParams.get('page') || '1';
     const limit = searchParams.get('limit') || '10';
     const status = searchParams.get('status') || 'all';
+    const search = searchParams.get('search') || '';
 
-    console.log(`Delivery history API called with: status=${status}, page=${page}, limit=${limit}`);
+    console.log(`Delivery history API called with: status=${status}, page=${page}, limit=${limit}, search=${search}`);
 
     // Forward the request to the actual API with the auth token and query parameters
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/delivery/history?status=${status}`, 
+      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/delivery/history?status=${status}&search=${search}`, 
       {
         headers: {
           'Authorization': `Bearer ${token}`,
