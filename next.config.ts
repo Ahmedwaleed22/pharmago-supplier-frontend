@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["picsum.photos", "localhost", "pharmago-test.b-cdn.net", "pharmago-software.b-cdn.net"],
+    domains: ["picsum.photos", "localhost", "pharmago-test.b-cdn.net", "pharmago-final-test.b-cdn.net", "pharmago-software.b-cdn.net"],
   },
   typescript: {
     // Dangerously allow production builds to successfully complete even if
