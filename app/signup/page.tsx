@@ -527,11 +527,11 @@ function SignupPage() {
       if (response.status === 201) {
         setSuccess(t("auth.signupFunctionalityMessage"));
       } else {
-        setError(t("auth.signupFailedMessage"));
+        setError(response.data.message);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Signup error:", err);
-      setError(t("auth.signupFailedMessage"));
+      setError(err.response.data.message);
     } finally {
       setIsSubmitting(false);
     }

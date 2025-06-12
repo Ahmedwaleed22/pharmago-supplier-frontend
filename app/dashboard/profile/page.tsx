@@ -404,6 +404,13 @@ function ProfilePage() {
                   className="w-full h-full object-cover rounded-full"
                   width={96}
                   height={96}
+                  unoptimized={true}
+                  onError={(e) => {
+                    console.warn('Failed to load pharmacy logo:', pharmacy.logo);
+                    // Hide the image on error and show fallback
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
                 />
               ) : (
                 <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">

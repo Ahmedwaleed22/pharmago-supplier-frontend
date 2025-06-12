@@ -29,13 +29,15 @@ function Product({ product }: { product: Product.Medicine }) {
           )}
         </div>
         <div className="h-[193.6px]">
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={204}
-            height={148}
-            className="object-cover rounded-md"
-          />
+          {product.image.startsWith("http") && (
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={204}
+              height={148}
+              className="object-cover rounded-md"
+            />
+          )}
         </div>
         <div className="flex flex-col mt-2">
           <span className="text-md font-semibold text-blue-gray">

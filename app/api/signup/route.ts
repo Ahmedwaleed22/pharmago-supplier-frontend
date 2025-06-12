@@ -32,11 +32,20 @@ export async function POST(request: NextRequest) {
     console.error('Signup error:', error.response.data);
     
     // Return appropriate error response with translation
-    const errorResponse = await createTranslatedErrorResponse(
-      error, 
-      error.response?.status || 500, 
-      locale
-    );
-    return NextResponse.json(errorResponse, { status: error.response?.status || 500 });
+    // const errorResponse = await createTranslatedErrorResponse(
+    //   error, 
+    //   error.response?.status || 500, 
+    //   locale
+    // );
+    let messages: string = "";
+    const errorResponse = error.response.data;
+    for (const [key, value] of Object.entries(errorResponse?.errors)) {
+      messages += value + "\n";
+    }
+    console.log(messages);
+    return NextResponse.json({
+      "status": "error",
+      "message": messages
+    }, { status: error.response?.status || 500 });
   }
 }

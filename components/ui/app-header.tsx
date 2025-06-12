@@ -216,6 +216,12 @@ function AppHeader() {
                       width={40}
                       height={40}
                       className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px] rounded-full"
+                      unoptimized={true}
+                      onError={(e) => {
+                        console.warn('Failed to load pharmacy logo in header:', pharmacy?.logo);
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
                     />
                   )}
                   <div className="flex flex-col sm:flex">
