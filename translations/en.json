@@ -59,7 +59,10 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Dec"
-    }
+    },
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info"
   },
   "auth": {
     "login": "Log In",
@@ -444,23 +447,6 @@
     "setPrimarySuccess": "Advertisement set as primary successfully!",
     "setPrimaryError": "Failed to set advertisement as primary. Please try again.",
     "deleting": "Deleting..."
-  },
-  "common": {
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "save": "Save",
-    "delete": "Delete",
-    "edit": "Edit",
-    "add": "Add",
-    "close": "Close",
-    "back": "Back",
-    "next": "Next",
-    "submit": "Submit",
-    "loading": "Loading...",
-    "success": "Success",
-    "error": "Error",
-    "warning": "Warning",
-    "info": "Info"
   },
   "map": {
     "selectLocation": "Select Location",
