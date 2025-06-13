@@ -59,7 +59,10 @@
       "oct": "Oct",
       "nov": "Nov",
       "dec": "Déc"
-    }
+    },
+    "success": "Succès",
+    "warning": "Avertissement",
+    "info": "Information"
   },
   "auth": {
     "login": "Connexion",
@@ -443,23 +446,6 @@
     "setPrimarySuccess": "Publicité définie comme principale avec succès !",
     "setPrimaryError": "Échec de la définition de la publicité comme principale. Veuillez réessayer.",
     "deleting": "Suppression en cours..."
-  },
-  "common": {
-    "cancel": "Annuler",
-    "confirm": "Confirmer",
-    "save": "Enregistrer",
-    "delete": "Supprimer",
-    "edit": "Modifier",
-    "add": "Ajouter",
-    "close": "Fermer",
-    "back": "Retour",
-    "next": "Suivant",
-    "submit": "Soumettre",
-    "loading": "Chargement...",
-    "success": "Succès",
-    "error": "Erreur",
-    "warning": "Avertissement",
-    "info": "Information"
   },
   "map": {
     "selectLocation": "Sélectionner l'Emplacement",
