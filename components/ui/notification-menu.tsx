@@ -101,7 +101,7 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
     }
     
     // Navigate to the notification link if provided
-    if (notification.link) {
+    if (notification.link && notification.category === "prescription") {
       window.open(notification.link, '_self');
     }
   };

@@ -1,15 +1,22 @@
 "use client";
 
 import React, { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 function LoginPage() {
   const router = useRouter()
 
+  const searchParams = useSearchParams();
+  const message = searchParams.get("message");
+
   useEffect(() => {
     // Redirect to home page
-    router.push('/')
-  }, [router])
+    if (message) {
+      router.push(`/?message=${message}`)
+    } else {
+      router.push('/')
+    }
+  }, [router, message])
 
   return (
     <div className="flex h-screen w-full bg-[#F4F4F4] items-center justify-center">
