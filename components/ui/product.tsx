@@ -9,13 +9,13 @@ function Product({ product }: { product: Product.Medicine }) {
   return (
     <Link
       href={`/dashboard/products/edit/${product.id}`}
-      className="block h-full w-full"
+      className="block h-full w-full min-w-[180px]"
     >
       <div
         key={product.id}
-        className="h-full w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-3 relative cursor-pointer"
+        className="h-full w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-2 relative cursor-pointer"
       >
-        <div className="absolute left-3 top-2">
+        <div className="absolute left-2 top-2 z-10">
           {tag && tag.title && tag.color && (
           <span
             className="text-xs font-bold text-white bg-primary px-2 py-1 rounded-tl-md rounded-br-md"
@@ -28,22 +28,22 @@ function Product({ product }: { product: Product.Medicine }) {
             </span>
           )}
         </div>
-        <div className="h-[193.6px]">
+        <div className="w-full h-32 sm:h-36 md:h-40 lg:h-44 xl:h-48 mb-2 flex items-center justify-center overflow-hidden rounded-md bg-gray-50">
           {product.image.startsWith("http") && (
             <Image
               src={product.image}
               alt={product.name}
-              width={204}
-              height={148}
-              className="object-cover rounded-md"
+              width={300}
+              height={200}
+              className="w-full h-full object-cover"
             />
           )}
         </div>
-        <div className="flex flex-col mt-2">
-          <span className="text-md font-semibold text-blue-gray">
+        <div className="flex flex-col">
+          <span className="text-xs sm:text-sm font-semibold text-blue-gray mb-1 line-clamp-2">
             {product.name}
           </span>
-          <span className="text-md font-bold text-primary">
+          <span className="text-xs sm:text-sm font-bold text-primary">
             {formatPrice(Number(product.price), product.currency as Product.Currency)}
           </span>
         </div>

@@ -100,6 +100,10 @@
     "step": "الخطوة",
     "alreadyHaveAccount": "لديك حساب بالفعل؟",
     "logIn": "تسجيل الدخول",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "resetPasswordSuccessMessage": "تم إرسال رابط إعادة تعيين كلمة المرور إلى عنوان بريدك الإلكتروني. يرجى التحقق من صندوق الوارد واتباع التعليمات.",
+    "resetPasswordFailedMessage": "فشل في إرسال بريد إعادة تعيين كلمة المرور. يرجى التحقق من عنوان بريدك الإلكتروني والمحاولة مرة أخرى.",
+    "sendingResetEmail": "جاري إرسال بريد إعادة التعيين...",
     "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
     "signupFunctionalityMessage": "تم إنشاء حسابك بنجاح وهو في انتظار موافقة المدير.",
     "signupFailedMessage": "فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.",
@@ -441,6 +445,23 @@
     "setPrimaryError": "فشل في تعيين الإعلان كأساسي. يرجى المحاولة مرة أخرى.",
     "deleting": "جاري الحذف..."
   },
+  "common": {
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "loading": "جاري التحميل...",
+    "success": "نجح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "معلومات"
+  },
   "map": {
     "selectLocation": "اختر الموقع",
     "searchPlaceholder": "ابحث عن موقع...",
@@ -450,6 +471,10 @@
     "useMyLocation": "استخدم موقعي",
     "confirmLocation": "تأكيد الموقع",
     "selectedLocation": "الموقع المحدد",
-    "unableToGetLocationManual": "غير قادر على تحديد موقعك. يرجى التحديد يدوياً على الخريطة."
+    "unableToGetLocationManual": "غير قادر على تحديد موقعك. يرجى التحديد يدوياً على الخريطة.",
+    "locationSelected": "تم اختيار الموقع",
+    "clickOnMap": "انقر على الخريطة لاختيار موقع",
+    "searchForPlace": "ابحث عن مكان أو انقر على الخريطة",
+    "confirmYourSelection": "أكد اختيارك للمتابعة"
   }
 } 

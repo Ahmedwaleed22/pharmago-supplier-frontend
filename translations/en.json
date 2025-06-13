@@ -100,6 +100,10 @@
     "step": "Step",
     "alreadyHaveAccount": "Already have an account?",
     "logIn": "Log In",
+    "resetPassword": "Reset Password",
+    "resetPasswordSuccessMessage": "Password reset link has been sent to your email address. Please check your inbox and follow the instructions.",
+    "resetPasswordFailedMessage": "Failed to send password reset email. Please check your email address and try again.",
+    "sendingResetEmail": "Sending reset email...",
     "passwordsDoNotMatch": "Passwords don't match",
     "signupFunctionalityMessage": "Your account has been created successfully and is pending administrator approval.",
     "signupFailedMessage": "Signup failed. Please try again.",
@@ -441,6 +445,23 @@
     "setPrimaryError": "Failed to set advertisement as primary. Please try again.",
     "deleting": "Deleting..."
   },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
   "map": {
     "selectLocation": "Select Location",
     "searchPlaceholder": "Search for a location...",
@@ -450,6 +471,10 @@
     "useMyLocation": "Use My Location",
     "confirmLocation": "Confirm Location",
     "selectedLocation": "Selected Location",
-    "unableToGetLocationManual": "Unable to determine your location. Please select manually on the map."
+    "unableToGetLocationManual": "Unable to determine your location. Please select manually on the map.",
+    "locationSelected": "Location selected",
+    "clickOnMap": "Click on the map to select a location",
+    "searchForPlace": "Search for a place or click on the map",
+    "confirmYourSelection": "Confirm your selection to proceed"
   }
 } 

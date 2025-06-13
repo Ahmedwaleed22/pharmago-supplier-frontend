@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { loginPharmacy, setAuthData, logout as logoutApi } from "@/lib/api";
+import { resetPassword as resetPasswordPharmacy } from "@/lib/api";
 import { useTranslation } from "@/contexts/i18n-context";
 
 // Function to translate API errors to user-friendly messages
@@ -77,4 +78,15 @@ export function useAuth() {
     isLoading: login.isPending,
     error: translatedError,
   };
+}
+
+export function useResetPassword() {
+  const { t } = useTranslation();
+  const { mutate: resetPassword, isPending, error } = useMutation({
+    mutationFn: (email: string) => resetPasswordPharmacy(email),
+    onError: (error) => {
+      console.error("Reset password failed:", error);
+    },
+  });
+  return { resetPassword, isPending, error, t };
 } 
