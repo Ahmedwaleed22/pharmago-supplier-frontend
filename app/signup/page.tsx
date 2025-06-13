@@ -73,6 +73,43 @@ const formatPhoneNumber = (value: string): string => {
   }
 };
 
+// Password validation function that matches Laravel validation rules
+const validatePassword = (password: string, t?: (key: string) => string): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+
+  // Check if required
+  if (!password || password.trim() === '') {
+    return { isValid: false, errors: [t ? t('auth.passwordRequired') : 'Password is required'] };
+  }
+
+  // Minimum 8 characters
+  if (password.length < 8) {
+    errors.push(t ? t('auth.passwordMinLength') : 'Password must be at least 8 characters long');
+  }
+
+  // Must contain letters
+  if (!/[a-zA-Z]/.test(password)) {
+    errors.push(t ? t('auth.passwordMustContainLetters') : 'Password must contain letters');
+  }
+
+  // Must contain mixed case (both uppercase and lowercase)
+  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password)) {
+    errors.push(t ? t('auth.passwordMustContainMixedCase') : 'Password must contain both uppercase and lowercase letters');
+  }
+
+  // Must contain numbers
+  if (!/[0-9]/.test(password)) {
+    errors.push(t ? t('auth.passwordMustContainNumbers') : 'Password must contain numbers');
+  }
+
+  // Must contain symbols
+  if (!/[^a-zA-Z0-9]/.test(password)) {
+    errors.push(t ? t('auth.passwordMustContainSymbols') : 'Password must contain symbols');
+  }
+
+  return { isValid: errors.length === 0, errors };
+};
+
 // Phone number validation function
 const validatePhoneNumber = (phoneNumber: string, t?: (key: string) => string): { isValid: boolean; error?: string } => {
   // Check if required
@@ -117,6 +154,7 @@ function SignupPage() {
   const [country, setCountry] = useState<number | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState<string | null>(null);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
 
   // Step 2 - Pharmacy Details
   const [pharmacyName, setPharmacyName] = useState("");
@@ -147,6 +185,20 @@ function SignupPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Handle password change with real-time validation
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    
+    // Real-time password validation
+    if (value.trim() !== '') {
+      const validation = validatePassword(value, t);
+      setPasswordErrors(validation.errors);
+    } else {
+      setPasswordErrors([]);
+    }
+  };
 
   // Phone number validation and formatting handlers
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -333,6 +385,15 @@ function SignupPage() {
     
     if (!agreeToTerms) {
       errors.push(t("auth.agreeToTermsRequired"));
+    }
+
+    // Validate password complexity
+    if (password.trim()) {
+      const passwordValidation = validatePassword(password, t);
+      if (!passwordValidation.isValid) {
+        setPasswordErrors(passwordValidation.errors);
+        errors.push(...passwordValidation.errors);
+      }
     }
 
     // Validate phone number format
@@ -525,7 +586,8 @@ function SignupPage() {
       });
       
       if (response.status === 201) {
-        setSuccess(t("auth.signupFunctionalityMessage"));
+        // setSuccess(t("auth.signupFunctionalityMessage"));
+        window.location.href = `/login?message=${t("auth.signupFunctionalityMessage")}`;
       } else {
         setError(response.data.message);
       }
@@ -542,8 +604,10 @@ function SignupPage() {
   };
 
   const handleLocationSelect = (location: { name: string; lat: number; lng: number; address: string }) => {
+    console.log('Location selected:', location);
     setSelectedLocationData(location);
     setLocationOfBranch(location.address);
+    console.log('Location data set:', { selectedLocationData: location, locationOfBranch: location.address });
   };
 
   const openMapPicker = () => {
@@ -584,17 +648,28 @@ function SignupPage() {
         >
           {t("auth.password")}
         </label>
-        <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
+        <div className={`flex items-center border-2 rounded-xl shadow-sm px-3 py-2 ${
+          passwordErrors.length > 0 ? 'border-red-500 bg-red-50' : 'border-[#E4E4E7]'
+        }`}>
           <input
             id="password"
             type={showPassword ? "text" : "password"}
             placeholder={t("auth.enterYourPassword")}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
+            onChange={handlePasswordChange}
+            className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] ${
+              passwordErrors.length > 0 ? 'text-red-900 bg-red-50' : 'text-black'
+            }`}
             required
           />
         </div>
+        {passwordErrors.length > 0 && (
+          <div className="mt-1 px-0.5">
+            {passwordErrors.map((error, index) => (
+              <p key={index} className="text-red-500 text-xs">{error}</p>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col">
@@ -761,23 +836,39 @@ function SignupPage() {
         >
           {t("auth.locationOfBranch")}
         </label>
-        <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
+        <div className={`flex items-center border-2 rounded-xl shadow-sm px-3 py-2 ${
+          selectedLocationData ? 'border-green-500 bg-green-50' : 'border-[#E4E4E7]'
+        }`}>
           <input
             id="locationOfBranch"
             type="text"
             placeholder={t("auth.locationOfBranch")}
             value={locationOfBranch}
             onChange={(e) => setLocationOfBranch(e.target.value)}
-            className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
+            className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] ${
+              selectedLocationData ? 'text-green-900 bg-green-50' : 'text-black'
+            }`}
             required
           />
           <div className="cursor-pointer relative" onClick={openMapPicker}>
-            <Icon icon="ph:gps-light" className="text-blue-gray hover:text-blue-gray/80 transition-all duration-300 h-6 w-6" />
-            {currentLocation && !locationError && (
+            <Icon 
+              icon={selectedLocationData ? "ph:check-circle-fill" : "ph:gps-light"} 
+              className={`transition-all duration-300 h-6 w-6 ${
+                selectedLocationData 
+                  ? 'text-green-500' 
+                  : 'text-blue-gray hover:text-blue-gray/80'
+              }`} 
+            />
+            {currentLocation && !locationError && !selectedLocationData && (
               <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></div>
             )}
           </div>
         </div>
+        {selectedLocationData && (
+          <p className="text-green-600 text-xs mt-1 px-0.5">
+            ✓ Location selected: {selectedLocationData.name}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col">

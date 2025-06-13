@@ -112,7 +112,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
         console.error("Error loading Google Maps:", error);
         setIsLoading(false);
       });
-  }, [isOpen, apiKey, initialLocation]);
+  }, [isOpen, apiKey, initialLocation, t]);
 
   const reverseGeocode = (position: google.maps.LatLng) => {
     if (!geocoder) return;
@@ -126,6 +126,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
           lng: position.lng(),
           address: result.formatted_address,
         };
+        console.log('Reverse geocoded location:', location);
         setSelectedLocation(location);
       }
     });
@@ -171,9 +172,12 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
   };
 
   const handleConfirm = () => {
+    console.log('Confirming location:', selectedLocation);
     if (selectedLocation) {
       onLocationSelect(selectedLocation);
       onClose();
+    } else {
+      console.log('No location selected');
     }
   };
 

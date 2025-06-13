@@ -8,7 +8,7 @@ import { isAuthenticated } from "@/lib/api";
 import { useTranslation } from "@/contexts/i18n-context";
 import LanguageSwitcher from "@/components/language-switcher";
 import { rememberMeUtils } from "@/lib/remember-me";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function LoginPage() {
   const router = useRouter();
@@ -17,9 +17,18 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isFormReady, setIsFormReady] = useState(false);
-  
+  const [success, setSuccess] = useState("");
   const { login, isLoading, error } = useAuth();
   const { t, isRtl } = useTranslation();
+
+  const searchParams = useSearchParams();
+  const message = searchParams.get("message");
+
+  useEffect(() => {
+    if (message) {
+      setSuccess(message);
+    }
+  }, [message]);
 
   // Load stored credentials on component mount
   useEffect(() => {
@@ -153,6 +162,11 @@ function LoginPage() {
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 p-3 bg-green-50 text-green-600 border border-green-200 rounded-lg text-sm">
+              {success}
             </div>
           )}
           
