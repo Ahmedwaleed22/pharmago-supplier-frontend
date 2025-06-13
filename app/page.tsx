@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { useAuth } from "@/hooks/use-auth";
 import { isAuthenticated } from "@/lib/api";
@@ -10,7 +10,7 @@ import LanguageSwitcher from "@/components/language-switcher";
 import { rememberMeUtils } from "@/lib/remember-me";
 import { useRouter, useSearchParams } from "next/navigation";
 
-function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -254,6 +254,21 @@ function LoginPage() {
       </div>
     </div>
   );
-} 
+}
+
+function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full bg-[#F4F4F4] items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-blue mx-auto"></div>
+          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  )
+}
 
 export default LoginPage;
