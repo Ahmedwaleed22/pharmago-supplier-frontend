@@ -99,6 +99,10 @@ export async function loginPharmacy(
   }
 }
 
+export async function resetPassword(email: string): Promise<boolean> {
+  return true;
+}
+
 export async function logout(): Promise<void> {
   try {
     // If we need to call a logout API endpoint

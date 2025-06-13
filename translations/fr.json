@@ -99,6 +99,10 @@
     "step": "Étape",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "logIn": "Connexion",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "resetPasswordSuccessMessage": "Un lien de réinitialisation du mot de passe a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception et suivre les instructions.",
+    "resetPasswordFailedMessage": "Échec de l'envoi de l'e-mail de réinitialisation du mot de passe. Veuillez vérifier votre adresse e-mail et réessayer.",
+    "sendingResetEmail": "Envoi de l'e-mail de réinitialisation...",
     "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
     "signupFunctionalityMessage": "Votre compte a été créé avec succès et est en attente d'approbation de l'administrateur.",
     "signupFailedMessage": "Échec de l'inscription. Veuillez réessayer.",
@@ -440,6 +444,23 @@
     "setPrimaryError": "Échec de la définition de la publicité comme principale. Veuillez réessayer.",
     "deleting": "Suppression en cours..."
   },
+  "common": {
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "loading": "Chargement...",
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Avertissement",
+    "info": "Information"
+  },
   "map": {
     "selectLocation": "Sélectionner l'Emplacement",
     "searchPlaceholder": "Rechercher un emplacement...",
@@ -449,6 +470,10 @@
     "useMyLocation": "Utiliser Mon Emplacement",
     "confirmLocation": "Confirmer l'Emplacement",
     "selectedLocation": "Emplacement Sélectionné",
-    "unableToGetLocationManual": "Impossible de déterminer votre emplacement. Veuillez sélectionner manuellement sur la carte."
+    "unableToGetLocationManual": "Impossible de déterminer votre emplacement. Veuillez sélectionner manuellement sur la carte.",
+    "locationSelected": "Emplacement sélectionné",
+    "clickOnMap": "Cliquez sur la carte pour sélectionner un emplacement",
+    "searchForPlace": "Recherchez un lieu ou cliquez sur la carte",
+    "confirmYourSelection": "Confirmez votre sélection pour continuer"
   }
 } 

@@ -126,7 +126,6 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
           lng: position.lng(),
           address: result.formatted_address,
         };
-        console.log('Reverse geocoded location:', location);
         setSelectedLocation(location);
       }
     });
@@ -172,12 +171,9 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
   };
 
   const handleConfirm = () => {
-    console.log('Confirming location:', selectedLocation);
     if (selectedLocation) {
       onLocationSelect(selectedLocation);
       onClose();
-    } else {
-      console.log('No location selected');
     }
   };
 

@@ -230,9 +230,9 @@ function LoginPage() {
                 </label>
               </div>
               
-              <button type="button" className="text-sm text-[#71717A] font-medium">
+              <Link href="/forgot-password" className="text-sm text-[#71717A] font-medium">
                 {t('auth.forgotPassword')}
-              </button>
+              </Link>
             </div>
             
             <button

@@ -99,6 +99,10 @@
     "step": "Paso",
     "alreadyHaveAccount": "¿Ya tienes una cuenta?",
     "logIn": "Iniciar sesión",
+    "resetPassword": "Restablecer contraseña",
+    "resetPasswordSuccessMessage": "Se ha enviado un enlace para restablecer la contraseña a tu dirección de correo electrónico. Por favor, revisa tu bandeja de entrada y sigue las instrucciones.",
+    "resetPasswordFailedMessage": "Error al enviar el correo de restablecimiento de contraseña. Por favor, verifica tu dirección de correo electrónico e intenta de nuevo.",
+    "sendingResetEmail": "Enviando correo de restablecimiento...",
     "passwordsDoNotMatch": "Las contraseñas no coinciden",
     "signupFunctionalityMessage": "Tu cuenta ha sido creada exitosamente y está pendiente de aprobación del administrador.",
     "signupFailedMessage": "Error en el registro. Por favor, inténtalo de nuevo.",
@@ -440,6 +444,23 @@
     "setPrimaryError": "Error al establecer el anuncio como principal. Por favor, inténtalo de nuevo.",
     "deleting": "Eliminando..."
   },
+  "common": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "loading": "Cargando...",
+    "success": "Éxito",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Información"
+  },
   "map": {
     "selectLocation": "Seleccionar Ubicación",
     "searchPlaceholder": "Buscar una ubicación...",
@@ -449,6 +470,10 @@
     "useMyLocation": "Usar Mi Ubicación",
     "confirmLocation": "Confirmar Ubicación",
     "selectedLocation": "Ubicación Seleccionada",
-    "unableToGetLocationManual": "No se puede determinar tu ubicación. Por favor, selecciona manualmente en el mapa."
+    "unableToGetLocationManual": "No se puede determinar tu ubicación. Por favor, selecciona manualmente en el mapa.",
+    "locationSelected": "Ubicación seleccionada",
+    "clickOnMap": "Haz clic en el mapa para seleccionar una ubicación",
+    "searchForPlace": "Busca un lugar o haz clic en el mapa",
+    "confirmYourSelection": "Confirma tu selección para continuar"
   }
 }

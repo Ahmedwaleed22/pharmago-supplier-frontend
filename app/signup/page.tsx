@@ -604,10 +604,8 @@ function SignupPage() {
   };
 
   const handleLocationSelect = (location: { name: string; lat: number; lng: number; address: string }) => {
-    console.log('Location selected:', location);
     setSelectedLocationData(location);
     setLocationOfBranch(location.address);
-    console.log('Location data set:', { selectedLocationData: location, locationOfBranch: location.address });
   };
 
   const openMapPicker = () => {
@@ -866,7 +864,7 @@ function SignupPage() {
         </div>
         {selectedLocationData && (
           <p className="text-green-600 text-xs mt-1 px-0.5">
-            ✓ Location selected: {selectedLocationData.name}
+            ✓ {t("map.locationSelected")}: {selectedLocationData.name}
           </p>
         )}
       </div>
