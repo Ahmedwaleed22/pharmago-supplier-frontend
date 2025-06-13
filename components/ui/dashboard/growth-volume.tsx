@@ -36,7 +36,7 @@ function GrowthVolume({ className, data, currency }: GrowthVolumeProps) {
             <GrowthRate
               growth={data.growth}
               className={`font-semibold text-2xl !px-3 !py-[.35em] !rounded-xl ${data.growth_direction === "up" ? "!text-[#16B364] !bg-[#C9FCD3]" : "!text-[#F5A524] !bg-[#F5A524]/20"}`} 
-              icon={data.growth_direction === "down" ? "/images/dashboard/grow-arrow-drop.svg" : "/images/dashboard/grow-arrow-up.svg"}
+              icon={data.growth_direction === "down" || data.growth_direction === "neutral" ? "/images/dashboard/grow-arrow-drop.svg" : "/images/dashboard/grow-arrow-up.svg"}
               iconPosition="left"
               iconSize={20}
               trend_direction={data.growth_direction}
