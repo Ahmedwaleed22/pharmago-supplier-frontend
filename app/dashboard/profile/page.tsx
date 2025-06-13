@@ -204,10 +204,18 @@ function ProfilePage() {
         logo: file,
       }));
 
-      // Create preview
+      // Create preview immediately
       const reader = new FileReader();
       reader.onload = (e) => {
-        setLogoPreview(e.target?.result as string);
+        if (e.target?.result) {
+          setLogoPreview(e.target.result as string);
+        }
+      };
+      reader.onerror = () => {
+        setErrors((prev) => ({
+          ...prev,
+          logo: t("profile.imageReadError") || "Error reading image file",
+        }));
       };
       reader.readAsDataURL(file);
 
