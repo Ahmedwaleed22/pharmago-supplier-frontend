@@ -39,7 +39,7 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
       }
     ) || "[]");
     formData.append("category_id", productData.subCategory || productData.category);
-    formData.append("stock", productData.stock || "0");
+    formData.append("stock", productData.stock || "99999999");
     
     // Add notes if available
     if (productData.notes) {
