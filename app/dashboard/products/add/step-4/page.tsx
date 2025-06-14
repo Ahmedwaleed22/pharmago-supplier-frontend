@@ -37,7 +37,7 @@ function ProductAddStep4Page() {
       }
     ) || "[]");
     formData.append("category_id", productData.category);
-    formData.append("stock", productData.stock || "0");
+    formData.append("stock", productData.stock || "99999999");
     
     // Add notes if available
     if (productData.notes) {
