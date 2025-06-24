@@ -9,7 +9,7 @@ function Product({ product }: { product: Product.Medicine }) {
   return (
     <Link
       href={`/dashboard/products/edit/${product.id}`}
-      className="block h-full w-full min-w-[180px]"
+      className="block h-full w-full min-w-[180px] max-w-[220px]"
     >
       <div
         key={product.id}
