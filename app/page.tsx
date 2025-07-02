@@ -170,13 +170,15 @@ function LoginContent() {
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3" name="login" data-form-type="login">
             <div className="flex flex-col">
               <label htmlFor="email" className="text-sm text-[#414651] mb-3 px-0.5">{t('auth.email')}</label>
               <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
                 <input
                   id="email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   placeholder={t('auth.enterEmail')}
                   value={email}
                   onChange={handleEmailChange}
@@ -191,7 +193,9 @@ function LoginContent() {
               <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   placeholder={t('auth.enterPassword')}
                   value={password}
                   onChange={handlePasswordChange}

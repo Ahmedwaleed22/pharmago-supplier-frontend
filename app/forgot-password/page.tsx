@@ -6,9 +6,11 @@ import Image from "next/image";
 import { useResetPassword } from "@/hooks/use-auth";
 import { useTranslation } from "@/contexts/i18n-context";
 import LanguageSwitcher from "@/components/language-switcher";
+import CountryCodeSelect from "@/components/ui/country-code-select";
 
 function ForgetPasswordPage() {
-  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const { resetPassword, isPending } = useResetPassword();
@@ -17,13 +19,19 @@ function ForgetPasswordPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email) {
-      setError(t("auth.emailRequired"));
+    if (!phoneNumber) {
+      setError(t("auth.phoneNumberRequired"));
       setSuccess("");
       return;
     }
 
-    resetPassword(email, {
+    // Combine country code with phone number
+    let formattedPhoneNumber = phoneNumber.replace(/\D/g, '');
+    if (countryCode) {
+      formattedPhoneNumber = `${countryCode}${formattedPhoneNumber}`;
+    }
+
+    resetPassword(formattedPhoneNumber, {
       onSuccess: () => {
         setSuccess(t("auth.resetPasswordSuccessMessage"));
         setError("");
@@ -35,8 +43,22 @@ function ForgetPasswordPage() {
     });
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove all non-numeric characters
+    const numericValue = e.target.value.replace(/\D/g, '');
+    
+    // Basic formatting - you can enhance this based on country code if needed
+    let formattedValue = numericValue;
+    
+    // For US/Canada (+1), apply (XXX) XXX-XXXX format
+    if (countryCode === "+1" && numericValue.length >= 6) {
+      formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+    } else if (numericValue.length > 0) {
+      // For other countries, just add spaces every 3-4 digits for readability
+      formattedValue = numericValue.replace(/(\d{3,4})/g, '$1 ').trim();
+    }
+    
+    setPhoneNumber(formattedValue);
   };
 
   return (
@@ -112,21 +134,27 @@ function ForgetPasswordPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col">
               <label
-                htmlFor="email"
+                htmlFor="phoneNumber"
                 className="text-sm text-[#414651] mb-3 px-0.5"
               >
-                {t("auth.enterEmail")}
+                {t("auth.enterPhoneNumber")}
               </label>
-              <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
-                <input
-                  id="email"
-                  type="email"
-                  placeholder={t("auth.enterEmail")}
-                  value={email}
-                  onChange={handleEmailChange}
-                  className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
-                  required
+              <div className="flex items-center">
+                <CountryCodeSelect
+                  selectedCountryCode={countryCode}
+                  onCountryCodeChange={setCountryCode}
                 />
+                <div className="flex-1 flex items-center border-2 border-l-0 border-[#E4E4E7] rounded-r-xl shadow-sm px-3 py-2">
+                  <input
+                    id="phoneNumber"
+                    type="tel"
+                    placeholder={t("auth.enterPhoneNumber")}
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
