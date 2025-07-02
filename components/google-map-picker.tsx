@@ -42,6 +42,8 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
   const [searchInput, setSearchInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
+  const [geocodingError, setGeocodingError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !apiKey) return;
@@ -87,6 +89,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
             "click",
             (event: google.maps.MapMouseEvent) => {
               if (event.latLng) {
+                console.log("Map clicked at:", event.latLng.lat(), event.latLng.lng());
                 const position = event.latLng;
                 markerInstance.setPosition(position);
                 reverseGeocode(position);
@@ -98,6 +101,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
           markerInstance.addListener("dragend", () => {
             const position = markerInstance.getPosition();
             if (position) {
+              console.log("Marker dragged to:", position.lat(), position.lng());
               reverseGeocode(position);
             }
           });
@@ -115,9 +119,19 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
   }, [isOpen, apiKey, initialLocation, t]);
 
   const reverseGeocode = (position: google.maps.LatLng) => {
-    if (!geocoder) return;
+    if (!geocoder) {
+      console.error("Geocoder not initialized");
+      return;
+    }
+
+    console.log("Starting reverse geocoding for position:", position.lat(), position.lng());
+    setIsReverseGeocoding(true);
+    setGeocodingError(null);
 
     geocoder.geocode({ location: position }, (results, status) => {
+      console.log("Geocoding response:", { status, results });
+      setIsReverseGeocoding(false);
+
       if (status === "OK" && results && results[0]) {
         const result = results[0];
         const location: Location = {
@@ -126,7 +140,31 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
           lng: position.lng(),
           address: result.formatted_address,
         };
+        console.log("Setting selected location:", location);
         setSelectedLocation(location);
+        setGeocodingError(null);
+      } else {
+        console.error("Geocoding failed:", status);
+        
+        // Create a basic location even if geocoding fails
+        const fallbackLocation: Location = {
+          name: t("map.selectedLocation") || "Selected Location",
+          lat: position.lat(),
+          lng: position.lng(),
+          address: `${position.lat().toFixed(6)}, ${position.lng().toFixed(6)}`,
+        };
+        
+        setSelectedLocation(fallbackLocation);
+        
+        if (status === "ZERO_RESULTS") {
+          setGeocodingError(t("map.noAddressFound") || "No address found for this location");
+        } else if (status === "OVER_QUERY_LIMIT") {
+          setGeocodingError(t("map.quotaExceeded") || "Geocoding quota exceeded");
+        } else if (status === "REQUEST_DENIED") {
+          setGeocodingError(t("map.requestDenied") || "Geocoding request denied");
+        } else {
+          setGeocodingError(t("map.geocodingError") || "Unable to get address for this location");
+        }
       }
     });
   };
@@ -313,6 +351,16 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
             </div>
           )}
           <div ref={mapRef} className="w-full h-full" />
+          
+          {/* Reverse Geocoding Loading Indicator */}
+          {isReverseGeocoding && (
+            <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md px-3 py-2 flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+              <span className="text-sm text-gray-600">
+                {t("map.gettingAddress") || "Getting address..."}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Selected Location Info */}
@@ -328,6 +376,12 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
               <p className="text-xs text-gray-500 mt-1">
                 {t("map.coordinates")}: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
               </p>
+              {geocodingError && (
+                <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                  <Icon icon="ph:warning" className="h-3 w-3" />
+                  {geocodingError}
+                </p>
+              )}
             </div>
           </div>
         )}

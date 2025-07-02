@@ -99,8 +99,14 @@ export async function loginPharmacy(
   }
 }
 
-export async function resetPassword(email: string): Promise<boolean> {
-  return true;
+export async function resetPassword(phoneNumber: string): Promise<boolean> {
+  try {
+    const response = await axios.post("/api/forgot-password", { phoneNumber });
+    return response.data;
+  } catch (error) {
+    console.error("Reset password error:", error);
+    throw error;
+  }
 }
 
 export async function logout(): Promise<void> {

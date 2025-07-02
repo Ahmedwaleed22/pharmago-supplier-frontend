@@ -12,6 +12,7 @@ import CustomButton from "@/components/custom-button";
 import { useQuery } from "@tanstack/react-query";
 import { getCountries } from "@/services/countries";
 import CountriesSelectBox from "@/components/ui/countries-select-box";
+import CountryCodeSelect from "@/components/ui/country-code-select";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import GoogleMapPicker from "@/components/google-map-picker";
 import ImageUpload from "@/components/image-upload";
@@ -143,6 +144,26 @@ const validatePhoneNumber = (phoneNumber: string, t?: (key: string) => string): 
   return { isValid: true };
 };
 
+// WhatsApp number checking function
+const checkWhatsAppNumber = async (phoneNumber: string, countryCode: string): Promise<{ hasWhatsApp: boolean; error?: string }> => {
+  try {
+    // Combine country code with phone number for checking
+    const fullPhoneNumber = countryCode ? `${countryCode}${cleanPhoneNumber(phoneNumber)}` : cleanPhoneNumber(phoneNumber);
+    
+    const response = await axios.post('/api/whatsapp/check-number', {
+      phoneNumber: fullPhoneNumber
+    });
+    
+    return { hasWhatsApp: response.data.has_whatsapp || false };
+  } catch (error: any) {
+    console.error('WhatsApp check error:', error);
+    return { 
+      hasWhatsApp: false, 
+      error: error.response?.data?.error || 'Failed to check WhatsApp number' 
+    };
+  }
+};
+
 function SignupPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -152,6 +173,7 @@ function SignupPage() {
   const [password, setPassword] = useState("");
   const [retypePassword, setRetypePassword] = useState("");
   const [country, setCountry] = useState<number | null>(null);
+  const [countryCode, setCountryCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState<string | null>(null);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
@@ -161,6 +183,7 @@ function SignupPage() {
   const [firstBranchName, setFirstBranchName] = useState("");
   const [branchAddress, setBranchAddress] = useState("");
   const [locationOfBranch, setLocationOfBranch] = useState("");
+  const [branchCountryCode, setBranchCountryCode] = useState("");
   const [branchPhoneNumber, setBranchPhoneNumber] = useState("");
   const [branchPhoneNumberError, setBranchPhoneNumberError] = useState<string | null>(null);
 
@@ -181,10 +204,12 @@ function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingWhatsApp, setIsCheckingWhatsApp] = useState(false);
   const { t, isRtl, locale } = useTranslation();
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [whatsAppError, setWhatsAppError] = useState<string | null>(null);
 
   // Handle password change with real-time validation
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,62 +229,52 @@ function SignupPage() {
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
-    // Allow backspace to work properly - don't format if user is deleting
-    const currentLength = phoneNumber.replace(/\D/g, '').length;
-    const newLength = value.replace(/\D/g, '').length;
+    // Remove all non-numeric characters for simpler handling when using country code select
+    const numericValue = value.replace(/\D/g, '');
     
-    if (newLength < currentLength) {
-      // User is deleting, just validate without reformatting
-      setPhoneNumber(value);
-      if (value.trim() !== '') {
-        const validation = validatePhoneNumber(value, t);
-        setPhoneNumberError(validation.isValid ? null : validation.error || null);
-      } else {
-        setPhoneNumberError(null);
-      }
+    // Basic formatting for US numbers if using +1
+    let formattedValue = numericValue;
+    if (countryCode === "+1" && numericValue.length >= 6) {
+      formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+    } else if (numericValue.length > 0) {
+      // For other countries, add spaces every 3-4 digits for readability
+      formattedValue = numericValue.replace(/(\d{3,4})/g, '$1 ').trim();
+    }
+    
+    setPhoneNumber(formattedValue);
+    
+    // Real-time validation
+    if (formattedValue.trim() !== '') {
+      const validation = validatePhoneNumber(formattedValue, t);
+      setPhoneNumberError(validation.isValid ? null : validation.error || null);
     } else {
-      // User is adding, format the phone number
-      const formatted = formatPhoneNumber(value);
-      setPhoneNumber(formatted);
-      
-      // Real-time validation
-      if (formatted.trim() !== '') {
-        const validation = validatePhoneNumber(formatted, t);
-        setPhoneNumberError(validation.isValid ? null : validation.error || null);
-      } else {
-        setPhoneNumberError(null);
-      }
+      setPhoneNumberError(null);
     }
   };
 
   const handleBranchPhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
-    // Allow backspace to work properly - don't format if user is deleting
-    const currentLength = branchPhoneNumber.replace(/\D/g, '').length;
-    const newLength = value.replace(/\D/g, '').length;
+    // Remove all non-numeric characters for simpler handling when using country code select
+    const numericValue = value.replace(/\D/g, '');
     
-    if (newLength < currentLength) {
-      // User is deleting, just validate without reformatting
-      setBranchPhoneNumber(value);
-      if (value.trim() !== '') {
-        const validation = validatePhoneNumber(value, t);
-        setBranchPhoneNumberError(validation.isValid ? null : validation.error || null);
-      } else {
-        setBranchPhoneNumberError(null);
-      }
+    // Basic formatting for US numbers if using +1
+    let formattedValue = numericValue;
+    if (branchCountryCode === "+1" && numericValue.length >= 6) {
+      formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+    } else if (numericValue.length > 0) {
+      // For other countries, add spaces every 3-4 digits for readability
+      formattedValue = numericValue.replace(/(\d{3,4})/g, '$1 ').trim();
+    }
+    
+    setBranchPhoneNumber(formattedValue);
+    
+    // Real-time validation
+    if (formattedValue.trim() !== '') {
+      const validation = validatePhoneNumber(formattedValue, t);
+      setBranchPhoneNumberError(validation.isValid ? null : validation.error || null);
     } else {
-      // User is adding, format the phone number
-      const formatted = formatPhoneNumber(value);
-      setBranchPhoneNumber(formatted);
-      
-      // Real-time validation
-      if (formatted.trim() !== '') {
-        const validation = validatePhoneNumber(formatted, t);
-        setBranchPhoneNumberError(validation.isValid ? null : validation.error || null);
-      } else {
-        setBranchPhoneNumberError(null);
-      }
+      setBranchPhoneNumberError(null);
     }
   };
 
@@ -351,10 +366,11 @@ function SignupPage() {
     queryFn: () => getCountries(locale as string),
   });
 
-  const handleStep1Submit = (e: React.FormEvent) => {
+  const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setWhatsAppError(null);
     
     // Validate all required fields in Step 1
     const errors: string[] = [];
@@ -410,13 +426,35 @@ function SignupPage() {
       return;
     }
 
-    setCurrentStep(2);
+    // Check if phone number has WhatsApp
+    setIsCheckingWhatsApp(true);
+    try {
+      const whatsAppCheck = await checkWhatsAppNumber(phoneNumber, countryCode);
+      
+      if (whatsAppCheck.error) {
+        setWhatsAppError(whatsAppCheck.error);
+        return;
+      }
+      
+      if (!whatsAppCheck.hasWhatsApp) {
+        setWhatsAppError(t("auth.phoneNumberNoWhatsApp") || "This phone number doesn't have a WhatsApp account. Please use a number with WhatsApp.");
+        return;
+      }
+      
+      // If WhatsApp check passes, proceed to next step
+      setCurrentStep(2);
+    } catch (error) {
+      setWhatsAppError(t("auth.whatsAppCheckFailed") || "Failed to verify WhatsApp number. Please try again.");
+    } finally {
+      setIsCheckingWhatsApp(false);
+    }
   };
 
-  const handleStep2Submit = (e: React.FormEvent) => {
+  const handleStep2Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setWhatsAppError(null);
 
     // Validate all required fields in Step 2
     const errors: string[] = [];
@@ -463,7 +501,28 @@ function SignupPage() {
       return;
     }
 
-    setCurrentStep(3);
+    // Check if branch phone number has WhatsApp
+    setIsCheckingWhatsApp(true);
+    try {
+      const whatsAppCheck = await checkWhatsAppNumber(branchPhoneNumber, branchCountryCode);
+      
+      if (whatsAppCheck.error) {
+        setWhatsAppError(whatsAppCheck.error);
+        return;
+      }
+      
+      if (!whatsAppCheck.hasWhatsApp) {
+        setWhatsAppError(t("auth.branchPhoneNumberNoWhatsApp") || "This branch phone number doesn't have a WhatsApp account. Please use a number with WhatsApp.");
+        return;
+      }
+      
+      // If WhatsApp check passes, proceed to next step
+      setCurrentStep(3);
+    } catch (error) {
+      setWhatsAppError(t("auth.whatsAppCheckFailed") || "Failed to verify WhatsApp number. Please try again.");
+    } finally {
+      setIsCheckingWhatsApp(false);
+    }
   };
 
   const handleStep3Submit = async (e: React.FormEvent) => {
@@ -550,7 +609,11 @@ function SignupPage() {
       const formData = new FormData();
       formData.append('name', pharmacyName);
       formData.append('email', email);
-      formData.append('phone_number', cleanPhoneNumber(phoneNumber));
+      
+      // Combine country code with phone number
+      const fullPhoneNumber = countryCode ? `${countryCode}${cleanPhoneNumber(phoneNumber)}` : cleanPhoneNumber(phoneNumber);
+      formData.append('phone_number', fullPhoneNumber);
+      
       formData.append('password', password);
       formData.append('password_confirmation', password);
       formData.append('country_id', country?.toString() || '');
@@ -560,7 +623,10 @@ function SignupPage() {
       formData.append('branch[address]', branchAddress);
       formData.append('branch[latitude]', selectedLocationData?.lat?.toString() || '');
       formData.append('branch[longitude]', selectedLocationData?.lng?.toString() || '');
-      formData.append('branch[phone_number]', cleanPhoneNumber(branchPhoneNumber));
+      
+      // Combine branch country code with branch phone number
+      const fullBranchPhoneNumber = branchCountryCode ? `${branchCountryCode}${cleanPhoneNumber(branchPhoneNumber)}` : cleanPhoneNumber(branchPhoneNumber);
+      formData.append('branch[phone_number]', fullBranchPhoneNumber);
       
       // Append the file
       if (uploadedImage) {
@@ -621,7 +687,11 @@ function SignupPage() {
   };
 
   const renderStep1 = () => (
-    <form onSubmit={handleStep1Submit} className="flex flex-col gap-4">
+    <form onSubmit={handleStep1Submit} className="flex flex-col gap-4" name="registration" data-form-type="signup">
+      {/* Hidden field to signal registration form to password managers */}
+      <input type="hidden" name="signup" value="1" />
+      <input type="hidden" name="registration" value="true" />
+      
       <div className="flex flex-col">
         <label htmlFor="email" className="text-sm text-blue-gray mb-3 px-0.5">
           {t("auth.email")}
@@ -629,12 +699,21 @@ function SignupPage() {
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
             id="email"
+            name="email"
             type="email"
+            autoComplete="email"
             placeholder={t("auth.enterYourEmail")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
             required
+          />
+          {/* Hidden username field that mirrors email for password managers */}
+          <input
+            type="hidden"
+            name="username"
+            autoComplete="username"
+            value={email}
           />
         </div>
       </div>
@@ -651,7 +730,11 @@ function SignupPage() {
         }`}>
           <input
             id="password"
+            name="password"
             type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
+            data-form-type="password"
+            data-role="password"
             placeholder={t("auth.enterYourPassword")}
             value={password}
             onChange={handlePasswordChange}
@@ -660,6 +743,16 @@ function SignupPage() {
             }`}
             required
           />
+          {password && (
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              tabIndex={-1}
+            >
+              <Icon icon={showPassword ? "solar:eye-closed-bold" : "solar:eye-bold"} className="w-4 h-4" />
+            </button>
+          )}
         </div>
         {passwordErrors.length > 0 && (
           <div className="mt-1 px-0.5">
@@ -672,21 +765,35 @@ function SignupPage() {
 
       <div className="flex flex-col">
         <label
-          htmlFor="retypePassword"
+          htmlFor="password_confirmation"
           className="text-sm text-blue-gray mb-3 px-0.5"
         >
           {t("auth.retypePassword")}
         </label>
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
-            id="retypePassword"
+            id="password_confirmation"
+            name="password_confirmation"
             type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
+            data-form-type="password"
+            data-role="password-confirm"
             placeholder={t("auth.retypeYourPassword")}
             value={retypePassword}
             onChange={(e) => setRetypePassword(e.target.value)}
             className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
             required
           />
+          {retypePassword && (
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              tabIndex={-1}
+            >
+              <Icon icon={showPassword ? "solar:eye-closed-bold" : "solar:eye-bold"} className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -709,20 +816,28 @@ function SignupPage() {
         >
           {t("auth.phoneNumber")}
         </label>
-        <div className={`flex items-center border-2 rounded-xl shadow-sm px-3 py-2 ${
-          phoneNumberError ? 'border-red-500 bg-red-50' : 'border-[#E4E4E7]'
-        }`}>
-          <input
-            id="phoneNumber"
-            type="tel"
-            placeholder={t("auth.enterPhoneNumber")}
-            value={phoneNumber}
-            onChange={handlePhoneNumberChange}
-            className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] text-left ${
-              phoneNumberError ? 'text-red-900 bg-red-50' : 'text-black'
-            }`}
-            required
+        <div className="flex items-center">
+          <CountryCodeSelect
+            selectedCountryCode={countryCode}
+            onCountryCodeChange={setCountryCode}
           />
+          <div className={`flex-1 flex items-center border-2 border-l-0 rounded-r-xl shadow-sm px-3 py-2 ${
+            phoneNumberError ? 'border-red-500 bg-red-50' : 'border-[#E4E4E7]'
+          }`}>
+            <input
+              id="phoneNumber"
+              name="phoneNumber"
+              type="tel"
+              autoComplete="tel"
+              placeholder={t("auth.enterPhoneNumber")}
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
+              className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] text-left ${
+                phoneNumberError ? 'text-red-900 bg-red-50' : 'text-black'
+              }`}
+              required
+            />
+          </div>
         </div>
         {phoneNumberError && (
           <p className="text-red-500 text-xs mt-1 px-0.5">{phoneNumberError}</p>
@@ -757,16 +872,23 @@ function SignupPage() {
       </div>
 
       <CustomButton
-        disabled={!agreeToTerms}
+        disabled={!agreeToTerms || isCheckingWhatsApp}
         className="w-full bg-[#007AFF] text-white rounded-xl mt-4 text-sm font-medium disabled:opacity-50 py-5"
       >
-        {t("auth.next")}
+        {isCheckingWhatsApp ? (
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            {t("auth.checkingWhatsApp") || "Checking WhatsApp..."}
+          </div>
+        ) : (
+          t("auth.next")
+        )}
       </CustomButton>
     </form>
   );
 
   const renderStep2 = () => (
-    <form onSubmit={handleStep2Submit} className="flex flex-col gap-4">
+    <form onSubmit={handleStep2Submit} className="flex flex-col gap-4" name="registration-step2" data-form-type="signup">
       <div className="flex flex-col">
         <label
           htmlFor="pharmacyName"
@@ -777,7 +899,9 @@ function SignupPage() {
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
             id="pharmacyName"
+            name="pharmacyName"
             type="text"
+            autoComplete="organization"
             placeholder={t("auth.enterPharmacyName")}
             value={pharmacyName}
             onChange={(e) => setPharmacyName(e.target.value)}
@@ -797,7 +921,9 @@ function SignupPage() {
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
             id="firstBranchName"
+            name="firstBranchName"
             type="text"
+            autoComplete="organization-title"
             placeholder={t("auth.enterFirstBranchName")}
             value={firstBranchName}
             onChange={(e) => setFirstBranchName(e.target.value)}
@@ -817,7 +943,9 @@ function SignupPage() {
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
             id="branchAddress"
+            name="branchAddress"
             type="text"
+            autoComplete="street-address"
             placeholder={t("auth.enterBranchAddress")}
             value={branchAddress}
             onChange={(e) => setBranchAddress(e.target.value)}
@@ -839,7 +967,9 @@ function SignupPage() {
         }`}>
           <input
             id="locationOfBranch"
+            name="locationOfBranch"
             type="text"
+            autoComplete="address-line1"
             placeholder={t("auth.locationOfBranch")}
             value={locationOfBranch}
             onChange={(e) => setLocationOfBranch(e.target.value)}
@@ -863,8 +993,9 @@ function SignupPage() {
           </div>
         </div>
         {selectedLocationData && (
-          <p className="text-green-600 text-xs mt-1 px-0.5">
-            ✓ {t("map.locationSelected")}: {selectedLocationData.name}
+          <p className="text-green-600 text-xs mt-1 px-0.5 flex items-center gap-1">
+            <Icon icon="solar:check-circle-bold" className="w-3 h-3" />
+            {t("map.locationSelected")}: {selectedLocationData.name}
           </p>
         )}
       </div>
@@ -876,20 +1007,28 @@ function SignupPage() {
         >
           {t("auth.branchPhoneNumber")}
         </label>
-        <div className={`flex items-center border-2 rounded-xl shadow-sm px-3 py-2 ${
-          branchPhoneNumberError ? 'border-red-500 bg-red-50' : 'border-[#E4E4E7]'
-        }`}>
-          <input
-            id="branchPhoneNumber"
-            type="tel"
-            placeholder={t("auth.enterBranchPhoneNumber")}
-            value={branchPhoneNumber}
-            onChange={handleBranchPhoneNumberChange}
-            className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] text-left ${
-              branchPhoneNumberError ? 'text-red-900 bg-red-50' : 'text-black'
-            }`}
-            required
+        <div className="flex items-center">
+          <CountryCodeSelect
+            selectedCountryCode={branchCountryCode}
+            onCountryCodeChange={setBranchCountryCode}
           />
+          <div className={`flex-1 flex items-center border-2 border-l-0 rounded-r-xl shadow-sm px-3 py-2 ${
+            branchPhoneNumberError ? 'border-red-500 bg-red-50' : 'border-[#E4E4E7]'
+          }`}>
+            <input
+              id="branchPhoneNumber"
+              name="branchPhoneNumber"
+              type="tel"
+              autoComplete="work tel"
+              placeholder={t("auth.enterBranchPhoneNumber")}
+              value={branchPhoneNumber}
+              onChange={handleBranchPhoneNumberChange}
+              className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] text-left ${
+                branchPhoneNumberError ? 'text-red-900 bg-red-50' : 'text-black'
+              }`}
+              required
+            />
+          </div>
         </div>
         {branchPhoneNumberError && (
           <p className="text-red-500 text-xs mt-1 px-0.5">{branchPhoneNumberError}</p>
@@ -932,17 +1071,24 @@ function SignupPage() {
           {t("auth.back")}
         </CustomButton>
         <CustomButton
-          disabled={!agreeToTerms}
+          disabled={!agreeToTerms || isCheckingWhatsApp}
           className="flex-1 bg-[#007AFF] text-white rounded-xl text-sm font-medium disabled:opacity-50 cursor-pointer py-5"
         >
-          {t("auth.next")}
+          {isCheckingWhatsApp ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {t("auth.checkingWhatsApp") || "Checking WhatsApp..."}
+            </div>
+          ) : (
+            t("auth.next")
+          )}
         </CustomButton>
       </div>
     </form>
   );
 
   const renderStep3 = () => (
-    <form onSubmit={handleStep3Submit} className="flex flex-col gap-4">
+    <form onSubmit={handleStep3Submit} className="flex flex-col gap-4" name="registration-step3" data-form-type="signup">
       <div className="flex flex-col">
         <label className="text-sm text-blue-gray mb-3 px-0.5">
           {t("auth.uploadImages")}
@@ -1051,6 +1197,15 @@ function SignupPage() {
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">
               {error}
+            </div>
+          )}
+
+          {whatsAppError && (
+            <div className="mb-4 p-3 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg text-sm flex items-start gap-2">
+              <Icon icon="solar:phone-bold" className="text-yellow-600 text-lg mt-0.5 flex-shrink-0" />
+              <div>
+                <strong>WhatsApp Verification:</strong> {whatsAppError}
+              </div>
             </div>
           )}
 
