@@ -238,7 +238,7 @@ function SignupPage() {
       formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     } else if (numericValue.length > 0) {
       // For other countries, add spaces every 3 digits for readability
-      formattedValue = numericValue.replace(/(\d{3})/g, '$1 ').trim();
+      formattedValue = numericValue.replace(/(\d{3})(?=\d)/g, '$1 ');
     }
     
     setPhoneNumber(formattedValue);
@@ -264,7 +264,7 @@ function SignupPage() {
       formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     } else if (numericValue.length > 0) {
       // For other countries, add spaces every 3 digits for readability
-      formattedValue = numericValue.replace(/(\d{3})/g, '$1 ').trim();
+      formattedValue = numericValue.replace(/(\d{3})(?=\d)/g, '$1 ');
     }
     
     setBranchPhoneNumber(formattedValue);
