@@ -237,8 +237,8 @@ function SignupPage() {
     if (countryCode === "+1" && numericValue.length >= 6) {
       formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     } else if (numericValue.length > 0) {
-      // For other countries, add spaces every 3-4 digits for readability
-      formattedValue = numericValue.replace(/(\d{3,4})(?=\d)/g, '$1 ');
+      // For other countries, add spaces every 3 digits for readability
+      formattedValue = numericValue.replace(/(\d{3})(?=\d)/g, '$1 ');
     }
     
     setPhoneNumber(formattedValue);
@@ -263,8 +263,8 @@ function SignupPage() {
     if (branchCountryCode === "+1" && numericValue.length >= 6) {
       formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     } else if (numericValue.length > 0) {
-      // For other countries, add spaces every 3-4 digits for readability
-      formattedValue = numericValue.replace(/(\d{3,4})(?=\d)/g, '$1 ');
+      // For other countries, add spaces every 3 digits for readability
+      formattedValue = numericValue.replace(/(\d{3})(?=\d)/g, '$1 ');
     }
     
     setBranchPhoneNumber(formattedValue);
