@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Force the route to be dynamic and not cached
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     // Get the user's IP address from the request
@@ -25,11 +29,15 @@ export async function GET(request: NextRequest) {
           
           if (geoResponse.ok) {
             const geoData = await geoResponse.json();
-            return NextResponse.json({ 
+            const response = NextResponse.json({ 
               country_code: geoData.country_code || 'US',
               method: 'external-ip-geolocation',
               detected_ip: realIp
             });
+            response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            return response;
           }
         }
       } catch (error) {
@@ -39,10 +47,14 @@ export async function GET(request: NextRequest) {
       // Fallback to language detection
       const acceptLanguage = request.headers.get('Accept-Language') || '';
       const countryFromLanguage = extractCountryFromLanguage(acceptLanguage);
-      return NextResponse.json({ 
+      const response = NextResponse.json({ 
         country_code: countryFromLanguage || 'US',
         method: 'language-fallback'
       });
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+      return response;
     }
 
     // Use ipapi.co for IP geolocation (free service)
@@ -59,16 +71,20 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     
     // Return the country code
-    return NextResponse.json({ 
+    const result = NextResponse.json({ 
       country_code: data.country_code || 'US',
       method: 'ip-geolocation'
     });
+    result.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    result.headers.set('Pragma', 'no-cache');
+    result.headers.set('Expires', '0');
+    return result;
     
   } catch (error: any) {
     console.error('Country detection error:', error);
     
     // Fallback to US if everything fails
-    return NextResponse.json(
+    const fallbackResponse = NextResponse.json(
       { 
         country_code: 'US',
         method: 'fallback',
@@ -76,6 +92,10 @@ export async function GET(request: NextRequest) {
       },
       { status: 200 } // Still return 200 with fallback
     );
+    fallbackResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    fallbackResponse.headers.set('Pragma', 'no-cache');
+    fallbackResponse.headers.set('Expires', '0');
+    return fallbackResponse;
   }
 }
 

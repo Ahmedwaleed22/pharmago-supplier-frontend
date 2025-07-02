@@ -54,8 +54,8 @@ function ForgetPasswordPage() {
     if (countryCode === "+1" && numericValue.length >= 6) {
       formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     } else if (numericValue.length > 0) {
-      // For other countries, just add spaces every 3-4 digits for readability
-      formattedValue = numericValue.replace(/(\d{3,4})/g, '$1 ').trim();
+      // For other countries, just add spaces every 3 digits for readability
+      formattedValue = numericValue.replace(/(\d{3})/g, '$1 ').trim();
     }
     
     setPhoneNumber(formattedValue);
