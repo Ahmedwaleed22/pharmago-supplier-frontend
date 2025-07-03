@@ -44,6 +44,8 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
+  const geocodingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isOpen || !apiKey) return;
@@ -60,10 +62,17 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
         if (mapRef.current) {
           const mapInstance = new google.maps.Map(mapRef.current, {
             center: initialLocation,
-            zoom: 13,
+            zoom: 15, // Higher zoom for better accuracy
+            minZoom: 10, // Prevent zooming out too far
+            maxZoom: 20, // Allow detailed view
             mapTypeControl: false,
             streetViewControl: false,
             fullscreenControl: false,
+            zoomControl: true,
+            gestureHandling: 'cooperative', // Better mobile handling
+            clickableIcons: false, // Prevent conflicts with POI clicks
+            disableDefaultUI: false,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
           });
 
           const markerInstance = new google.maps.Marker({
@@ -84,15 +93,53 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
           setPlaces(placesInstance);
           setIsLoading(false);
 
+          // Debounced geocoding function
+          const debouncedGeocode = (position: google.maps.LatLng) => {
+            // Clear any existing timeout
+            if (geocodingTimeoutRef.current) {
+              clearTimeout(geocodingTimeoutRef.current);
+            }
+            
+            // Set new timeout for debounced geocoding
+            geocodingTimeoutRef.current = setTimeout(() => {
+              reverseGeocode(position);
+            }, 300); // 300ms debounce
+          };
+
+          // Track if map is ready
+          let mapReady = false;
+
+          // Wait for map to be fully loaded before enabling interactions
+          google.maps.event.addListenerOnce(mapInstance, 'tilesloaded', () => {
+            mapReady = true;
+            setIsMapReady(true);
+            console.log("Map is fully loaded and ready");
+            
+            // Perform initial reverse geocoding after map is ready
+            setTimeout(() => {
+              reverseGeocode(
+                new google.maps.LatLng(initialLocation.lat, initialLocation.lng)
+              );
+            }, 500);
+          });
+
           // Handle map clicks
           mapInstance.addListener(
             "click",
             (event: google.maps.MapMouseEvent) => {
               if (event.latLng) {
-                console.log("Map clicked at:", event.latLng.lat(), event.latLng.lng());
+                console.log("Map clicked at:", event.latLng.lat(), event.latLng.lng(), "Map ready:", mapReady);
                 const position = event.latLng;
                 markerInstance.setPosition(position);
-                reverseGeocode(position);
+                
+                if (mapReady) {
+                  debouncedGeocode(position);
+                } else {
+                  // If map not fully ready, add a small delay
+                  setTimeout(() => {
+                    reverseGeocode(position);
+                  }, 500);
+                }
               }
             }
           );
@@ -102,71 +149,108 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
             const position = markerInstance.getPosition();
             if (position) {
               console.log("Marker dragged to:", position.lat(), position.lng());
-              reverseGeocode(position);
+              
+              if (mapReady) {
+                debouncedGeocode(position);
+              } else {
+                // If map not fully ready, add a small delay
+                setTimeout(() => {
+                  reverseGeocode(position);
+                }, 500);
+              }
             }
           });
-
-          // Initial reverse geocoding
-          reverseGeocode(
-            new google.maps.LatLng(initialLocation.lat, initialLocation.lng)
-          );
         }
       })
       .catch((error) => {
         console.error("Error loading Google Maps:", error);
         setIsLoading(false);
       });
+
+    // Cleanup function
+    return () => {
+      if (geocodingTimeoutRef.current) {
+        clearTimeout(geocodingTimeoutRef.current);
+      }
+    };
   }, [isOpen, apiKey, initialLocation, t]);
 
-  const reverseGeocode = (position: google.maps.LatLng) => {
+  const reverseGeocode = (position: google.maps.LatLng, retryCount = 0) => {
     if (!geocoder) {
       console.error("Geocoder not initialized");
       return;
     }
 
-    console.log("Starting reverse geocoding for position:", position.lat(), position.lng());
+    console.log("Starting reverse geocoding for position:", position.lat(), position.lng(), "retry:", retryCount);
     setIsReverseGeocoding(true);
     setGeocodingError(null);
 
-    geocoder.geocode({ location: position }, (results, status) => {
-      console.log("Geocoding response:", { status, results });
-      setIsReverseGeocoding(false);
-
-      if (status === "OK" && results && results[0]) {
-        const result = results[0];
-        const location: Location = {
-          name: result.formatted_address.split(",")[0], // Get the first part as name
-          lat: position.lat(),
-          lng: position.lng(),
-          address: result.formatted_address,
-        };
-        console.log("Setting selected location:", location);
-        setSelectedLocation(location);
-        setGeocodingError(null);
-      } else {
-        console.error("Geocoding failed:", status);
+    // Add a small delay to prevent rapid-fire requests
+    const performGeocode = () => {
+      geocoder.geocode({ 
+        location: position,
+        // Add region biasing to improve results
+        region: 'US' // You can make this dynamic based on user's country
+      }, (results, status) => {
+        console.log("Geocoding response:", { status, results, retry: retryCount });
         
-        // Create a basic location even if geocoding fails
-        const fallbackLocation: Location = {
-          name: t("map.selectedLocation") || "Selected Location",
-          lat: position.lat(),
-          lng: position.lng(),
-          address: `${position.lat().toFixed(6)}, ${position.lng().toFixed(6)}`,
-        };
-        
-        setSelectedLocation(fallbackLocation);
-        
-        if (status === "ZERO_RESULTS") {
-          setGeocodingError(t("map.noAddressFound") || "No address found for this location");
-        } else if (status === "OVER_QUERY_LIMIT") {
-          setGeocodingError(t("map.quotaExceeded") || "Geocoding quota exceeded");
-        } else if (status === "REQUEST_DENIED") {
-          setGeocodingError(t("map.requestDenied") || "Geocoding request denied");
+        if (status === "OK" && results && results[0]) {
+          setIsReverseGeocoding(false);
+          const result = results[0];
+          const location: Location = {
+            name: result.formatted_address.split(",")[0], // Get the first part as name
+            lat: position.lat(),
+            lng: position.lng(),
+            address: result.formatted_address,
+          };
+          console.log("Setting selected location:", location);
+          setSelectedLocation(location);
+          setGeocodingError(null);
+        } else if (status === "OVER_QUERY_LIMIT" && retryCount < 3) {
+          // Retry with exponential backoff for rate limiting
+          console.log("Rate limited, retrying in", (retryCount + 1) * 1000, "ms");
+          setTimeout(() => {
+            reverseGeocode(position, retryCount + 1);
+          }, (retryCount + 1) * 1000);
+        } else if (status === "UNKNOWN_ERROR" && retryCount < 2) {
+          // Retry for unknown errors
+          console.log("Unknown error, retrying in", (retryCount + 1) * 500, "ms");
+          setTimeout(() => {
+            reverseGeocode(position, retryCount + 1);
+          }, (retryCount + 1) * 500);
         } else {
-          setGeocodingError(t("map.geocodingError") || "Unable to get address for this location");
+          setIsReverseGeocoding(false);
+          console.error("Geocoding failed:", status, "after", retryCount, "retries");
+          
+          // Create a basic location even if geocoding fails
+          const fallbackLocation: Location = {
+            name: t("map.selectedLocation") || "Selected Location",
+            lat: position.lat(),
+            lng: position.lng(),
+            address: `${position.lat().toFixed(6)}, ${position.lng().toFixed(6)}`,
+          };
+          
+          setSelectedLocation(fallbackLocation);
+          
+          if (status === "ZERO_RESULTS") {
+            setGeocodingError(t("map.noAddressFound") || "No address found for this location");
+          } else if (status === "OVER_QUERY_LIMIT") {
+            setGeocodingError(t("map.quotaExceeded") || "Geocoding quota exceeded. Please try again later.");
+          } else if (status === "REQUEST_DENIED") {
+            setGeocodingError(t("map.requestDenied") || "Geocoding request denied. Check API key permissions.");
+          } else {
+            setGeocodingError(t("map.geocodingError") || "Unable to get address for this location");
+          }
         }
-      }
-    });
+      });
+    };
+
+    // Add a small delay to prevent too rapid requests
+    if (retryCount === 0) {
+      performGeocode();
+    } else {
+      setTimeout(performGeocode, 100);
+    }
   };
 
   const searchLocation = () => {
@@ -247,7 +331,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
 
       if (ipLocation && map && marker) {
         map.setCenter(ipLocation);
-        map.setZoom(13);
+        map.setZoom(15); // Use consistent zoom level
         marker.setPosition(ipLocation);
         reverseGeocode(new google.maps.LatLng(ipLocation.lat, ipLocation.lng));
       } else {
@@ -284,7 +368,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
 
         if (ipLocation && map && marker) {
           map.setCenter(ipLocation);
-          map.setZoom(13);
+          map.setZoom(15); // Use consistent zoom level
           marker.setPosition(ipLocation);
           reverseGeocode(
             new google.maps.LatLng(ipLocation.lat, ipLocation.lng)
@@ -346,15 +430,36 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
         {/* Map Container */}
         <div className="flex-1 relative">
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-              <div className="text-gray-600">{t("map.loadingMap")}</div>
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+                <div className="text-gray-600">{t("map.loadingMap")}</div>
+              </div>
             </div>
           )}
+          
+          {/* Map Not Ready Overlay */}
+          {!isLoading && !isMapReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80 z-10">
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-pulse rounded-full h-6 w-6 bg-blue-500"></div>
+                <div className="text-sm text-gray-600">Preparing map for interaction...</div>
+              </div>
+            </div>
+          )}
+          
           <div ref={mapRef} className="w-full h-full" />
+          
+          {/* Map Ready Indicator */}
+          {isMapReady && (
+            <div className="absolute top-4 right-4 bg-green-500 text-white rounded-lg px-3 py-1 text-xs font-medium shadow-md">
+              Ready
+            </div>
+          )}
           
           {/* Reverse Geocoding Loading Indicator */}
           {isReverseGeocoding && (
-            <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md px-3 py-2 flex items-center gap-2">
+            <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md px-3 py-2 flex items-center gap-2 z-20">
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
               <span className="text-sm text-gray-600">
                 {t("map.gettingAddress") || "Getting address..."}
