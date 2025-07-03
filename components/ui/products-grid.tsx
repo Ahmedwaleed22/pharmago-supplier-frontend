@@ -6,9 +6,11 @@ interface ProductsGridProps {
 
 function ProductsGrid({ products }: ProductsGridProps) {
   return (
-    <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+    <div className="flex flex-wrap gap-3">
       {products.map((product) => (
-        <Product key={product.id} product={product} />
+        <div key={product.id} className="w-[220px] flex-shrink-0">
+          <Product product={product} />
+        </div>
       ))}
     </div>
   );
