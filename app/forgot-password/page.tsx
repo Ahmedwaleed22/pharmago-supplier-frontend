@@ -139,7 +139,7 @@ function ForgetPasswordPage() {
               >
                 {t("auth.enterPhoneNumber")}
               </label>
-              <div className="flex items-center">
+              <div style={{ direction: 'ltr' }} className="flex items-center phone-number-container">
                 <CountryCodeSelect
                   selectedCountryCode={countryCode}
                   onCountryCodeChange={setCountryCode}
