@@ -74,16 +74,13 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
             }}
           />
 
-          <div className="hidden">
-            <LabeledInput
-              id="stock-qty"
-              label={t('products.stockQty')}
-              placeholder={t('products.stockPlaceholder')}
-              // value={productData.stock}
-              value={999999999999999}
-              onChange={(value) => dispatch(setStock(Number(value) || ""))}
-            />
-          </div>
+          <LabeledInput
+            id="stock-qty"
+            label={t('products.stockQty')}
+            placeholder={t('products.stockPlaceholder')}
+            value={productData.stock}
+            onChange={(value) => dispatch(setStock(Number(value) || 0))}
+          />
 
           <LabeledInput
             id="tag"

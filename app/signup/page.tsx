@@ -816,7 +816,7 @@ function SignupPage() {
         >
           {t("auth.phoneNumber")}
         </label>
-        <div className="flex items-center">
+        <div style={{ direction: 'ltr' }} className="flex items-center phone-number-container">
           <CountryCodeSelect
             selectedCountryCode={countryCode}
             onCountryCodeChange={setCountryCode}
@@ -832,7 +832,7 @@ function SignupPage() {
               placeholder={t("auth.enterPhoneNumber")}
               value={phoneNumber}
               onChange={handlePhoneNumberChange}
-              className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] text-left ${
+              className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] text-left rtl:!text-left ${
                 phoneNumberError ? 'text-red-900 bg-red-50' : 'text-black'
               }`}
               required

@@ -155,8 +155,9 @@ export default function CountryCodeSelect({
       onSelectionChange={handleSelectionChange}
       className={`w-25 ${className}`}
       classNames={{
-        trigger: "border-2 border-[#E4E4E7] rounded-l-xl rounded-r-none shadow-sm min-h-[40px] border-r-0 outline-none focus:outline-none focus:ring-0 focus:border-[#E4E4E7] focus-visible:outline-none focus-visible:ring-0 focus-within:outline-none [&:focus]:outline-none [&:focus-visible]:outline-none [&:focus-visible]:ring-0",
-        value: "text-sm",
+        trigger: "border-2 border-[#E4E4E7] rounded-l-xl rounded-r-none shadow-sm min-h-[40px] border-r-0 outline-none focus:outline-none focus:ring-0 focus:border-[#E4E4E7] focus-visible:outline-none focus-visible:ring-0 focus-within:outline-none [&:focus]:outline-none [&:focus-visible]:outline-none [&:focus-visible]:ring-0 rtl:!flex-row",
+        value: "text-sm rtl:!flex-row-reverse",
+        listboxWrapper: "phone-number-container",
         popoverContent: "border border-[#E4E4E7]",
       }}
       placeholder="🇺🇸 +1"

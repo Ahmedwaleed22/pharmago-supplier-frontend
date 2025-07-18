@@ -131,6 +131,9 @@
 }
 
 /* RTL Support */
+.rtl .phone-number-container li[role="option"] {
+  direction: ltr !important;
+}
 .rtl {
   direction: rtl;
 }
