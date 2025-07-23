@@ -23,6 +23,7 @@ import {
 } from "@heroui/react";
 import { formatPrescriptionDate } from "@/helpers/prescriptions";
 import { useTranslation } from "@/contexts/i18n-context";
+import { useRouter } from "next/navigation";
 
 type Column = {
   name: string;
@@ -93,6 +94,7 @@ interface OrderHistoryTableProps {
 
 export default function OrderHistoryTable({ orders, onSelectionChange, noPagination }: OrderHistoryTableProps) {
   const { t, isRtl } = useTranslation();
+  const router = useRouter();
   
   const columns: Column[] = [
     { name: t('orderHistory.id'), uid: "id", sortable: true },
@@ -377,7 +379,11 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
       </TableHeader>
       <TableBody emptyContent={t('common.noData')} items={sortedItems}>
         {(item) => (
-          <TableRow key={item.id}>
+          <TableRow 
+            key={item.id}
+            className="cursor-pointer hover:bg-blue-50 transition-colors"
+            onClick={() => router.push(`/dashboard/prescriptions/requests/${item.id}`)}
+          >
             {(columnKey) => (
               <TableCell>{renderCell(item, columnKey as string)}</TableCell>
             )}

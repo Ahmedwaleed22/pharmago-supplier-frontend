@@ -87,6 +87,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
             mapInstance
           );
 
+          // Set all instances together to avoid race conditions
           setMap(mapInstance);
           setMarker(markerInstance);
           setGeocoder(geocoderInstance);
@@ -102,7 +103,12 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
             
             // Set new timeout for debounced geocoding
             geocodingTimeoutRef.current = setTimeout(() => {
-              reverseGeocode(position);
+              // Use the local geocoder instance directly to avoid race conditions
+              if (geocoderInstance) {
+                reverseGeocodeWithInstance(position, geocoderInstance);
+              } else {
+                reverseGeocode(position);
+              }
             }, 300); // 300ms debounce
           };
 
@@ -132,10 +138,10 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
                 const position = event.latLng;
                 markerInstance.setPosition(position);
                 
-                if (mapReady) {
+                if (mapReady && geocoderInstance) {
                   debouncedGeocode(position);
                 } else {
-                  // If map not fully ready, add a small delay
+                  // If map not fully ready or geocoder not initialized, add a delay
                   setTimeout(() => {
                     reverseGeocode(position);
                   }, 500);
@@ -150,10 +156,10 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
             if (position) {
               console.log("Marker dragged to:", position.lat(), position.lng());
               
-              if (mapReady) {
+              if (mapReady && geocoderInstance) {
                 debouncedGeocode(position);
               } else {
-                // If map not fully ready, add a small delay
+                // If map not fully ready or geocoder not initialized, add a delay
                 setTimeout(() => {
                   reverseGeocode(position);
                 }, 500);
@@ -175,9 +181,88 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
     };
   }, [isOpen, apiKey, initialLocation, t]);
 
+  const reverseGeocodeWithInstance = (position: google.maps.LatLng, geocoderInstance: google.maps.Geocoder, retryCount = 0) => {
+    console.log("Starting reverse geocoding with instance for position:", position.lat(), position.lng(), "retry:", retryCount);
+    setIsReverseGeocoding(true);
+    setGeocodingError(null);
+
+    // Add a small delay to prevent rapid-fire requests
+    const performGeocode = () => {
+      geocoderInstance.geocode({ 
+        location: position,
+        // Add region biasing to improve results
+        region: 'US' // You can make this dynamic based on user's country
+      }, (results, status) => {
+        console.log("Geocoding response:", { status, results, retry: retryCount });
+        
+        if (status === "OK" && results && results[0]) {
+          setIsReverseGeocoding(false);
+          const result = results[0];
+          const location: Location = {
+            name: result.formatted_address.split(",")[0], // Get the first part as name
+            lat: position.lat(),
+            lng: position.lng(),
+            address: result.formatted_address,
+          };
+          console.log("Setting selected location:", location);
+          setSelectedLocation(location);
+          setGeocodingError(null);
+        } else if (status === "OVER_QUERY_LIMIT" && retryCount < 3) {
+          // Retry with exponential backoff for rate limiting
+          console.log("Rate limited, retrying in", (retryCount + 1) * 1000, "ms");
+          setTimeout(() => {
+            reverseGeocodeWithInstance(position, geocoderInstance, retryCount + 1);
+          }, (retryCount + 1) * 1000);
+        } else if (status === "UNKNOWN_ERROR" && retryCount < 2) {
+          // Retry for unknown errors
+          console.log("Unknown error, retrying in", (retryCount + 1) * 500, "ms");
+          setTimeout(() => {
+            reverseGeocodeWithInstance(position, geocoderInstance, retryCount + 1);
+          }, (retryCount + 1) * 500);
+        } else {
+          setIsReverseGeocoding(false);
+          console.error("Geocoding failed:", status, "after", retryCount, "retries");
+          
+          // Create a basic location even if geocoding fails
+          const fallbackLocation: Location = {
+            name: t("map.selectedLocation") || "Selected Location",
+            lat: position.lat(),
+            lng: position.lng(),
+            address: `${position.lat().toFixed(6)}, ${position.lng().toFixed(6)}`,
+          };
+          
+          setSelectedLocation(fallbackLocation);
+          
+          if (status === "ZERO_RESULTS") {
+            setGeocodingError(t("map.noAddressFound") || "No address found for this location");
+          } else if (status === "OVER_QUERY_LIMIT") {
+            setGeocodingError(t("map.quotaExceeded") || "Geocoding quota exceeded. Please try again later.");
+          } else if (status === "REQUEST_DENIED") {
+            setGeocodingError(t("map.requestDenied") || "Geocoding request denied. Check API key permissions.");
+          } else {
+            setGeocodingError(t("map.geocodingError") || "Unable to get address for this location");
+          }
+        }
+      });
+    };
+
+    // Add a small delay to prevent too rapid requests
+    if (retryCount === 0) {
+      performGeocode();
+    } else {
+      setTimeout(performGeocode, 100);
+    }
+  };
+
   const reverseGeocode = (position: google.maps.LatLng, retryCount = 0) => {
     if (!geocoder) {
       console.error("Geocoder not initialized");
+      // Wait a bit and retry if geocoder is not ready yet
+      if (retryCount < 5) {
+        setTimeout(() => {
+          reverseGeocode(position, retryCount + 1);
+        }, 200);
+      }
       return;
     }
 

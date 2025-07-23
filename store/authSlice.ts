@@ -47,7 +47,7 @@ export const authSlice = createSlice({
 });
 
 export const getCurrency = (state: { auth: AuthState }) => {
-  return state.auth.pharmacy?.country?.currency;
+  return state.auth.pharmacy?.country?.currency || null;
 };
 
 export const getPharmacy = (state: { auth: AuthState }) => {
