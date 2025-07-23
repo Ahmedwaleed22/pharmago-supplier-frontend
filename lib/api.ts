@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 import { rememberMeUtils } from "./remember-me";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL;
+const API_BASE_URL = '/';
 
 // For client-side storage
 const TOKEN_KEY = "pharmacy_auth_token";
@@ -280,7 +280,7 @@ export async function fetchWithAuth(
 }
 
 // Helper function to get Accept-Language header from locale
-function getAcceptLanguageHeader(): string {
+export function getAcceptLanguageHeader(): string {
   // Check if we're in a browser environment
   if (typeof document === 'undefined') {
     return 'en';

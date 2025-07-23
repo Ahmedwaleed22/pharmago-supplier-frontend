@@ -5,7 +5,11 @@ import { getLocaleFromRequest, createTranslatedErrorResponse } from "@/lib/api-i
 export async function GET(request: NextRequest) {
   try {
     const locale = getLocaleFromRequest(request);
+    
+    // Get cookies from the request
     const cookieHeader = request.headers.get('cookie') || '';
+    
+    // Extract the auth token from the cookie
     const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
@@ -18,27 +22,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(errorResponse, { status: 401 });
     }
     
-    // Try new profile endpoint first, fall back to old user endpoint
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
+    // Forward the request to the actual API with the auth token
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, 
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Accept-Language': locale,
+          'Cookie': cookieHeader
         }
-      });
-      return NextResponse.json(response.data);
-    } catch (newEndpointError) {
-      // Fall back to old endpoint for backward compatibility
-      console.log('New endpoint failed, falling back to old endpoint');
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return NextResponse.json(response.data);
-    }
+      }
+    );
+    
+    // Return the API response
+    return NextResponse.json(response.data);
   } catch (error: any) {
     const locale = getLocaleFromRequest(request);
-    console.error('User API route error:', error);
+    console.error('Pharmacy profile API route error:', error);
     
+    // Return appropriate error response with translation
     const errorResponse = await createTranslatedErrorResponse(
       error, 
       error.response?.status || 500, 
@@ -51,7 +55,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const locale = getLocaleFromRequest(request);
+    
+    // Get cookies from the request
     const cookieHeader = request.headers.get('cookie') || '';
+    
+    // Extract the auth token from the cookie
     const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
@@ -64,33 +72,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(errorResponse, { status: 401 });
     }
     
-    // Get FormData from request
+    // Get the form data from the request
     const formData = await request.formData();
     
-    // Try new profile endpoint first, fall back to old user endpoint
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, formData, { 
-        headers: { 
-          Authorization: `Bearer ${token}`,
+    // Forward the request to the actual API with the auth token
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`,
+      formData,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
           'Accept-Language': locale,
-        } 
-      });
-      return NextResponse.json(response.data);
-    } catch (newEndpointError) {
-      // Fall back to old endpoint for backward compatibility
-      console.log('New endpoint failed, falling back to old endpoint');
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, formData, { 
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        } 
-      });
-      return NextResponse.json(response.data);
-    }
+          'Cookie': cookieHeader
+        }
+      }
+    );
+    
+    // Return the API response
+    return NextResponse.json(response.data);
   } catch (error: any) {
     const locale = getLocaleFromRequest(request);
-    console.error('User update API route error:', error);
+    console.error('Pharmacy profile update API route error:', error);
     
+    // Return appropriate error response with translation
     // const errorResponse = await createTranslatedErrorResponse(
     //   error, 
     //   error.response?.status || 500, 

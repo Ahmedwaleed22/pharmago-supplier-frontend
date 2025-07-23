@@ -42,6 +42,8 @@ export default function DashboardRootLayout({
     "/dashboard/delivery/history",
     "/dashboard/advertisements",
     "/dashboard/advertisements/add",
+    "/dashboard/branches",
+    "/dashboard/branches/add",
   ];
 
   const shouldExcludeFromDashboard =
@@ -51,7 +53,9 @@ export default function DashboardRootLayout({
     (pathname.startsWith("/dashboard/delivery/live-tracking/") &&
       pathname !== "/dashboard/delivery/live-tracking/") ||
     (pathname.startsWith("/dashboard/products/edit/") &&
-      pathname !== "/dashboard/products/edit/");
+      pathname !== "/dashboard/products/edit/") ||
+    (pathname.startsWith("/dashboard/branches/edit/") &&
+      pathname !== "/dashboard/branches/edit/");
 
   if (shouldExcludeFromDashboard) {
     return <Provider store={store}>{children}</Provider>;

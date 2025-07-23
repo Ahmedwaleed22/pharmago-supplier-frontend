@@ -62,7 +62,8 @@
     },
     "success": "Éxito",
     "warning": "Advertencia",
-    "info": "Información"
+    "info": "Información",
+    "copied": "¡Copiado!"
   },
   "auth": {
     "login": "Iniciar sesión",
@@ -280,7 +281,9 @@
     "viewStatus": "Ver estado",
     "enableNotifications": "Habilitar notificaciones",
     "medicineName": "Nombre del medicamento",
-    "qty": "Cantidad"
+    "qty": "Cantidad",
+    "medicineList": "Lista de medicamentos",
+    "image": "Imagen"
   },
   "delivery": {
     "title": "Entrega",
@@ -325,7 +328,8 @@
     "liveTracking": "Seguimiento en vivo",
     "deliveryDetail": "Detalle de la entrega",
     "sales": "Ventas",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "branches": "Sucursales"
   },
   "errors": {
     "general": "Ocurrió un error. Por favor, inténtalo de nuevo.",
@@ -398,6 +402,8 @@
     "confirmNewPasswordPlaceholder": "Confirmar nueva contraseña",
     "passwordFieldsNote": "Deje los campos de contraseña vacíos si no desea cambiar su contraseña.",
     "pharmacyAdmin": "Administrador de farmacia",
+    "pharmacyInformation": "Información de la farmacia",
+    "confirmPassword": "Confirmar contraseña",
     "saving": "Guardando...",
     "profileUpdatedSuccess": "¡Perfil actualizado exitosamente!",
     "logoPreview": "Vista previa del logo",
@@ -433,7 +439,9 @@
     "name": "Nombre",
     "id": "ID",
     "pending": "Pendiente",
-    "totalOrders": "Total de pedidos"
+    "totalOrders": "Total de pedidos",
+    "orderContent": "Contenido del pedido",
+    "type": "Tipo"
   },
   "sidebar": {
     "dashboard": "Panel de control",
@@ -482,5 +490,37 @@
     "quotaExceeded": "Cuota de geocodificación excedida",
     "requestDenied": "Solicitud de geocodificación denegada",
     "geocodingError": "No se pudo obtener la dirección para esta ubicación"
+  },
+  "branches": {
+    "title": "Gestión de sucursales",
+    "description": "Gestionar las sucursales y ubicaciones de su farmacia",
+    "addBranch": "Agregar sucursal",
+    "editBranch": "Editar sucursal",
+    "noBranches": "No se encontraron sucursales",
+    "addFirstBranch": "Agrega tu primera sucursal para comenzar",
+    "branchName": "Nombre de la sucursal",
+    "enterBranchName": "Ingresa el nombre de la sucursal",
+    "address": "Dirección",
+    "enterAddress": "Ingresa la dirección de la sucursal",
+    "phoneNumber": "Número de teléfono",
+    "enterPhoneNumber": "Ingresa el número de teléfono",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "coordinates": "Coordenadas",
+    "coordinatesOptional": "Las coordenadas son opcionales pero ayudan a los clientes a encontrar su sucursal",
+    "nameRequired": "El nombre de la sucursal es requerido",
+    "addressRequired": "La dirección de la sucursal es requerida",
+    "phoneRequired": "El número de teléfono es requerido",
+    "invalidLatitude": "Por favor ingrese una latitud válida (-90 a 90)",
+    "invalidLongitude": "Por favor ingrese una longitud válida (-180 a 180)",
+    "loadError": "Error al cargar las sucursales",
+    "saveError": "Error al guardar la sucursal",
+    "deleteError": "Error al eliminar la sucursal",
+    "deleteConfirmation": "¿Está seguro de que desea eliminar esta sucursal? Esta acción no se puede deshacer.",
+    "updateBranch": "Actualizar sucursal",
+    "updating": "Actualizando...",
+    "updateError": "Error al actualizar la sucursal",
+    "editBranchDescription": "Editar información de la sucursal y detalles de ubicación",
+    "branchAddress": "Dirección de la sucursal"
   }
 }

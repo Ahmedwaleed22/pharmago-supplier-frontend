@@ -62,7 +62,8 @@
     },
     "success": "Succès",
     "warning": "Avertissement",
-    "info": "Information"
+    "info": "Information",
+    "copied": "Copié !"
   },
   "auth": {
     "login": "Connexion",
@@ -280,7 +281,9 @@
     "viewStatus": "Voir le statut",
     "enableNotifications": "Activer les notifications",
     "medicineName": "Nom du médicament",
-    "qty": "QTÉ"
+    "qty": "QTÉ",
+    "medicineList": "Liste des médicaments",
+    "image": "Image"
   },
   "delivery": {
     "title": "Livraison",
@@ -325,7 +328,8 @@
     "liveTracking": "Suivi en direct",
     "deliveryDetail": "Détail de livraison",
     "sales": "Ventes",
-    "profile": "Profil"
+    "profile": "Profil",
+    "branches": "Succursales"
   },
   "errors": {
     "general": "Une erreur s'est produite. Veuillez réessayer.",
@@ -398,6 +402,8 @@
     "confirmNewPasswordPlaceholder": "Confirmer le nouveau mot de passe",
     "passwordFieldsNote": "Laissez les champs de mot de passe vides si vous ne voulez pas changer votre mot de passe.",
     "pharmacyAdmin": "Administrateur de pharmacie",
+    "pharmacyInformation": "Informations sur la pharmacie",
+    "confirmPassword": "Confirmer le mot de passe",
     "saving": "Enregistrement...",
     "profileUpdatedSuccess": "Profil mis à jour avec succès !",
     "logoPreview": "Aperçu du logo",
@@ -433,7 +439,9 @@
     "name": "Nom",
     "id": "ID",
     "pending": "En attente",
-    "totalOrders": "Total des commandes"
+    "totalOrders": "Total des commandes",
+    "orderContent": "Contenu de la commande",
+    "type": "Type"
   },
   "sidebar": {
     "dashboard": "Tableau de bord",
@@ -482,5 +490,37 @@
     "quotaExceeded": "Quota de géocodage dépassé",
     "requestDenied": "Demande de géocodage refusée",
     "geocodingError": "Impossible d'obtenir l'adresse pour cet emplacement"
+  },
+  "branches": {
+    "title": "Gestion des succursales",
+    "description": "Gérer les succursales et emplacements de votre pharmacie",
+    "addBranch": "Ajouter une succursale",
+    "editBranch": "Modifier la succursale",
+    "noBranches": "Aucune succursale trouvée",
+    "addFirstBranch": "Ajoutez votre première succursale pour commencer",
+    "branchName": "Nom de la succursale",
+    "enterBranchName": "Entrez le nom de la succursale",
+    "address": "Adresse",
+    "enterAddress": "Entrez l'adresse de la succursale",
+    "phoneNumber": "Numéro de téléphone",
+    "enterPhoneNumber": "Entrez le numéro de téléphone",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "coordinates": "Coordonnées",
+    "coordinatesOptional": "Les coordonnées sont optionnelles mais aident les clients à trouver votre succursale",
+    "nameRequired": "Le nom de la succursale est requis",
+    "addressRequired": "L'adresse de la succursale est requise",
+    "phoneRequired": "Le numéro de téléphone est requis",
+    "invalidLatitude": "Veuillez entrer une latitude valide (-90 à 90)",
+    "invalidLongitude": "Veuillez entrer une longitude valide (-180 à 180)",
+    "loadError": "Erreur lors du chargement des succursales",
+    "saveError": "Erreur lors de la sauvegarde de la succursale",
+    "deleteError": "Erreur lors de la suppression de la succursale",
+    "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer cette succursale ? Cette action ne peut pas être annulée.",
+    "updateBranch": "Mettre à jour la succursale",
+    "updating": "Mise à jour...",
+    "updateError": "Échec de la mise à jour de la succursale",
+    "editBranchDescription": "Modifier les informations et les détails de localisation de la succursale",
+    "branchAddress": "Adresse de la succursale"
   }
 } 
