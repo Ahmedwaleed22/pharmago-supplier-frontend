@@ -239,7 +239,7 @@
     "stockQty": "كمية المخزون",
     "tag": "العلامة",
     "enterTag": "أدخل العلامة",
-    "discountPlaceholder": "20%",
+    "discountPlaceholder": "20",
     "stockPlaceholder": "25 قطعة",
     "productReview": "مراجعة المنتج",
     "reviewBeforeSubmit": "راجع تفاصيل منتجك قبل الإرسال",
@@ -285,7 +285,11 @@
     "medicineName": "اسم الدواء",
     "qty": "الكمية",
     "medicineList": "قائمة الأدوية",
-    "image": "صورة"
+    "image": "صورة",
+    "offerExpired": "انتهت فترة العرض (24 ساعة)",
+    "offerExpiredDescription": "لا يمكنك عمل عرض لهذه الوصفة الطبية بعد الآن.",
+    "emptyRequestsTitle": "لا توجد طلبات وصفات طبية",
+    "emptyRequestsDescription": "لقد انتهيت من جميع الطلبات! ستظهر طلبات الوصفات الطبية الجديدة هنا بمجرد أن يرسلها المرضى."
   },
   "delivery": {
     "title": "التوصيل",
@@ -390,7 +394,7 @@
   },
   "profile": {
     "title": "الملف الشخصي",
-    "userProfile": "ملف المستخدم",
+    "userProfile": "الملف الشخصي للمستخدم",
     "pharmacyInfo": "معلومات الصيدلية",
     "branches": "الفروع",
     "mainBranch": "الفرع الرئيسي",
@@ -498,8 +502,8 @@
     "invalidDate": "يرجى إدخال تاريخ صحيح",
     "fileTooLarge": "حجم الملف كبير جداً",
     "invalidFileType": "نوع ملف غير صحيح",
-    "discountPlaceholder": "مثال: 20%",
-    "pricePlaceholder": "0.00 جنيه"
+    "discountPlaceholder": "مثال: 20",
+    "pricePlaceholder": "0.00"
   },
   "orderHistory": {
     "title": "تاريخ الطلبات",

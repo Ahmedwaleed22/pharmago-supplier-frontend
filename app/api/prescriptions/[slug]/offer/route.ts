@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
+// Helper function to check if offer has expired (24 hours)
+function isOfferExpired(createdAt: string): boolean {
+  if (!createdAt) return true;
+  
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffInHours = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+  
+  return diffInHours > 24;
+}
+
 export async function POST(
   request: NextRequest, 
   { params }: { params: Promise<{ slug: string }> }
@@ -23,6 +34,36 @@ export async function POST(
     
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // First, fetch the prescription to check its creation date
+    try {
+      const prescriptionResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_PHARMACY_URL}/prescriptions/${prescriptionId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Cookie': cookieHeader
+          }
+        }
+      );
+
+      const prescription = prescriptionResponse.data.data;
+      
+      // Check if offer period has expired
+      if (isOfferExpired(prescription.created_at)) {
+        return NextResponse.json(
+          { error: 'Offer period has expired. You can no longer make offers for prescriptions older than 24 hours.' },
+          { status: 400 }
+        );
+      }
+    } catch (fetchError: any) {
+      console.error('Error fetching prescription for validation:', fetchError);
+      return NextResponse.json(
+        { error: 'Failed to validate prescription' },
+        { status: 500 }
+      );
     }
 
     // Forward the request to the actual API with the auth token

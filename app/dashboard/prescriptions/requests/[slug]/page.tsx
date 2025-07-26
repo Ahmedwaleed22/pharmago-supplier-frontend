@@ -130,7 +130,7 @@ function PrescriptionDetailsPage() {
           </div>
 
           {/* Offer Sent Section */}
-          {(price || discount) && (
+          {/* {(price || discount) && (
             <div className="bg-blue-50 rounded-lg shadow p-6 flex flex-col gap-2">
               <h2 className="text-lg font-bold mb-2">{t('prescriptions.offerSent') || 'Offer Sent'}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -138,7 +138,7 @@ function PrescriptionDetailsPage() {
                 {discount && <div><b>{t('prescriptions.discount')}:</b> {discount}</div>}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Prescription Card and Preview */}
           <div className="flex flex-col lg:flex-row justify-between gap-4">

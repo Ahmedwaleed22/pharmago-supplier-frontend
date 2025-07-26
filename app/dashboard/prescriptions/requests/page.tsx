@@ -198,8 +198,8 @@ function PrescriptionRequestsPage() {
                 <rect x="36" y="28" width="8" height="4" rx="2" fill="#6366F1"/>
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-blue-gray mb-2">No Prescription Requests</h2>
-            <p className="text-gray-500 text-center max-w-xs">You're all caught up! New prescription requests will appear here as soon as patients submit them.</p>
+            <h2 className="text-xl font-semibold text-blue-gray mb-2">{t('prescriptions.emptyRequestsTitle')}</h2>
+            <p className="text-gray-500 text-center max-w-xs">{t('prescriptions.emptyRequestsDescription')}</p>
           </div>
         )
       ) : (

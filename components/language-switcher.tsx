@@ -18,6 +18,7 @@ export function LanguageSwitcher({ className, compact = false }: LanguageSwitche
   const handleLocaleChange = (newLocale: Locale) => {
     setLocale(newLocale);
     setIsOpen(false);
+    window.location.reload();
   };
 
   return (

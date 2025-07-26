@@ -237,7 +237,7 @@
     "stockQty": "Quantité en stock",
     "tag": "Étiquette",
     "enterTag": "Entrer l'étiquette",
-    "discountPlaceholder": "20%",
+    "discountPlaceholder": "20",
     "stockPlaceholder": "25 QTÉ",
     "productReview": "Révision du produit",
     "reviewBeforeSubmit": "Vérifiez les détails de votre produit avant de soumettre",
@@ -283,7 +283,9 @@
     "medicineName": "Nom du médicament",
     "qty": "QTÉ",
     "medicineList": "Liste des médicaments",
-    "image": "Image"
+    "image": "Image",
+    "offerExpired": "La période d'offre a expiré (24 heures)",
+    "offerExpiredDescription": "Vous ne pouvez plus faire d'offre pour cette ordonnance."
   },
   "delivery": {
     "title": "Livraison",
@@ -428,8 +430,8 @@
     "invalidDate": "Veuillez entrer une date valide",
     "fileTooLarge": "Fichier trop volumineux",
     "invalidFileType": "Type de fichier invalide",
-    "discountPlaceholder": "ex. 20%",
-    "pricePlaceholder": "0.00 L.E"
+    "discountPlaceholder": "ex. 20",
+    "pricePlaceholder": "0.00"
   },
   "orderHistory": {
     "title": "Historique des commandes",
@@ -522,5 +524,10 @@
     "updateError": "Échec de la mise à jour de la succursale",
     "editBranchDescription": "Modifier les informations et les détails de localisation de la succursale",
     "branchAddress": "Adresse de la succursale"
+  },
+  "profile": {
+    "userProfile": "Profil utilisateur",
+    "pharmacyInfo": "Infos pharmacie",
+    "branches": "Branches"
   }
 } 

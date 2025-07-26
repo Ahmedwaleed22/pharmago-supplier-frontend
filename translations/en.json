@@ -239,7 +239,7 @@
     "stockQty": "Stock QTY",
     "tag": "Tag",
     "enterTag": "Enter tag",
-    "discountPlaceholder": "20%",
+    "discountPlaceholder": "20",
     "stockPlaceholder": "25 QTY",
     "productReview": "Product Review",
     "reviewBeforeSubmit": "Review your product details before submitting",
@@ -285,7 +285,11 @@
     "medicineName": "Medicine Name",
     "qty": "QTY",
     "medicineList": "Medicine List",
-    "image": "Image"
+    "image": "Image",
+    "offerExpired": "Offer period has expired (24 hours)",
+    "offerExpiredDescription": "You can no longer make an offer for this prescription.",
+    "emptyRequestsTitle": "No Prescription Requests",
+    "emptyRequestsDescription": "You're all caught up! New prescription requests will appear here as soon as patients submit them."
   },
   "delivery": {
     "title": "Delivery",
@@ -391,7 +395,7 @@
   "profile": {
     "title": "Profile",
     "userProfile": "User Profile",
-    "pharmacyInfo": "Pharmacy Information",
+    "pharmacyInfo": "Pharmacy Info",
     "branches": "Branches",
     "mainBranch": "Main Branch",
     "generalInformation": "General Information",
@@ -498,8 +502,8 @@
     "invalidDate": "Please enter a valid date",
     "fileTooLarge": "File size too large",
     "invalidFileType": "Invalid file type",
-    "discountPlaceholder": "ex. 20%",
-    "pricePlaceholder": "0.00 L.E"
+    "discountPlaceholder": "ex. 20",
+    "pricePlaceholder": "0.00"
   },
   "orderHistory": {
     "title": "Order History",
