@@ -237,7 +237,7 @@
     "stockQty": "Cantidad en stock",
     "tag": "Etiqueta",
     "enterTag": "Introduce la etiqueta",
-    "discountPlaceholder": "20%",
+    "discountPlaceholder": "20",
     "stockPlaceholder": "25 unidades",
     "productReview": "Revisión del producto",
     "reviewBeforeSubmit": "Revisa los detalles de tu producto antes de enviar",
@@ -283,7 +283,9 @@
     "medicineName": "Nombre del medicamento",
     "qty": "Cantidad",
     "medicineList": "Lista de medicamentos",
-    "image": "Imagen"
+    "image": "Imagen",
+    "offerExpired": "El período de oferta ha expirado (24 horas)",
+    "offerExpiredDescription": "Ya no puedes hacer una oferta para esta receta."
   },
   "delivery": {
     "title": "Entrega",
@@ -417,7 +419,10 @@
     "passwordsDoNotMatch": "Las contraseñas no coinciden",
     "invalidEmail": "Por favor ingrese una dirección de correo electrónico válida",
     "updateError": "Ocurrió un error al actualizar su perfil",
-    "networkError": "Error de red. Por favor verifique su conexión e intente nuevamente."
+    "networkError": "Error de red. Por favor verifique su conexión e intente nuevamente.",
+    "userProfile": "Perfil de usuario",
+    "pharmacyInfo": "Información de la farmacia",
+    "branches": "Sucursales"
   },
   "forms": {
     "required": "Este campo es obligatorio",
@@ -428,8 +433,8 @@
     "invalidDate": "Por favor, introduce una fecha válida",
     "fileTooLarge": "El archivo es demasiado grande",
     "invalidFileType": "Tipo de archivo inválido",
-    "discountPlaceholder": "ej. 20%",
-    "pricePlaceholder": "0.00 L.E"
+    "discountPlaceholder": "ej. 20",
+    "pricePlaceholder": "0.00"
   },
   "orderHistory": {
     "title": "Historial de pedidos",

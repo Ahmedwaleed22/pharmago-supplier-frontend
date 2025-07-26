@@ -100,3 +100,13 @@ export function getXmlValue(str: string, key: string) {
 export function formatStatus(status: string) {
   return status.replace(/_/g, " ");
 }
+
+export function isOfferExpired(createdDate: string): boolean {
+  if (!createdDate) return true;
+  
+  const created = new Date(createdDate);
+  const now = new Date();
+  const diffInHours = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+  
+  return diffInHours > 24;
+}

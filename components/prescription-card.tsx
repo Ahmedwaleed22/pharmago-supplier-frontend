@@ -2,7 +2,6 @@
 
 import React, { Dispatch, SetStateAction, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import CustomButton from "./custom-button";
 import { useRouter, useParams } from "next/navigation";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -12,10 +11,14 @@ import {
   formatPrescriptionDate,
   getTimeAgo,
   getTranslatedTimeAgo,
+  isOfferExpired,
 } from "@/helpers/prescriptions";
 import { sendPrescriptionOffer } from "@/services/prescriptions";
 import { useTranslation } from "@/contexts/i18n-context";
 import { useQueryClient } from "@tanstack/react-query";
+import { getCurrencySymbol } from "@/store/authSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 type PrescriptionCardStatus =
   | "request"
@@ -44,6 +47,7 @@ function PrescriptionCard({
   setDiscount,
 }: PrescriptionCardProps) {
   const queryClient = useQueryClient();
+  const currencySymbol = useSelector((state: RootState) => getCurrencySymbol(state));  
   const router = useRouter();
   const { t, isRtl } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,10 +128,10 @@ function PrescriptionCard({
               <span className="text-blue-gray mr-1">
                 {t("prescriptions.by")}
               </span>
-              <Link className="text-primary-blue font-semibold" href="">
+              <span className="text-primary-blue font-semibold">
                 {prescription.patient?.name || t("common.unknownCustomer")} (
                 {t("prescriptions.client")})
-              </Link>
+              </span>
               <div className="text-muted-gray mt-1">
                 {formatPrescriptionDate(prescription.created_at, true, t, isRtl)} (
                 {t("prescriptions.live")}:{" "}
@@ -178,10 +182,10 @@ function PrescriptionCard({
       {status !== "delivery-status" && (
         <div className="text-sm">
           <span className="text-blue-gray mr-1">{t("prescriptions.by")}</span>
-          <Link className="text-primary-blue font-semibold" href="">
+          <span className="text-primary-blue font-semibold">
             {prescription.patient?.name || t("common.unknownCustomer")} (
             {t("prescriptions.client")})
-          </Link>
+          </span>
           <div className="text-muted-gray mt-1">
             {formatPrescriptionDate(prescription.created_at, true, t, isRtl)} (
             {t("prescriptions.live")}:{" "}
@@ -217,50 +221,73 @@ function PrescriptionCard({
           )}
           {status === "offer" && (
             <div className="my-4">
-              <div className="flex gap-4 mt-4">
-                <div className="flex-1">
-                  <p className="text-blue-gray mb-2">
-                    {t("products.price")}
+              {isOfferExpired(prescription.created_at) ? (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 text-center">
+                  <p className="text-red-600 font-medium">
+                    {t("prescriptions.offerExpired") || "Offer period has expired (24 hours)"}
                   </p>
-                  <input
-                    className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md"
-                    type="number"
-                    placeholder={t("forms.pricePlaceholder")}
-                    value={price}
-                    onChange={(e) => setPrice && setPrice(e.target.value)}
-                  />
-                </div>
-                <div className="flex-1">
-                  <p className="text-blue-gray mb-2">
-                    {t("prescriptions.discount")}
+                  <p className="text-red-500 text-sm mt-1">
+                    {t("prescriptions.offerExpiredDescription") || "You can no longer make an offer for this prescription."}
                   </p>
-                  <input
-                    className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md"
-                    type="number"
-                    placeholder={t("forms.discountPlaceholder")}
-                    value={discount}
-                    onChange={(e) => setDiscount && setDiscount(e.target.value)}
-                  />
                 </div>
-              </div>
-              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-              <div className="flex gap-4 mt-4">
-                <CustomButton
-                  className="w-2/3 h-[40px]"
-                  onClick={handleSendOffer}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting
-                    ? t("common.sending")
-                    : t("prescriptions.sendOffers")}
-                </CustomButton>
-                <CustomButton
-                  className="flex-1 bg-gray-100 text-red-500 hover:bg-gray-200 py-3 rounded-md"
-                  onClick={() => router.back()}
-                >
-                  {t("common.cancel")}
-                </CustomButton>
-              </div>
+              ) : (
+                <>
+                  <div className="flex gap-4 mt-4">
+                    <div className="flex-1">
+                      <p className="text-blue-gray mb-2">
+                        {t("products.price")}
+                      </p>
+                      <div className="flex">
+                        <input
+                          className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md rounded-r-none border-r-0"
+                          type="number"
+                          placeholder={t("forms.pricePlaceholder")}
+                          value={price}
+                          onChange={(e) => setPrice && setPrice(e.target.value)}
+                        />
+                        <div className="bg-muted aspect-square h-10 flex items-center justify-center border border-gray-200 rounded-r-md">
+                          {currencySymbol}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-blue-gray mb-2">
+                        {t("prescriptions.discount")}
+                      </p>
+                      <div className="flex">
+                        <input
+                          className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md rounded-r-none border-r-0"
+                          type="number"
+                          placeholder={t("forms.discountPlaceholder")}
+                          value={discount}
+                          onChange={(e) => setDiscount && setDiscount(e.target.value)}
+                        />
+                        <div className="bg-muted aspect-square h-10 flex items-center justify-center border border-gray-200 rounded-r-md">
+                          %
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                  <div className="flex gap-4 mt-4">
+                    <CustomButton
+                      className="w-2/3 h-[40px]"
+                      onClick={handleSendOffer}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting
+                        ? t("common.sending")
+                        : t("prescriptions.sendOffers")}
+                    </CustomButton>
+                    <CustomButton
+                      className="flex-1 bg-gray-100 text-red-500 hover:bg-gray-200 py-3 rounded-md"
+                      onClick={() => router.back()}
+                    >
+                      {t("common.cancel")}
+                    </CustomButton>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

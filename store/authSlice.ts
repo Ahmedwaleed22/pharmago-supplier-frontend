@@ -58,5 +58,9 @@ export const getUser = (state: { auth: AuthState }) => {
   return state.auth.user;
 };
 
+export const getCurrencySymbol = (state: { auth: AuthState }) => {
+  return state.auth.pharmacy?.country?.currency?.symbol || "$";
+};
+
 export const { setAuth, setLoading, setError, logout } = authSlice.actions;
 export default authSlice.reducer; 

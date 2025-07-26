@@ -104,11 +104,7 @@ export function I18nProvider({ children, initialLocale, initialTranslations }: I
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     setLocaleCookie(newLocale);
-    
-    // Trigger page reload to apply language changes throughout the app
-    if (typeof window !== 'undefined') {
-      window.location.reload();
-    }
+    // Removed window.location.reload() to allow for reactive language switching
   };
 
   const t = (key: string, values?: Record<string, string | number>): string => {
