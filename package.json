@@ -18,6 +18,7 @@
     "@heroui/system": "2.4.16-beta.3",
     "@heroui/theme": "2.4.16-beta.2",
     "@iconify/react": "^6.0.0",
+    "@jridgewell/resolve-uri": "^3.1.2",
     "@radix-ui/react-collapsible": "^1.1.8",
     "@radix-ui/react-dialog": "^1.1.11",
     "@radix-ui/react-separator": "^1.1.4",

@@ -82,13 +82,13 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
 
-        <div className="flex flex-row lg:flex-col gap-2 lg:gap-6 overflow-x-auto lg:overflow-x-visible px-4 lg:px-0 pb-4 lg:pb-0">
+        <div className="hidden md:flex flex-col gap-2 lg:gap-6 overflow-x-auto lg:overflow-x-visible px-4 lg:px-0 pb-4 lg:pb-0">
           {steps.map((step, index) => (
             <Link href={step.href} key={index}>
               <div
                 key={index}
                 className={cn(
-                  "py-2 lg:py-0 px-3 lg:px-0 lg:pl-5 whitespace-nowrap lg:whitespace-normal rounded lg:rounded-none",
+                  "py-2 lg:py-0 px-3 lg:px-5 whitespace-nowrap lg:whitespace-normal rounded lg:rounded-none",
                   index === currentStep
                     ? `lg:border-r-4 border-primary-blue text-primary-blue bg-blue-50 lg:bg-transparent`
                     : ''
