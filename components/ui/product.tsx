@@ -7,7 +7,7 @@ function Product({ product }: { product: Product.Medicine }) {
   const tag = JSON.parse(product.tag || "{}");
 
   return (
-    <Link
+    <a
       href={`/dashboard/products/edit/${product.id}`}
       className="block h-full w-full min-w-[180px] max-w-[220px]"
     >
@@ -48,7 +48,7 @@ function Product({ product }: { product: Product.Medicine }) {
           </span>
         </div>
       </div>
-    </Link>
+    </a>
   );
 }
 

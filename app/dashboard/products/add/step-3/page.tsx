@@ -36,11 +36,15 @@ function ProductAddStep3Page() {
   };
 
   const handleDeleteImage = (index: number) => {
-    // Revoke the object URL before removing from Redux
-    if (productData.images[index]) {
-      URL.revokeObjectURL(productData.images[index].url);
+    // Find the image in the Redux store that matches the local index
+    const imageToDelete = productData.images[index];
+    if (imageToDelete) {
+      // Revoke the object URL before removing from Redux
+      if (imageToDelete.url.startsWith('blob:')) {
+        URL.revokeObjectURL(imageToDelete.url);
+      }
+      dispatch(removeImage(index));
     }
-    dispatch(removeImage(index));
   };
 
   const handleSetPrimary = (index: number) => {

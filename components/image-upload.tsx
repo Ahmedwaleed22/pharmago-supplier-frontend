@@ -4,6 +4,23 @@ import Image from "next/image";
 import { niceBytes } from "@/helpers/upload";
 import { useTranslation } from "@/contexts/i18n-context";
 
+// Helper function to format filename for display
+const formatDisplayName = (filename: string): string => {
+  // Remove file extension
+  const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
+  
+  // If the name is already short, return as is
+  if (nameWithoutExt.length <= 20) {
+    return filename;
+  }
+  
+  // For longer names, truncate and add ellipsis
+  const truncated = nameWithoutExt.substring(0, 20);
+  const extension = filename.split('.').pop();
+  
+  return `${truncated}...${extension ? `.${extension}` : ''}`;
+};
+
 interface ImageFile {
   file: File;
   url: string;
@@ -270,10 +287,20 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     e.preventDefault();
 
     const imageToDelete = images[index];
+    if (!imageToDelete) return;
 
     // Call parent's delete handler if provided
     if (onDeleteImage) {
-      onDeleteImage(index); // Parent needs to map this index to its data or use ID if available
+      // Find the index in the parent's data by matching the image URL or ID
+      const parentIndex = existingImages.findIndex(img => 
+        img.url === imageToDelete.url || img.id === imageToDelete.id
+      );
+      if (parentIndex !== -1) {
+        onDeleteImage(parentIndex);
+      } else {
+        // Fallback to local index if parent index not found
+        onDeleteImage(index);
+      }
     }
 
     // Update local state
@@ -294,10 +321,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setImages(newImages);
 
     // Update parent if no onDeleteImage was provided (by sending the remaining files)
-    // This part is tricky if onImagesChange is meant for *new* files.
-    // If onDeleteImage is not provided, managing deletions accurately via onImagesChange with File objects is hard
-    // for images that originated from `existingImages`.
-    // For simplicity, we assume if onDeleteImage is not there, onImagesChange might refresh the whole list based on files.
     if (!onDeleteImage) {
       const remainingFiles = newImages.map((img) => img.file);
       onImagesChange(remainingFiles);
@@ -309,6 +332,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     e.stopPropagation();
     e.preventDefault();
 
+    const imageToSetPrimary = images[index];
+    if (!imageToSetPrimary) return;
+
     // Update local state
     const newImages = images.map((img, i) => ({
       ...img,
@@ -318,7 +344,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     // Call parent handler if provided
     if (onSetPrimaryImage) {
-      onSetPrimaryImage(index);
+      // Find the index in the parent's data by matching the image URL or ID
+      const parentIndex = existingImages.findIndex(img => 
+        img.url === imageToSetPrimary.url || img.id === imageToSetPrimary.id
+      );
+      if (parentIndex !== -1) {
+        onSetPrimaryImage(parentIndex);
+      } else {
+        // Fallback to local index if parent index not found
+        onSetPrimaryImage(index);
+      }
     }
   };
 
@@ -407,8 +442,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             {/* File Info */}
             <div className="flex-1 min-w-0 w-full">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-[#414651] truncate">
-                  {uploadingFile}
+                <p className="text-sm font-medium text-[#414651]" title={uploadingFile}>
+                  {formatDisplayName(uploadingFile)}
                 </p>
               </div>
               <p className="text-xs text-[#535862]">
@@ -452,8 +487,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 {/* File Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-[#414651] truncate">
-                      {image.name}
+                    <p className="text-sm font-medium text-[#414651]" title={image.name}>
+                      {formatDisplayName(image.name)}
                     </p>
                     {image.isPrimary && (
                       <div className="bg-[#E9F1FF] rounded px-2 py-0.5 flex items-center gap-1">

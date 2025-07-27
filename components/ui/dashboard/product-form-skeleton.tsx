@@ -108,7 +108,7 @@ export function ProductFormSkeleton({
 
 export function ProductPreviewSkeleton() {
   return (
-    <div className="w-full xl:w-1/2 xl:max-w-[407px]">
+    <div className="w-full xl:w-1/2 max-w-[407px]">
       {/* Header */}
       <div className="mb-2">
         <Skeleton className="h-5 xl:h-6 w-20" />
@@ -118,7 +118,7 @@ export function ProductPreviewSkeleton() {
       </div>
 
       {/* Preview Card */}
-      <div className="rounded-lg bg-white p-4 xl:p-6 w-full xl:max-w-[407px] shadow-sm">
+      <div className="rounded-lg bg-white p-4 xl:p-6 w-full max-w-[407px] shadow-sm">
         {/* Image */}
         <div className="mb-6">
           <Skeleton className="h-[250px] w-full rounded-lg" />

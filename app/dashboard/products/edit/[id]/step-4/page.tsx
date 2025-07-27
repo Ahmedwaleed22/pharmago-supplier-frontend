@@ -22,8 +22,6 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
   const [error, setError] = useState("");
   // Check if params is a Promise and unwrap it if needed
   const productId = React.use(params).id;
-  
-  const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL;
 
   const prepareProductData = async (productData: any) => {
     const formData = new FormData();
@@ -48,76 +46,115 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
     
     // Process images - start with debugging info
     console.log("Images to process:", productData.images.length);
+    console.log("Product data images:", productData.images);
     
-    // Create array to hold all processed image files
-    const allImageFiles: File[] = [];
+    // Process images - separate new uploads from existing images
+    const newImageFiles: File[] = [];
+    const existingImageUrls: string[] = [];
     
-    // Process primary image first to ensure it's first in the array
-    const primaryImage = productData.images.find((img: any) => img.isPrimary);
-    if (primaryImage) {
-      console.log("Processing primary image:", primaryImage.name, primaryImage.url.substring(0, 30) + "...");
+    // Separate primary and non-primary images
+    const primaryNewImages: File[] = [];
+    const nonPrimaryNewImages: File[] = [];
+    const primaryExistingImages: string[] = [];
+    const nonPrimaryExistingImages: string[] = [];
+    
+    for (let i = 0; i < productData.images.length; i++) {
+      const image = productData.images[i];
+      console.log(`Processing image ${i}:`, image.name, image.url.substring(0, 50) + "...", `isPrimary: ${image.isPrimary}`);
       
       // If it's a Blob URL (new upload)
-      if (primaryImage.url.startsWith('blob:')) {
+      if (image.url.startsWith('blob:')) {
         try {
           // Convert the object URL to a Blob/File
-          const response = await fetch(primaryImage.url);
+          const response = await fetch(image.url);
           const blob = await response.blob();
-          console.log("Primary blob created:", blob.type, blob.size);
+          console.log(`New image ${i} blob created:`, blob.type, blob.size);
           
-          const file = new File([blob], primaryImage.name || "primary-image.jpg", { type: blob.type });
-          console.log("Primary file created:", file.name, file.type, file.size);
+          const file = new File([blob], image.name || `new-image-${i}.jpg`, { type: blob.type });
+          console.log(`New image ${i} file created:`, file.name, file.type, file.size);
           
-          // Add to our collection of files
-          allImageFiles.push(file);
+          // Add to appropriate collection based on primary status
+          if (image.isPrimary) {
+            primaryNewImages.push(file);
+            console.log(`Added primary new image ${i} to primaryNewImages array`);
+          } else {
+            nonPrimaryNewImages.push(file);
+            console.log(`Added non-primary new image ${i} to nonPrimaryNewImages array`);
+          }
         } catch (error) {
-          console.error("Error processing primary image:", error);
+          console.error(`Error processing new image ${i}:`, error);
+        }
+      } else {
+        // For existing images, just collect the URLs
+        console.log(`Collecting existing image URL ${i}:`, image.url);
+        
+        // Add to appropriate collection based on primary status
+        if (image.isPrimary) {
+          primaryExistingImages.push(image.url);
+          console.log(`Added primary existing image ${i} to primaryExistingImages array`);
+        } else {
+          nonPrimaryExistingImages.push(image.url);
+          console.log(`Added non-primary existing image ${i} to nonPrimaryExistingImages array`);
         }
       }
     }
     
-    // Process additional images
-    const additionalImages = productData.images.filter((img: any) => !img.isPrimary);
-    if (additionalImages.length > 0) {
-      console.log("Processing additional images:", additionalImages.length);
+    // Combine new images with primary images first
+    newImageFiles.push(...primaryNewImages, ...nonPrimaryNewImages);
+    
+    // Combine existing image URLs with primary images first
+    existingImageUrls.push(...primaryExistingImages, ...nonPrimaryExistingImages);
+    
+    console.log(`Final image arrays:`, {
+      primaryNewImages: primaryNewImages.length,
+      nonPrimaryNewImages: nonPrimaryNewImages.length,
+      primaryExistingImages: primaryExistingImages.length,
+      nonPrimaryExistingImages: nonPrimaryExistingImages.length,
+      newImageFiles: newImageFiles.length,
+      existingImageUrls: existingImageUrls.length
+    });
+    
+    // Add new images to formData as files
+    if (newImageFiles.length > 0) {
+      console.log(`Adding ${newImageFiles.length} new images to formData as images[]`);
       
-      // Convert each image to File if it's a Blob URL
-      try {
-        const additionalFiles = await Promise.all(
-          additionalImages.map(async (image: any, index: number) => {
-            if (image.url.startsWith('blob:')) {
-              try {
-                console.log(`Processing additional image ${index}:`, image.name);
-                const response = await fetch(image.url);
-                const blob = await response.blob();
-                return new File([blob], image.name || `additional-image-${index}.jpg`, { type: blob.type });
-              } catch (error) {
-                console.error(`Error processing additional image ${index}:`, error);
-                return null;
-              }
-            }
-            return null;
-          })
-        );
-        
-        // Filter out null values and add to our collection
-        additionalFiles.filter(Boolean).forEach(file => {
-          if (file) allImageFiles.push(file);
-        });
-      } catch (error) {
-        console.error("Error processing additional images:", error);
-      }
+      newImageFiles.forEach((file: File, index: number) => {
+        formData.append("images[]", file);
+        console.log(`Appended new image ${index}:`, file.name);
+      });
     }
     
-    // Now add all images to the formData under images[]
-    if (allImageFiles.length > 0) {
-      console.log(`Adding ${allImageFiles.length} images to formData as images[]`);
-      allImageFiles.forEach((file, index) => {
-        formData.append("images[]", file);
-        console.log(`Appended image ${index}:`, file.name);
-      });
+    // Add existing image URLs to formData
+    if (existingImageUrls.length > 0) {
+      console.log(`Adding ${existingImageUrls.length} existing image URLs to formData as existing_images`);
+      formData.append("existing_images", JSON.stringify(existingImageUrls));
+    }
+    
+    // Find which image should be primary
+    const primaryImage = productData.images.find((img: any) => img.isPrimary);
+    console.log(`Primary image in Redux store:`, primaryImage);
+    
+    // Handle primary image selection
+    if (primaryImage) {
+      if (primaryImage.url.startsWith('blob:')) {
+        // This is a new image - since we put primary images first, the index is 0
+        formData.append("primary_image_index", "0");
+        console.log(`Set primary_image_index to 0 (new primary image)`);
+      } else if (primaryImage.id && primaryImage.id !== 'main-image' && !primaryImage.id.startsWith('image-')) {
+        // This is an existing image with a proper database ID
+        formData.append("primary_image_id", primaryImage.id);
+        console.log(`Set primary_image_id to:`, primaryImage.id);
+      } else {
+        // Fallback for existing images without proper IDs
+        formData.append("primary_image_id", "0");
+        console.log(`Set primary_image_id to 0 (first existing image)`);
+      }
     } else {
-      console.warn("No image files processed successfully");
+      console.log(`No primary image found:`, primaryImage);
+    }
+    
+    if (newImageFiles.length === 0 && existingImageUrls.length === 0) {
+      console.warn("No images processed successfully");
     }
     
     // Debug the FormData content
@@ -135,62 +172,23 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
 
   const updateProductMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      // Create a Direct API call instead of using the proxy
-      const url = `${API_BASE_URL}/products/${productId}/`;
+      // Use the proxy route for better CORS handling and authentication
+      const url = `/api/dashboard/products/${productId}`;
       
-      console.log("Making direct API call to:", url);
+      console.log("Making API call through proxy to:", url);
       
-      // Get the auth token using the proper method from api.ts
-      const token = getAuthToken();
-      console.log("Authentication token available:", !!token);
+      // Use fetch with the proxy route
+      const response = await fetch(url, {
+        method: 'PUT',
+        body: formData,
+      });
       
-      if (!token) {
-        console.error("No authentication token found");
-        throw new Error(t('errors.unauthorized'));
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || t('errors.general'));
       }
       
-      // Use XMLHttpRequest for more reliable FormData upload
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('PUT', url);
-        
-        // Set auth header with the token from cookies
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        
-        xhr.onload = function() {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const response = JSON.parse(xhr.responseText);
-              resolve(response);
-            } catch (e) {
-              resolve({ success: true });
-            }
-          } else {
-            console.error("Error response:", xhr.status, xhr.statusText, xhr.responseText);
-            reject({
-              status: xhr.status,
-              message: xhr.statusText || t('errors.general'),
-              response: xhr.responseText
-            });
-          }
-        };
-        
-        xhr.onerror = function() {
-          reject({
-            status: xhr.status,
-            message: 'Network error occurred'
-          });
-        };
-        
-        xhr.upload.onprogress = function(event) {
-          if (event.lengthComputable) {
-            const percentComplete = (event.loaded / event.total) * 100;
-            console.log(`Upload progress: ${percentComplete.toFixed(2)}%`);
-          }
-        };
-        
-        xhr.send(formData);
-      });
+      return response.json();
     },
     onSuccess: (data) => {
       console.log("Product updated successfully:", data);

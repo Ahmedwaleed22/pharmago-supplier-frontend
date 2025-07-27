@@ -99,9 +99,28 @@ function ProductAddStep4Page() {
     
     // Now add all images to the formData under images[]
     if (allImageFiles.length > 0) {
+      // Find which image should be primary
+      const primaryImage = productData.images.find((img: any) => img.isPrimary);
+      console.log(`Primary image in Redux store:`, primaryImage);
+      
       allImageFiles.forEach((file, index) => {
         formData.append("images[]", file);
       });
+      
+      // Handle primary image selection
+      if (primaryImage) {
+        if (primaryImage.url.startsWith('blob:')) {
+          // This is a new image - since we put primary images first, the index is 0
+          formData.append("primary_image_index", "0");
+          console.log(`Set primary_image_index to 0 (new primary image)`);
+        } else {
+          // Fallback for any other case
+          formData.append("primary_image_index", "0");
+          console.log(`Set primary_image_index to 0 (first image)`);
+        }
+      } else {
+        console.log(`No primary image found:`, primaryImage);
+      }
     } else {
       console.warn("No image files processed successfully");
     }

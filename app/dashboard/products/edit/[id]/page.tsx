@@ -68,15 +68,54 @@ function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
         productDetails: existingProduct.details || '',
         price: existingProduct.price?.toString() || '',
         discount: existingProduct.discount_percentage?.toString() || '0',
-        tag: '',
-        tagColor: '#2970ff',
-        images: existingProduct.image ? [{
-          name: 'existing-image',
-          size: 0,
-          url: existingProduct.image,
-          isPrimary: true
-        }] : [],
-        notes: existingProduct.notes || ''
+        tag: typeof existingProduct.tag === 'object' && existingProduct.tag !== null 
+          ? (existingProduct.tag as any).title || '' 
+          : existingProduct.tag || '',
+        tagColor: typeof existingProduct.tag === 'object' && existingProduct.tag !== null 
+          ? (existingProduct.tag as any).color || '#2970FF' 
+          : '#2970FF',
+        images: (() => {
+          const productImages: Array<{
+            name: string;
+            url: string;
+            isPrimary: boolean;
+            size: number;
+            id: string;
+          }> = [];
+          
+          // Check if there are images in the product.images array first
+          const additionalImages = (existingProduct as any).images;
+          if (additionalImages && Array.isArray(additionalImages)) {
+            additionalImages.forEach((img: string | any, index: number) => {
+              const imageObj = typeof img === 'string' 
+                ? { url: img } 
+                : img;
+                
+              productImages.push({
+                name: imageObj.name || `image-${index}.jpg`,
+                url: imageObj.url,
+                isPrimary: Boolean(imageObj.is_primary),
+                size: imageObj.size || 0,
+                id: imageObj.id || `image-${index}`
+              });
+            });
+          }
+          
+          // If no images in the array, check for single image field
+          if (productImages.length === 0 && existingProduct.image) {
+            productImages.push({
+              name: 'main-image.jpg',
+              url: existingProduct.image,
+              isPrimary: true,
+              size: 0,
+              id: 'main-image'
+            });
+          }
+          
+          return productImages;
+        })(),
+        notes: existingProduct.notes || '',
+        stock: existingProduct.stock?.toString() || '0'
       };
       dispatch(initializeProductData(mappedProductData));
     }

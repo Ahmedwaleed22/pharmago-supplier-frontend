@@ -237,7 +237,9 @@ function PrescriptionCard({
                       <p className="text-blue-gray mb-2">
                         {t("products.price")}
                       </p>
-                      <div className="flex">
+                      <div style={{ 
+                        direction: "ltr"
+                       }} className="flex">
                         <input
                           className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md rounded-r-none border-r-0"
                           type="number"
@@ -254,7 +256,9 @@ function PrescriptionCard({
                       <p className="text-blue-gray mb-2">
                         {t("prescriptions.discount")}
                       </p>
-                      <div className="flex">
+                      <div style={{ 
+                        direction: "ltr"
+                       }} className="flex">
                         <input
                           className="w-full px-4 py-2 border border-gray-200 outline-none rounded-md rounded-r-none border-r-0"
                           type="number"

@@ -2,7 +2,7 @@
 
 import DashboardLayout from "@/layouts/dashboard-layout";
 import { usePathname, useRouter } from "next/navigation";
-import { Provider, useDispatch } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { store } from "@/store/store";
 import React, { useEffect, useState } from "react";
 import { isAuthenticated } from "@/lib/api";
@@ -13,6 +13,7 @@ import ProductLayout from "@/layouts/product-layout";
 
 interface ProductImageData {
   url: string;
+  name?: string;
   is_primary?: boolean;
   id?: string;
   size?: number;
@@ -28,6 +29,7 @@ export default function DashboardRootLayout({
   const dispatch = useDispatch();
   const pathname = usePathname();
   const router = useRouter();
+  const productData = useSelector((state: any) => state.productCreation);
   const [isLoading, setIsLoading] = useState(true);
   
   // Extract productId early
@@ -56,7 +58,7 @@ export default function DashboardRootLayout({
 
   // Product data initialization effect
   useEffect(() => {
-    if (product) {
+    if (product && !productData?.name) {
       // Parse tag if needed
       let tagTitle = "";
       let tagColor = "#2970ff";
@@ -87,8 +89,8 @@ export default function DashboardRootLayout({
         size: number;
         id: string;
       }> = [];
-            
-      // Add additional images if they exist - using optional chaining for safety
+      
+      // Check if there are images in the product.images array first
       const additionalImages = (product as any).images;
       if (additionalImages && Array.isArray(additionalImages)) {
         additionalImages.forEach((img: string | ProductImageData, index: number) => {
@@ -97,12 +99,23 @@ export default function DashboardRootLayout({
             : img;
             
           productImages.push({
-            name: `image-${index}.jpg`,
+            name: imageObj.name || `image-${index}.jpg`,
             url: imageObj.url,
-            isPrimary: Boolean(imageObj.is_primary) && !productImages.some(img => img.isPrimary),
+            isPrimary: Boolean(imageObj.is_primary),
             size: imageObj.size || 0,
             id: imageObj.id || `image-${index}`
           });
+        });
+      }
+      
+      // If no images in the array, check for single image field
+      if (productImages.length === 0 && product.image) {
+        productImages.push({
+          name: 'main-image.jpg',
+          url: product.image,
+          isPrimary: true,
+          size: 0, // We don't have size info for existing images
+          id: 'main-image'
         });
       }
       

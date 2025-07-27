@@ -82,13 +82,13 @@ function ProductPreview({ className }: ProductPreviewProps) {
   };
 
   return (
-    <div className={cn("w-full xl:w-1/2 xl:max-w-[407px]", className)}>
+    <div className={cn("w-full xl:w-1/2 max-w-[407px]", className)}>
       <h2 className="mb-2 text-lg xl:text-xl font-semibold text-[#414651]">{t('products.preview')}</h2>
       <p className="mb-4 xl:mb-6 text-[#717171]">
         {t('products.thisIsHowProductWillAppear')}
       </p>
 
-      <div className="rounded-lg bg-white p-4 xl:p-6 w-full xl:max-w-[407px] shadow-sm">
+      <div className="rounded-lg bg-white p-4 xl:p-6 w-full max-w-[407px] shadow-sm">
         <div 
           onClick={() => router.push(getImageEditPath())} 
           className={`mb-6 flex items-center justify-center rounded-lg bg-white min-h-[250px] ${!imageUrl ? "p-8 border border-dashed border-[#afafaf] cursor-pointer" : ""}`}
