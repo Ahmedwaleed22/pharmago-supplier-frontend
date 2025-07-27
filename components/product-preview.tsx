@@ -90,8 +90,8 @@ function ProductPreview({ className }: ProductPreviewProps) {
 
       <div className="rounded-lg bg-white p-4 xl:p-6 w-full max-w-[407px] shadow-sm">
         <div 
-          onClick={() => router.push(getImageEditPath())} 
-          className={`mb-6 flex items-center justify-center rounded-lg bg-white min-h-[250px] ${!imageUrl ? "p-8 border border-dashed border-[#afafaf] cursor-pointer" : ""}`}
+          // onClick={() => router.push(getImageEditPath())} 
+          className={`mb-6 flex items-center justify-center rounded-lg bg-white min-h-[250px] ${!imageUrl ? "p-8 border border-dashed border-[#afafaf]" : ""}`}
           style={{ 
             position: 'relative',
             overflow: 'hidden'

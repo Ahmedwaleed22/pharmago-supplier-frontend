@@ -35,7 +35,7 @@ function Product({ product }: { product: Product.Medicine }) {
               alt={product.name}
               width={300}
               height={200}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           )}
         </div>

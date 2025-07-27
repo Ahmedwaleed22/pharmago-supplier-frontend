@@ -6,8 +6,13 @@ import FormData from 'form-data';
 const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL || '';
 
 // Helper function to get Accept-Language header from locale
-function getAcceptLanguageHeader(request: NextRequest): string {
-  // Try to get locale from cookie
+function getAcceptLanguageHeader(request: NextRequest, headersFromBody?: Record<string, string>): string {
+  // First check if Accept-Language is provided in the request body headers
+  if (headersFromBody && headersFromBody['Accept-Language']) {
+    return headersFromBody['Accept-Language'];
+  }
+  
+  // Then try to get locale from cookie
   const locale = request.cookies.get('locale')?.value || 'en';
   
   return locale || 'en';
@@ -57,7 +62,7 @@ export async function POST(request: NextRequest) {
       });
       
       // Add Accept-Language header based on locale
-      forwardedHeaders['Accept-Language'] = getAcceptLanguageHeader(request);
+      forwardedHeaders['Accept-Language'] = getAcceptLanguageHeader(request, {});
       
       // Forward the request with FormData
       try {
@@ -132,10 +137,13 @@ export async function POST(request: NextRequest) {
     console.log(`Making ${method.toUpperCase()} request to: ${apiTargetUrl}`);
     
     // Set common headers
+    const acceptLanguage = getAcceptLanguageHeader(request, headers);
+    console.log(`Setting Accept-Language header to: ${acceptLanguage}`);
+    
     const requestHeaders = {
       ...headers,
       'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
-      'Accept-Language': getAcceptLanguageHeader(request)
+      'Accept-Language': acceptLanguage
     };
 
     let response;
@@ -180,7 +188,7 @@ export async function POST(request: NextRequest) {
           headers: {
             ...requestHeaders,
             ...serverFormData.getHeaders(),
-            'Accept-Language': getAcceptLanguageHeader(request)
+            'Accept-Language': getAcceptLanguageHeader(request, headers)
           }
         });
       } else {
@@ -272,7 +280,7 @@ export async function GET(request: NextRequest) {
     if (authHeader) requestHeaders['Authorization'] = authHeader;
     
     // Add Accept-Language header based on locale
-    requestHeaders['Accept-Language'] = getAcceptLanguageHeader(request);
+    requestHeaders['Accept-Language'] = getAcceptLanguageHeader(request, {});
     
     const payload = {
       method: 'get',

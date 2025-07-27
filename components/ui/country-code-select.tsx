@@ -1,19 +1,28 @@
 import { Select, SelectItem } from "@heroui/react";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTranslation } from "@/contexts/i18n-context";
-import { getCountryPhoneCodes, CountryPhoneCode, detectUserCountry } from "@/services/countries";
+import {
+  getCountryPhoneCodes,
+  CountryPhoneCode,
+  detectUserCountry,
+} from "@/services/countries";
+import Image from "next/image";
 
 // Helper function to get country flag emoji from ISO2 code
 const getCountryFlag = (iso2: string | undefined): string => {
-  if (!iso2 || iso2.length !== 2) return '🏳️';
-  
+  if (!iso2 || iso2.length !== 2) return "🏳️";
+
   // Convert ISO2 code to flag emoji using Unicode regional indicator symbols
   const upperIso2 = iso2.toUpperCase();
-  
+
   // Convert each letter to its corresponding regional indicator symbol
-  const firstChar = String.fromCodePoint(0x1F1E6 + upperIso2.charCodeAt(0) - 65);
-  const secondChar = String.fromCodePoint(0x1F1E6 + upperIso2.charCodeAt(1) - 65);
-  
+  const firstChar = String.fromCodePoint(
+    0x1f1e6 + upperIso2.charCodeAt(0) - 65
+  );
+  const secondChar = String.fromCodePoint(
+    0x1f1e6 + upperIso2.charCodeAt(1) - 65
+  );
+
   return firstChar + secondChar;
 };
 
@@ -38,26 +47,29 @@ export default function CountryCodeSelect({
     const selected = countries.find(
       (country) => `+${country.phone_code}` === selectedCountryCode
     );
-    
+
     // Fallback to US specifically, not just any country with phone code 1
-    const fallback = countries.find(c => c.iso2 === 'US');
+    const fallback = countries.find((c) => c.iso2 === "US");
     const key = selected?.iso2 || fallback?.iso2 || "";
-    
+
     return {
       selectedCountry: selected,
       fallbackCountry: fallback,
-      selectedKey: key
+      selectedKey: key,
     };
   }, [countries, selectedCountryCode]);
 
   // Memoize the selection change handler
-  const handleSelectionChange = useCallback((keys: any) => {
-    const selectedIso2 = Array.from(keys)[0] as string;
-    const country = countries.find(c => c.iso2 === selectedIso2);
-    if (country) {
-      onCountryCodeChange(`+${country.phone_code}`);
-    }
-  }, [countries, onCountryCodeChange]);
+  const handleSelectionChange = useCallback(
+    (keys: any) => {
+      const selectedIso2 = Array.from(keys)[0] as string;
+      const country = countries.find((c) => c.iso2 === selectedIso2);
+      if (country) {
+        onCountryCodeChange(`+${country.phone_code}`);
+      }
+    },
+    [countries, onCountryCodeChange]
+  );
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -66,36 +78,44 @@ export default function CountryCodeSelect({
         const data = await getCountryPhoneCodes(locale);
         // Remove duplicates with preference for US when phone codes are the same
         const phoneCodeGroups = new Map<string, CountryPhoneCode[]>();
-        
+
         // Group countries by phone code
-        data.forEach(country => {
+        data.forEach((country) => {
           const phoneCode = country.phone_code;
           if (!phoneCodeGroups.has(phoneCode)) {
             phoneCodeGroups.set(phoneCode, []);
           }
           phoneCodeGroups.get(phoneCode)!.push(country);
         });
-        
+
         // For each phone code group, prefer US if it exists, otherwise take the first
-        const uniqueCountries = Array.from(phoneCodeGroups.values()).map(group => {
-          const usCountry = group.find(c => c.iso2 === 'US');
-          const selected = usCountry || group[0];
-          
-          // Ensure US is selected for phone code 1
-          if (group.some(c => c.phone_code === '1') && selected.iso2 !== 'US') {
-            console.warn('Phone code 1 group did not select US:', `${selected.iso2}:${selected.name}`);
+        const uniqueCountries = Array.from(phoneCodeGroups.values()).map(
+          (group) => {
+            const usCountry = group.find((c) => c.iso2 === "US");
+            const selected = usCountry || group[0];
+
+            // Ensure US is selected for phone code 1
+            if (
+              group.some((c) => c.phone_code === "1") &&
+              selected.iso2 !== "US"
+            ) {
+              console.warn(
+                "Phone code 1 group did not select US:",
+                `${selected.iso2}:${selected.name}`
+              );
+            }
+
+            return selected;
           }
-          
-          return selected;
-        });
-        
+        );
+
         // Sort countries with US first, then alphabetically
         const sortedCountries = uniqueCountries.sort((a, b) => {
-          if (a.iso2 === 'US') return -1;
-          if (b.iso2 === 'US') return 1;
+          if (a.iso2 === "US") return -1;
+          if (b.iso2 === "US") return 1;
           return a.name.localeCompare(b.name);
         });
-        
+
         setCountries(sortedCountries);
       } catch (error) {
         console.error("Failed to fetch country phone codes:", error);
@@ -107,21 +127,23 @@ export default function CountryCodeSelect({
     fetchCountries();
   }, [locale]);
 
-  // Separate effect for auto-detection  
+  // Separate effect for auto-detection
   useEffect(() => {
     const autoDetectCountry = async () => {
       // Only auto-detect if we haven't done it yet, no country is selected, and countries are loaded
       if (!hasAutoDetected && !selectedCountryCode && countries.length > 0) {
         try {
           const detectionResult = await detectUserCountry();
-          const detectedCountry = countries.find(c => c.iso2 === detectionResult.country_code);
-          
+          const detectedCountry = countries.find(
+            (c) => c.iso2 === detectionResult.country_code
+          );
+
           if (detectedCountry) {
             // Auto-select the detected country
             onCountryCodeChange(`+${detectedCountry.phone_code}`);
           } else {
             // Fallback to US if detected country not found
-            const usCountry = countries.find(c => c.iso2 === 'US');
+            const usCountry = countries.find((c) => c.iso2 === "US");
             if (usCountry) {
               onCountryCodeChange(`+${usCountry.phone_code}`);
             }
@@ -130,7 +152,7 @@ export default function CountryCodeSelect({
         } catch (error) {
           console.error("Failed to detect user country:", error);
           // Fallback to US on error
-          const usCountry = countries.find(c => c.iso2 === 'US');
+          const usCountry = countries.find((c) => c.iso2 === "US");
           if (usCountry) {
             onCountryCodeChange(`+${usCountry.phone_code}`);
           }
@@ -144,7 +166,9 @@ export default function CountryCodeSelect({
 
   if (loading || (!hasAutoDetected && !selectedCountryCode)) {
     return (
-      <div className={`w-25 h-10 border-2 border-[#E4E4E7] bg-[#F4F4F5] shadow-sm rounded-xl rounded-r-none animate-pulse ${className}`} />
+      <div
+        className={`w-25 h-10 border-2 border-[#E4E4E7] bg-[#F4F4F5] shadow-sm rounded-xl rounded-r-none animate-pulse ${className}`}
+      />
     );
   }
 
@@ -155,7 +179,8 @@ export default function CountryCodeSelect({
       onSelectionChange={handleSelectionChange}
       className={`w-25 ${className}`}
       classNames={{
-        trigger: "border-2 border-[#E4E4E7] rounded-l-xl rounded-r-none shadow-sm min-h-[40px] border-r-0 outline-none focus:outline-none focus:ring-0 focus:border-[#E4E4E7] focus-visible:outline-none focus-visible:ring-0 focus-within:outline-none [&:focus]:outline-none [&:focus-visible]:outline-none [&:focus-visible]:ring-0 rtl:!flex-row",
+        trigger:
+          "border-2 border-[#E4E4E7] rounded-l-xl rounded-r-none shadow-sm min-h-[40px] border-r-0 outline-none focus:outline-none focus:ring-0 focus:border-[#E4E4E7] focus-visible:outline-none focus-visible:ring-0 focus-within:outline-none [&:focus]:outline-none [&:focus-visible]:outline-none [&:focus-visible]:ring-0 rtl:!flex-row",
         value: "text-sm rtl:!flex-row-reverse",
         listboxWrapper: "phone-number-container",
         popoverContent: "border border-[#E4E4E7]",
@@ -165,10 +190,18 @@ export default function CountryCodeSelect({
       aria-label="Country code"
       renderValue={(items) => {
         return items.map((item) => {
-          const country = countries.find(c => c.iso2 === item.key);
+          const country = countries.find((c) => c.iso2 === item.key);
           return (
             <div key={item.key} className="flex items-center gap-1">
-              <span className="text-lg">{getCountryFlag(country?.iso2)}</span>
+              {country && (
+                <Image
+                  alt={country?.name ?? ""}
+                  width={20}
+                  height={20}
+                  src={`https://flagcdn.com/w40/${country?.iso2.toLowerCase()}.png`}
+                  className="rounded-[2px]"
+                />
+              )}
               <span>+{country?.phone_code}</span>
             </div>
           );
@@ -178,9 +211,14 @@ export default function CountryCodeSelect({
       {countries.map((country) => (
         <SelectItem
           key={country.iso2}
-          textValue={`${country.name} +${country.phone_code}`}
           startContent={
-            <span className="text-lg">{getCountryFlag(country.iso2)}</span>
+            <Image
+              alt={country.name}
+              width={20}
+              height={20}
+              src={`https://flagcdn.com/w40/${country.iso2.toLowerCase()}.png`}
+              className="rounded-[2px]"
+            />
           }
         >
           +{country.phone_code}
@@ -188,4 +226,4 @@ export default function CountryCodeSelect({
       ))}
     </Select>
   );
-} 
+}

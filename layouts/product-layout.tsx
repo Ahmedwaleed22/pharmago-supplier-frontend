@@ -88,7 +88,7 @@ function ProductLayout({ children }: { children: React.ReactNode }) {
               <div
                 key={index}
                 className={cn(
-                  "py-2 lg:py-0 px-3 lg:px-0 lg:pl-5 whitespace-nowrap lg:whitespace-normal rounded lg:rounded-none",
+                  "py-2 lg:py-0 px-3 lg:px-5 whitespace-nowrap lg:whitespace-normal rounded lg:rounded-none",
                   index === currentStep
                     ? `lg:border-r-4 border-primary-blue text-primary-blue bg-blue-50 lg:bg-transparent`
                     : ''
