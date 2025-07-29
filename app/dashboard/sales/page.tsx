@@ -5,12 +5,14 @@ import StatisticCard from "@/components/ui/dashboard/statistic-card";
 import GrowthVolume from "@/components/ui/dashboard/growth-volume";
 import OrderHistory from "@/components/ui/dashboard/order-history";
 import QuickAnalytics from "@/components/ui/dashboard/quick-analytics";
+import TopSellingProducts from "@/components/ui/dashboard/top-selling-products";
+import ComprehensiveAnalytics from "@/components/ui/dashboard/comprehensive-analytics";
 import StatisticCardSkeleton from "@/components/ui/dashboard/statistic-card-skeleton";
 import ChartSkeleton from "@/components/ui/dashboard/chart-skeleton";
 import OrderHistorySkeleton from "@/components/ui/dashboard/order-history-skeleton";
 import QuickAnalyticsSkeleton from "@/components/ui/dashboard/quick-analytics-skeleton";
 import { useQuery } from "@tanstack/react-query";
-import createDashboardAnalyticsQueryOptions from "@/query-options/dashboard-analytics-query-options";
+import createDashboardSalesQueryOptions from "@/query-options/dashboard-sales-query-options";
 import { useTranslation } from "@/contexts/i18n-context";
 
 function SalesPage() {
@@ -19,7 +21,7 @@ function SalesPage() {
     isLoading,
     isError,
     error,
-  } = useQuery<Dashboard.Analytics>(createDashboardAnalyticsQueryOptions());
+  } = useQuery<Dashboard.Sales>(createDashboardSalesQueryOptions());
 
   const { t } = useTranslation();
 
@@ -106,6 +108,7 @@ function SalesPage() {
           />
         ))}
       </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-3 grid-flow-row gap-4 mt-8">
         <div className="col-span-1 md:col-span-2 h-full">
           <GrowthVolume
@@ -118,6 +121,21 @@ function SalesPage() {
           <QuickAnalytics />
         </div>
       </div>
+
+      {/* Top Selling Products */}
+      <div className="mt-8">
+        <TopSellingProducts 
+          products={analytics.top_selling_products}
+          currency={analytics.pharmacy.country.currency}
+        />
+      </div>
+
+      {/* Comprehensive Analytics */}
+      <div className="mt-8">
+        <ComprehensiveAnalytics analytics={analytics} />
+      </div>
+
+      {/* Order History */}
       <div className="mt-8">
         <OrderHistory orders={analytics.orders_history} />
       </div>

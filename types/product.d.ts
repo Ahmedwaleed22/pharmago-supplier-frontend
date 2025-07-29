@@ -34,9 +34,12 @@ declare module Product {
     precision: number;
     symbol: string;
     symbol_native: string;
-    symbol_first: number;
+    symbol_first: boolean;
     decimal_mark: string;
     thousands_separator: string;
+    exchange_rate: string;
+    is_default: boolean;
+    is_active: boolean;
   }
 
   export interface Tag {

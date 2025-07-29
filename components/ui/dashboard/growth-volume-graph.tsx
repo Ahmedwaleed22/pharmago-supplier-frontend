@@ -25,7 +25,7 @@ interface ChartData {
 
 interface GrowthVolumeGraphProps {
   className?: string;
-  data: ChartData[];
+  data: ChartData[] | null | undefined;
   currency: Product.Currency;
 }
 
@@ -35,6 +35,19 @@ const formatDate = (dateString: string) => {
 };
 
 function GrowthVolumeGraph({ className, data, currency }: GrowthVolumeGraphProps) {
+  // Ensure data is an array and has items
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return (
+      <Card as="dl" className="border border-transparent dark:border-default-100 bg-transparent shadow-none">
+        <section className="flex flex-col flex-nowrap h-full">
+          <div className="flex items-center justify-center h-[300px] text-foreground-400">
+            No data available for chart
+          </div>
+        </section>
+      </Card>
+    );
+  }
+
   // Prepare data for the chart
   const chartData = data.map(item => ({
     date: formatDate(item.date),

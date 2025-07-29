@@ -20,6 +20,16 @@ export async function getDashboardAnalytics(): Promise<Dashboard.Analytics> {
   return response.data;
 }
 
+export async function getDashboardSales(): Promise<Dashboard.Sales> {
+  const response = await axios.get('/api/dashboard/sales');
+
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch dashboard sales');
+  }
+  
+  return response.data;
+}
+
 export async function getDashboardProducts(
   categoryId: string, 
   subCategoryId: string, 

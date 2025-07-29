@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React from 'react'
 import { useQuery } from '@tanstack/react-query';
-import createDashboardAnalyticsQueryOptions from '@/query-options/dashboard-analytics-query-options';
+import createDashboardAnalyticsQueryOptions from '@/query-options/dashboard-sales-query-options';
 import {formatPrice} from "@/helpers/products";
 import { useTranslation } from '@/contexts/i18n-context';
 

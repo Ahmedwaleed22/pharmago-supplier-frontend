@@ -96,6 +96,15 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
   const { t, isRtl } = useTranslation();
   const router = useRouter();
   
+  // Safety check for orders
+  if (!orders || !Array.isArray(orders)) {
+    return (
+      <div className="flex items-center justify-center h-32 text-foreground-400">
+        No orders available
+      </div>
+    );
+  }
+  
   const columns: Column[] = [
     { name: t('orderHistory.id'), uid: "id", sortable: true },
     { name: t('orderHistory.name'), uid: "name", sortable: true },
@@ -120,6 +129,24 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
 
   const hasSearchFilter = Boolean(filterValue);
 
+  // Helper function to safely get the name from either data type
+  const getOrderName = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
+    if ('patient' in order) {
+      return (order as Prescription.Prescription).patient?.name || "";
+    } else {
+      return (order as Dashboard.OrderHistoryItem).user?.name || "";
+    }
+  };
+
+  // Helper function to safely get the date from either data type
+  const getOrderDate = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
+    if ('patient' in order) {
+      return (order as Prescription.Prescription).created_at;
+    } else {
+      return (order as Dashboard.OrderHistoryItem).start_date;
+    }
+  };
+
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
 
@@ -132,17 +159,21 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
     let filteredOrders = [...orders];
 
     if (hasSearchFilter) {
-      filteredOrders = filteredOrders.filter((order) =>
-        (order as Prescription.Prescription).patient.name.toLowerCase().includes(filterValue.toLowerCase())
-      );
+      filteredOrders = filteredOrders.filter((order) => {
+        const name = getOrderName(order);
+        return name.toLowerCase().includes(filterValue.toLowerCase());
+      });
     }
     if (
       statusFilter !== "all" &&
       Array.from(statusFilter as Set<string>).length !== Object.keys(statusColorMap).length
     ) {
-      filteredOrders = filteredOrders.filter((order) =>
-        Array.from(statusFilter as Set<string>).includes((order as Prescription.Prescription).prescription_text || "")
-      );
+      filteredOrders = filteredOrders.filter((order) => {
+        const text = 'prescription_text' in order 
+          ? (order as Prescription.Prescription).prescription_text || ""
+          : (order as Dashboard.OrderHistoryItem).request || "";
+        return Array.from(statusFilter as Set<string>).includes(text);
+      });
     }
 
     return filteredOrders;
@@ -185,10 +216,10 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
         return (
           <User
             // avatarProps={{ radius: "lg", src: order.patient.avatar || undefined }}
-            description={(order as Prescription.Prescription).patient.name || ""}
-            name={(order as Prescription.Prescription).patient.name || ""}
+            description={getOrderName(order)}
+            name={getOrderName(order)}
           >
-            {(order as Prescription.Prescription).patient.name || ""}
+            {getOrderName(order)}
           </User>
         );
       case "request":
@@ -213,7 +244,9 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
       case "date":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small">{formatPrescriptionDate((order as Prescription.Prescription).created_at, false)}</p>
+            <p className="text-bold text-small">
+              {formatPrescriptionDate(getOrderDate(order), false)}
+            </p>
           </div>
         );
       default:

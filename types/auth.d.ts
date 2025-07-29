@@ -55,9 +55,18 @@ declare module Auth {
 
   interface Currency {
     id: number;
+    country_id: number;
+    name: string;
     code: string;
+    precision: number;
     symbol: string;
-    name?: string;
+    symbol_native: string;
+    symbol_first: boolean;
+    decimal_mark: string;
+    thousands_separator: string;
+    exchange_rate: string;
+    is_default: boolean;
+    is_active: boolean;
   }
 
   interface LoginCredentials {
