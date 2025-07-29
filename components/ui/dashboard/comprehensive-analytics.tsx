@@ -280,13 +280,21 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             {geographicalAnalytics.orders_by_location.map((location, index) => (
               <div key={index} className="border-t border-gray-100 pt-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">{t('dashboard.city')} #{location.city}</span>
+                  <span className="text-sm text-gray-600">
+                    {location.city}
+                  </span>
                   <span className="text-sm">{location.order_count} {t('dashboard.orders')}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-500">{t('dashboard.revenue')}</span>
                   <span className="text-xs">
                     {formatPrice(location.total_revenue, analytics.pharmacy.country.currency)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500">{t('dashboard.averageOrderValue')}</span>
+                  <span className="text-xs">
+                    {formatPrice(location.average_order_value, analytics.pharmacy.country.currency)}
                   </span>
                 </div>
               </div>

@@ -291,7 +291,7 @@ declare module Dashboard {
 
   export interface GeographicalAnalytics {
     orders_by_location: Array<{
-      city: number;
+      city: string;
       order_count: number;
       total_revenue: number;
       average_order_value: number;
