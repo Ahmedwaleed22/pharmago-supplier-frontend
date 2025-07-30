@@ -249,6 +249,8 @@
     "peakDay": "Peak Day",
     "ordersByHour": "Orders by Hour",
     "noData": "No data",
+    "noTopSellingProducts": "No Top Selling Products",
+    "noTopSellingProductsDescription": "No products have been sold yet. Sales data will appear here once customers start making purchases.",
     "days": {
       "monday": "Monday",
       "tuesday": "Tuesday",

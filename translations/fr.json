@@ -247,6 +247,8 @@
     "peakDay": "Jour de pointe",
     "ordersByHour": "Commandes par heure",
     "noData": "Aucune donnée",
+    "noTopSellingProducts": "Aucun produit le plus vendu",
+    "noTopSellingProductsDescription": "Aucun produit n'a encore été vendu. Les données de vente apparaîtront ici une fois que les clients commenceront à faire des achats.",
     "days": {
       "monday": "Lundi",
       "tuesday": "Mardi",

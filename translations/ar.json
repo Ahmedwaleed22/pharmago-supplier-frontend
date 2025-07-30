@@ -249,6 +249,8 @@
     "peakDay": "يوم الذروة",
     "ordersByHour": "الطلبات حسب الساعة",
     "noData": "لا توجد بيانات",
+    "noTopSellingProducts": "لا توجد منتجات أكثر مبيعاً",
+    "noTopSellingProductsDescription": "لم يتم بيع أي منتجات بعد. ستظهر بيانات المبيعات هنا بمجرد أن يبدأ العملاء في الشراء.",
     "days": {
       "monday": "الاثنين",
       "tuesday": "الثلاثاء",

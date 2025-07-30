@@ -247,6 +247,8 @@
     "peakDay": "Día pico",
     "ordersByHour": "Pedidos por hora",
     "noData": "Sin datos",
+    "noTopSellingProducts": "No hay productos más vendidos",
+    "noTopSellingProductsDescription": "Aún no se han vendido productos. Los datos de ventas aparecerán aquí una vez que los clientes comiencen a realizar compras.",
     "days": {
       "monday": "Lunes",
       "tuesday": "Martes",
