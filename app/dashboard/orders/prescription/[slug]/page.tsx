@@ -22,7 +22,7 @@ function PrescriptionOrderDetailsPage() {
 
   const breadcrumbs = [
     { label: t('breadcrumbs.dashboard'), href: "/dashboard" },
-    { label: t('breadcrumbs.orders'), href: "/dashboard/orders" },
+    { label: t('breadcrumbs.orders'), href: null },
     { label: t('breadcrumbs.prescriptionOrderDetails'), href: null },
   ];
 

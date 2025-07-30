@@ -31,6 +31,11 @@ interface GrowthVolumeGraphProps {
 }
 
 const formatDate = (dateString: string, t?: (key: string) => string) => {
+  // Handle already formatted dates (containing spaces)
+  if (dateString.includes(' ')) {
+    return dateString;
+  }
+  
   const date = new Date(dateString);
   
   // Check if date is valid
@@ -149,20 +154,28 @@ function GrowthVolumeGraph({ className, data, currency }: GrowthVolumeGraphProps
 
                       return (
                         <div key={`${index}-${name}`} className="flex w-full items-center gap-x-2">
-                          <div className="flex w-full items-center gap-x-1 text-small text-background">
-                            <span>{formatPrice(value as number, currency)}</span>
-                            <span>revenue</span>
-                          </div>
+                                                      <div className="flex w-full items-center gap-x-1 text-small text-background">
+                              <span>{formatPrice(value as number, currency)}</span>
+                              <span>{t('dashboard.revenue')}</span>
+                            </div>
                         </div>
                       );
                     })}
                     <span className="text-small font-medium text-foreground-400">
                       {label ? (() => {
                         // Try to translate the date if it contains month names
-                        const date = new Date(label);
-                        const month = t(`common.months.${date.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`);
-                        const day = date.getDate();
-                        return `${day} ${month}`;
+                        try {
+                          const date = new Date(label);
+                          if (isNaN(date.getTime())) {
+                            return label; // Return original label if date is invalid
+                          }
+                          const month = t(`common.months.${date.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`);
+                          const day = date.getDate();
+                          return `${day} ${month}`;
+                        } catch (error) {
+                          console.warn('Error formatting date:', error);
+                          return label; // Return original label if translation fails
+                        }
                       })() : label}
                     </span>
                   </div>

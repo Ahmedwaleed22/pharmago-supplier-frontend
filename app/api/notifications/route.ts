@@ -35,7 +35,8 @@ export async function GET(request: NextRequest) {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Cookie': cookieHeader
+          'Cookie': cookieHeader,
+          'Accept-Language': locale
         },
         params: {
           skip,

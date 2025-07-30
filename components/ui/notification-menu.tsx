@@ -7,7 +7,7 @@ import { PUSHER_EVENTS } from "@/config/pusher";
 import { markNotificationAsRead, markAllNotificationsAsRead } from "@/services/dashboard";
 import { useSelector } from "react-redux";
 import { getPharmacy } from "@/store/authSlice";
-import { useTranslation } from "@/contexts/i18n-context";
+import { useI18n, useTranslation } from "@/contexts/i18n-context";
 
 interface PusherNotificationEvent {
   type: string;
@@ -25,9 +25,10 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
   const queryClient = useQueryClient();
   const [currentLimit, setCurrentLimit] = useState(3); // Start with 3 notifications
   const { t } = useTranslation();
+  const { locale } = useI18n();
   
   // Use the actual API to fetch notifications with pagination
-  const { data: notificationResponse, isLoading, isFetching, isPlaceholderData } = useQuery(createNotificationsQueryOptions(0, currentLimit));
+  const { data: notificationResponse, isLoading, isFetching, isPlaceholderData } = useQuery(createNotificationsQueryOptions(0, currentLimit, locale));
   
   const notifications = notificationResponse?.data || [];
   const unreadCount = notificationResponse?.meta?.unread_count || 0;

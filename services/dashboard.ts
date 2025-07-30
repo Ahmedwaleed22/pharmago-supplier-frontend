@@ -129,11 +129,14 @@ export async function getSubCategories(categoryId: string): Promise<Category.Cat
   return response.data.data;
 }
 
-export async function getNotifications(skip: number = 0, limit: number = 3): Promise<Dashboard.NotificationResponse> {
+export async function getNotifications(skip: number = 0, limit: number = 3, locale: string): Promise<Dashboard.NotificationResponse> {
   const response = await axios.get('/api/notifications', {
     params: {
       skip,
-      limit
+      limit,
+    },
+    headers: {
+      'Accept-Language': locale
     }
   });
 

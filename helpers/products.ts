@@ -10,9 +10,12 @@ export function formatPrice(price: number, currency: Product.Currency | null) {
     return numPrice.toFixed(2);
   }
 
+  // Ensure currency symbol is not truncated
+  const symbol = currency.symbol || currency.code || '';
+  
   if (currency?.symbol_first === true) {
-    return `${currency?.symbol}${numPrice.toFixed(currency?.precision || 2)}`;
+    return `${symbol}${numPrice.toFixed(currency?.precision || 2)}`;
   }
 
-  return `${numPrice.toFixed(currency?.precision || 2)}${currency?.symbol}`;
+  return `${numPrice.toFixed(currency?.precision || 2)}${symbol}`;
 }

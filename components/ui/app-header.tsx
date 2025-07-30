@@ -11,7 +11,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createNotificationsQueryOptions } from "@/query-options/notifications-query-options";
 import { usePusherEvent } from "@/hooks/usePusherEvent";
 import { PUSHER_EVENTS } from "@/config/pusher";
-import { useTranslation } from "@/contexts/i18n-context";
+import { useI18n, useTranslation } from "@/contexts/i18n-context";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
@@ -37,9 +37,10 @@ function AppHeader() {
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [soundInitialized, setSoundInitialized] = useState(false);
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
+  const { locale } = useI18n();
 
   // Get notifications data to show unread count (using default parameters)
-  const { data: notificationResponse } = useQuery(createNotificationsQueryOptions(0, 1));
+  const { data: notificationResponse } = useQuery(createNotificationsQueryOptions(0, 1, locale));
   const unreadCount = notificationResponse?.meta?.unread_count || 0;
 
   // Handle global clicks to close notification menu
