@@ -23,6 +23,9 @@ export function DateRangePicker({
   const { t } = useTranslation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Get today's date in YYYY-MM-DD format for max attribute
+  const today = new Date().toISOString().split('T')[0];
+
   // Handle click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -45,6 +48,24 @@ export function DateRangePicker({
     setLocalFromDate(fromDate || "");
     setLocalToDate(toDate || "");
   }, [fromDate, toDate]);
+
+  const handleFromDateChange = (value: string) => {
+    setLocalFromDate(value);
+    
+    // If the new from date is after the current to date, clear the to date
+    if (value && localToDate && value > localToDate) {
+      setLocalToDate("");
+    }
+  };
+
+  const handleToDateChange = (value: string) => {
+    setLocalToDate(value);
+    
+    // If the new to date is before the current from date, clear the from date
+    if (value && localFromDate && localFromDate > value) {
+      setLocalFromDate("");
+    }
+  };
 
   const handleApply = () => {
     onDateChange(localFromDate, localToDate);
@@ -82,6 +103,7 @@ export function DateRangePicker({
   };
 
   const hasActiveFilter = fromDate && toDate;
+  const isValidDateRange = localFromDate && localToDate && localFromDate <= localToDate;
 
   return (
     <div className={cn("relative", className)} ref={dropdownRef}>
@@ -141,7 +163,8 @@ export function DateRangePicker({
                 <Input
                   type="date"
                   value={localFromDate}
-                  onChange={(e) => setLocalFromDate(e.target.value)}
+                  onChange={(e) => handleFromDateChange(e.target.value)}
+                  max={localToDate || today}
                   className="w-full"
                 />
               </div>
@@ -152,11 +175,20 @@ export function DateRangePicker({
                 <Input
                   type="date"
                   value={localToDate}
-                  onChange={(e) => setLocalToDate(e.target.value)}
+                  onChange={(e) => handleToDateChange(e.target.value)}
+                  min={localFromDate}
+                  max={today}
                   className="w-full"
                 />
               </div>
             </div>
+            
+            {/* Validation Message */}
+            {localFromDate && localToDate && localFromDate > localToDate && (
+              <div className="mb-4 p-2 bg-destructive/10 border border-destructive/20 rounded text-destructive text-xs">
+                {t('dashboard.dateRange.invalidRange')}
+              </div>
+            )}
             
             {/* Quick Selection Buttons */}
             <div className="flex flex-wrap gap-2 mb-4">
@@ -191,7 +223,7 @@ export function DateRangePicker({
               <Button
                 onClick={handleApply}
                 className="flex-1"
-                disabled={!localFromDate || !localToDate}
+                disabled={!isValidDateRange}
               >
                 {t('dashboard.dateRange.applyFilter')}
               </Button>

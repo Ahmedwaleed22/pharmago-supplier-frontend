@@ -268,7 +268,8 @@
       "last7Days": "Last 7 days",
       "last30Days": "Last 30 days",
       "last90Days": "Last 90 days",
-      "selectDates": "Select date range"
+      "selectDates": "Select date range",
+      "invalidRange": "From date cannot be after to date"
     }
   },
   "products": {
