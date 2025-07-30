@@ -235,10 +235,10 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
     <ProductLayout>
       <div className="w-full xl:w-1/2">
         <h1 className="mb-2 text-xl xl:text-2xl font-semibold text-[#414651]">
-          Product Review
+          {t('products.productReview')}
         </h1>
         <p className="mb-6 xl:mb-8 text-[#717171]">
-          Review your product details before submitting
+          {t('products.reviewBeforeSubmit')}
         </p>
 
         {error && (
@@ -252,14 +252,14 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
             onClick={goBack}
             className="w-full sm:w-1/2 rounded-md border border-[#2970ff] bg-white py-2 text-center font-semibold text-[#2970ff] hover:bg-blue-50"
           >
-            Back
+            {t('common.back')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="w-full sm:w-1/2 rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 disabled:bg-blue-300"
           >
-            {isSubmitting ? "Updating..." : "Update Product"}
+            {isSubmitting ? t('products.updating') : t('products.updateProduct')}
           </button>
         </div>
       </div>

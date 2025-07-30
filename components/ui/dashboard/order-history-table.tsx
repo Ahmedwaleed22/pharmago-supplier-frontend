@@ -87,12 +87,13 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 const INITIAL_VISIBLE_COLUMNS = ["id", "name", "request", "status", "date"];
 
 interface OrderHistoryTableProps {
-  orders: Prescription.Prescription[] | Dashboard.OrderHistoryItem[];
+  orders: Prescription.Prescription[] | Dashboard.OrderHistoryItem[] | Dashboard.DeliveryOrder[];
   onSelectionChange?: (selectedIds: string[]) => void;
   noPagination?: boolean;
+  context?: 'sales' | 'prescriptions' | 'delivery';
 }
 
-export default function OrderHistoryTable({ orders, onSelectionChange, noPagination }: OrderHistoryTableProps) {
+export default function OrderHistoryTable({ orders, onSelectionChange, noPagination, context = 'sales' }: OrderHistoryTableProps) {
   const { t, isRtl } = useTranslation();
   const router = useRouter();
   
@@ -130,21 +131,25 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
   const hasSearchFilter = Boolean(filterValue);
 
   // Helper function to safely get the name from either data type
-  const getOrderName = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
+  const getOrderName = (order: Prescription.Prescription | Dashboard.OrderHistoryItem | Dashboard.DeliveryOrder): string => {
     if ('patient' in order) {
       return (order as Prescription.Prescription).patient?.name || "";
-    } else {
-      return (order as Dashboard.OrderHistoryItem).user?.name || "";
+    } else if ('user' in order && order.user) {
+      return order.user.name || "";
     }
+    return "";
   };
 
   // Helper function to safely get the date from either data type
-  const getOrderDate = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
+  const getOrderDate = (order: Prescription.Prescription | Dashboard.OrderHistoryItem | Dashboard.DeliveryOrder): string => {
     if ('patient' in order) {
       return (order as Prescription.Prescription).created_at;
-    } else {
+    } else if ('start_date' in order) {
       return (order as Dashboard.OrderHistoryItem).start_date;
+    } else if ('created_at' in order) {
+      return (order as Dashboard.DeliveryOrder).created_at;
     }
+    return "";
   };
 
   const headerColumns = React.useMemo(() => {
@@ -171,7 +176,11 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
       filteredOrders = filteredOrders.filter((order) => {
         const text = 'prescription_text' in order 
           ? (order as Prescription.Prescription).prescription_text || ""
-          : (order as Dashboard.OrderHistoryItem).request || "";
+          : 'request' in order
+          ? (order as Dashboard.OrderHistoryItem).request || ""
+          : 'order_type' in order
+          ? (order as Dashboard.DeliveryOrder).order_type || ""
+          : "";
         return Array.from(statusFilter as Set<string>).includes(text);
       });
     }
@@ -195,7 +204,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
   }, [page, filteredItems, rowsPerPage, noPagination]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: Prescription.Prescription | Dashboard.OrderHistoryItem, b: Prescription.Prescription | Dashboard.OrderHistoryItem) => {
+    return [...items].sort((a: Prescription.Prescription | Dashboard.OrderHistoryItem | Dashboard.DeliveryOrder, b: Prescription.Prescription | Dashboard.OrderHistoryItem | Dashboard.DeliveryOrder) => {
       const first = a.id;
       const second = b.id;
       
@@ -204,7 +213,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((order: Prescription.Prescription | Dashboard.OrderHistoryItem, columnKey: string) => {
+  const renderCell = React.useCallback((order: Prescription.Prescription | Dashboard.OrderHistoryItem | Dashboard.DeliveryOrder, columnKey: string) => {
     switch (columnKey) {
       case "id":
         return (
@@ -234,14 +243,16 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
           return request || "N/A";
         };
         
-        // Handle both order and prescription types
-        const getRequestText = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
+        // Handle different order types
+        const getRequestText = (order: Prescription.Prescription | Dashboard.OrderHistoryItem | Dashboard.DeliveryOrder): string => {
           if ('type' in order && order.type === 'prescription') {
+            return 'Prescription';
+          } else if ('prescription_text' in order) {
             return 'Prescription';
           } else if ('request' in order) {
             return (order as Dashboard.OrderHistoryItem).request;
-          } else if ('prescription_text' in order) {
-            return 'Prescription';
+          } else if ('order_type' in order) {
+            return (order as Dashboard.DeliveryOrder).order_type;
           }
           return 'Cart Order';
         };
@@ -456,27 +467,67 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
       </TableHeader>
       <TableBody emptyContent={t('common.noData')} items={sortedItems}>
         {(item) => {
-          // Determine the order type and route accordingly
-          const getOrderRoute = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
-            // Check if it's a prescription
-            if ('prescription_text' in order || 'patient' in order) {
+          // Determine the order type and route accordingly based on context
+          const getOrderRoute = (order: Prescription.Prescription | Dashboard.OrderHistoryItem | Dashboard.DeliveryOrder): string => {
+            // Handle prescriptions context
+            if (context === 'prescriptions') {
               return `/dashboard/prescriptions/requests/${order.id}`;
             }
             
-            // Check if it's a cart order
-            if ('request' in order) {
-              const requestType = (order as Dashboard.OrderHistoryItem).request;
-              if (requestType === 'Cart Order' || requestType === 'cart') {
-                return `/dashboard/orders/${order.id}`;
+            // Handle delivery context - same as sales
+            if (context === 'delivery') {
+              // Check if it's a cart order
+              if ('request' in order) {
+                const requestType = (order as Dashboard.OrderHistoryItem).request;
+                if (requestType === 'Cart Order' || requestType === 'cart') {
+                  return `/dashboard/orders/${order.id}`;
+                }
+                // Check if it's a prescription order from offer
+                if (requestType === 'Prescription Order' || requestType === 'Prescription / Rx' || requestType === 'Prescription') {
+                  return `/dashboard/orders/prescription/${order.id}`;
+                }
               }
-              // Check if it's a prescription order from offer
-              if (requestType === 'Prescription Order' || requestType === 'Prescription / Rx' || requestType === 'Prescription') {
+              
+              // Check if it's a prescription by type or properties
+              if ('type' in order && order.type === 'prescription') {
                 return `/dashboard/orders/prescription/${order.id}`;
               }
+              if ('prescription_text' in order || 'patient' in order) {
+                return `/dashboard/orders/prescription/${order.id}`;
+              }
+              
+              // Default to cart order route
+              return `/dashboard/orders/${order.id}`;
             }
             
-            // Default to prescription route for backward compatibility
-            return `/dashboard/prescriptions/requests/${order.id}`;
+            // Handle sales context (default)
+            if (context === 'sales') {
+              // Check if it's a cart order
+              if ('request' in order) {
+                const requestType = (order as Dashboard.OrderHistoryItem).request;
+                if (requestType === 'Cart Order' || requestType === 'cart') {
+                  return `/dashboard/orders/${order.id}`;
+                }
+                // Check if it's a prescription order from offer
+                if (requestType === 'Prescription Order' || requestType === 'Prescription / Rx' || requestType === 'Prescription') {
+                  return `/dashboard/orders/prescription/${order.id}`;
+                }
+              }
+              
+              // Check if it's a prescription by type or properties
+              if ('type' in order && order.type === 'prescription') {
+                return `/dashboard/orders/prescription/${order.id}`;
+              }
+              if ('prescription_text' in order || 'patient' in order) {
+                return `/dashboard/orders/prescription/${order.id}`;
+              }
+              
+              // Default to cart order route
+              return `/dashboard/orders/${order.id}`;
+            }
+            
+            // Default fallback
+            return `/dashboard/orders/${order.id}`;
           };
 
           return (

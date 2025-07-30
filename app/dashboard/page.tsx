@@ -106,7 +106,7 @@ function Page() {
         <GrowthVolume currency={analytics.pharmacy.country.currency} data={analytics.gross_volume} />
       </div>
       <div className="mt-8">
-        <OrderHistory orders={analytics.orders_history} />
+        <OrderHistory orders={analytics.orders_history} context="sales" />
       </div>
     </>
   );

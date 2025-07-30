@@ -179,7 +179,7 @@ function DeliveryHistoryPage() {
       ) : (
         <>
           <div className="mt-6">
-            <OrderHistory noTitle={true} orders={orders?.data?.orders as unknown as Dashboard.OrderHistoryItem[] || []} noPagination={true} cardFooter={cardFooterPagination} />
+            <OrderHistory noTitle={true} orders={orders?.data?.orders as Dashboard.DeliveryOrder[] || []} noPagination={true} cardFooter={cardFooterPagination} context="delivery" />
           </div>
 
           {/* Pagination info */}

@@ -147,16 +147,16 @@ function ProductPreview({ className }: ProductPreviewProps) {
           {productData.subName || t('products.subName')}
         </div>
 
-        <div className={`mb-4 flex items-baseline ${isRtl ? 'flex-row-reverse' : ''}`}>
+        <div className={`mb-4 flex items-baseline gap-2 ${isRtl ? 'flex-row-reverse' : ''}`}>
           <div className="text-2xl font-bold text-[#2970ff]">
             {productData.price ? `${formatPrice(productData.price - (productData.price * productData.discount / 100), currency)}` : `${formatPrice(0, currency)}`}
           </div>
           {productData.discount > 0 && (
             <>
-              <div className={`text-sm text-[#a0a0a0] ${isRtl ? 'mr-2' : 'ml-2'}`}>
+              <div className="text-sm text-[#a0a0a0]">
                 {productData.price ? `${formatPrice(productData.price || 0, currency)}` : `${formatPrice(0.00, currency)}`}
               </div>
-              <div className={`rounded bg-[#f4f4f5] px-2 py-0.5 text-xs text-[#717171] ${isRtl ? 'mr-2' : 'ml-2'}`}>
+              <div className="rounded bg-[#f4f4f5] px-2 py-0.5 text-xs text-[#717171]">
                 -{productData.discount}%
               </div>
             </>

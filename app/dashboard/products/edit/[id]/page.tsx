@@ -23,10 +23,12 @@ import {
 } from "@/query-options/categories-query-options";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductFormSkeleton, ProductPreviewSkeleton } from "@/components/ui/dashboard/product-form-skeleton";
+import { useTranslation } from "@/contexts/i18n-context";
 
 function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const productData = useSelector((state: any) => state.productCreation);
   // Check if params is a Promise and unwrap it if needed
   const productId = React.use(params).id;
@@ -142,13 +144,13 @@ function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
       <ProductLayout>
         <div className="w-full xl:w-1/2">
           <div className="text-center py-8">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Product</h2>
-            <p className="text-gray-600 mb-4">We couldn't load the product details. Please try again.</p>
+            <h2 className="text-xl font-semibold text-red-600 mb-2">{t('products.failedToFetch')}</h2>
+            <p className="text-gray-600 mb-4">{t('errors.general')}</p>
             <button 
               onClick={() => router.push('/dashboard/products')}
               className="px-4 py-2 bg-[#2970ff] text-white rounded-md hover:bg-blue-600"
             >
-              Back to Products
+              {t('common.backToProducts')}
             </button>
           </div>
         </div>
@@ -161,38 +163,38 @@ function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
     <ProductLayout>
       <div className="w-full xl:w-1/2">
         <h1 className="mb-2 text-xl xl:text-2xl font-semibold text-[#414651]">
-          Edit Product Details
+          {t('products.editProduct')}
         </h1>
         <p className="mb-6 xl:mb-8 text-[#717171]">
-          Update your product information
+          {t('products.updateProductInformation')}
         </p>
 
         <div className="space-y-4 xl:space-y-6">
           <LabeledInput
             id="product-name"
-            label="Product Name"
-            placeholder="Product Name"
+            label={t('products.productName')}
+            placeholder={t('products.productName')}
             value={productData.name}
             onChange={(value) => dispatch(setName(value))}
           />
 
           <LabeledInput
             id="product-short-description"
-            label="Product Short Description"
-            placeholder="Product Short Description"
+            label={t('products.productShortDescription')}
+            placeholder={t('products.productShortDescription')}
             value={productData.subName}
             onChange={(value) => dispatch(setSubName(value))}
           />
           
           <LabeledInput
             id="category"
-            label="Category"
+            label={t('products.category')}
             type="select"
             value={productData.category}
             onChange={(value) => dispatch(setCategory(value))}
             options={[
               {
-                label: "Select Category",
+                label: t('products.selectCategory'),
                 value: "",
                 disabled: true
               },
@@ -211,7 +213,7 @@ function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
           ) : (
             <LabeledInput
               id="sub-category"
-              label="Sub-Category"
+              label={t('products.subCategory')}
               type="select"
               value={productData.subCategory}
               onChange={(value) => dispatch(setSubCategory(value))}
@@ -224,9 +226,9 @@ function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
 
           <LabeledInput
             id="product-details"
-            label="Product Description"
+            label={t('products.productDescription')}
             type="textarea"
-            placeholder="Descriptions here"
+            placeholder={t('products.descriptionsHere')}
             value={productData.productDetails}
             onChange={(value) => dispatch(setProductDetails(value))}
           />
@@ -235,7 +237,7 @@ function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
             onClick={NextPage}
             className="w-full rounded-md bg-[#2970ff] py-2 text-center font-semibold text-white hover:bg-blue-600 cursor-pointer"
           >
-            Next
+            {t('common.next')}
           </button>
         </div>
       </div>

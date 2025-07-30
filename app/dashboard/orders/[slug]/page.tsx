@@ -10,7 +10,7 @@ import { fetchOrder } from "@/services/orders";
 
 function OrderDetailsPage() {
   const { slug } = useParams();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [copied, setCopied] = useState(false);
   
   const { data: order, isLoading } = useQuery({
@@ -89,6 +89,7 @@ function OrderDetailsPage() {
       breadcrumbs={breadcrumbs}
       title={t('orders.orderDetails')}
     >
+      
       <div className="flex flex-col gap-6">
         {/* Order Info */}
         <div className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">

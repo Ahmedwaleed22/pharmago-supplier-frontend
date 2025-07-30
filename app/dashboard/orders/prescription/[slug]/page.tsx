@@ -62,7 +62,7 @@ function PrescriptionOrderDetailsPage() {
 
   const loadPrescriptionPreview = () => {
     // Find prescription item in order items
-    const prescriptionItem = order?.items?.find(item => 
+    const prescriptionItem = order?.items?.find((item: any) => 
       item.orderable_type === "App\\Models\\Prescription"
     );
     
@@ -175,6 +175,7 @@ function PrescriptionOrderDetailsPage() {
       title={t('orders.prescriptionOrderDetails')}
     >
       <div className="flex flex-col gap-6">
+        
         {/* Order Info */}
         <div className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">
           <h2 className="text-lg font-bold mb-2">{t('orders.prescriptionOrderDetails')}</h2>
@@ -199,18 +200,20 @@ function PrescriptionOrderDetailsPage() {
         </div>
 
         {/* Prescription Preview */}
-        <div className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">
-          <h2 className="text-lg font-bold mb-2">{t('prescriptions.prescriptionDetails')}</h2>
-          <DashboardCard>
-            {loadPrescriptionPreview()}
-          </DashboardCard>
-        </div>
+        {order?.items?.some((item: any) => item.orderable_type === "App\\Models\\Prescription") && (
+          <div className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">
+            <h2 className="text-lg font-bold mb-2">{t('prescriptions.prescriptionDetails')}</h2>
+            <DashboardCard>
+              {loadPrescriptionPreview()}
+            </DashboardCard>
+          </div>
+        )}
 
         {/* Order Items */}
         <div className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">
           <h2 className="text-lg font-bold mb-2">{t('orders.orderItems')}</h2>
           <div className="space-y-4">
-            {order.items?.map((item, index) => (
+            {order.items?.map((item: any, index: number) => (
               <div key={index} className="flex justify-between items-center p-4 border rounded-lg">
                 <div className="flex-1">
                   <h3 className="font-semibold">{item.orderable?.name || t('common.unknownProduct')}</h3>

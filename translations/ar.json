@@ -37,6 +37,7 @@
     "delivered": "تم التوصيل",
     "canceled": "ملغى",
     "unknownCustomer": "عميل غير معروف",
+    "unknownProduct": "منتج غير معروف",
     "minute": "دقيقة",
     "minutes": "دقائق",
     "hour": "ساعة",
@@ -64,7 +65,12 @@
     "success": "نجح",
     "warning": "تحذير",
     "info": "معلومات",
-    "copied": "تم النسخ!"
+    "copied": "تم النسخ!",
+    "notAvailable": "غير متوفر",
+    "all": "الكل",
+    "selected": "المحدد",
+    "next": "التالي",
+    "backToProducts": "العودة للمنتجات"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -290,6 +296,9 @@
     "preview": "معاينة",
     "thisIsHowProductWillAppear": "هكذا سيظهر منتجك",
     "descriptionsHere": "الأوصاف هنا",
+    "updateProductInformation": "تحديث معلومات منتجك",
+    "loadingProductData": "جاري تحميل بيانات المنتج...",
+    "errorLoadingProductData": "خطأ في تحميل بيانات المنتج. يرجى المحاولة مرة أخرى.",
     "discount": "الخصم بالنسبة المئوية",
     "stockQty": "كمية المخزون",
     "tag": "العلامة",
@@ -384,6 +393,9 @@
     "approved": "مقبولة",
     "prescriptionDetails": "تفاصيل الوصفة",
     "prescriptionRequests": "طلبات الوصفات",
+    "orders": "الطلبات",
+    "orderDetails": "تفاصيل الطلب",
+    "prescriptionOrderDetails": "تفاصيل طلب الوصفة الطبية",
     "ordersHistory": "تاريخ الطلبات",
     "delivery": "التوصيل",
     "liveTracking": "التتبع المباشر",
@@ -391,6 +403,29 @@
     "sales": "المبيعات",
     "profile": "الملف الشخصي",
     "branches": "الفروع"
+  },
+  "orders": {
+    "orderDetails": "تفاصيل الطلب",
+    "customer": "العميل",
+    "paymentStatus": "حالة الدفع",
+    "total": "الإجمالي",
+    "orderItems": "عناصر الطلب",
+    "quantity": "الكمية",
+    "shippingInformation": "معلومات الشحن",
+    "address": "العنوان",
+    "city": "المدينة",
+    "state": "الولاية",
+    "postalCode": "الرمز البريدي",
+    "country": "البلد",
+    "orderSummary": "ملخص الطلب",
+    "subtotal": "المجموع الفرعي",
+    "deliveryFees": "رسوم التوصيل",
+    "serviceFee": "رسوم الخدمة",
+    "discount": "الخصم",
+    "pharmacyInformation": "معلومات الصيدلية",
+    "pharmacyName": "اسم الصيدلية",
+    "phone": "الهاتف",
+    "prescriptionOrderDetails": "تفاصيل طلب الوصفة الطبية"
   },
   "errors": {
     "general": "حدث خطأ. يرجى المحاولة مرة أخرى.",
@@ -578,7 +613,10 @@
     "cartOrder": "طلب سلة التسوق",
     "prescriptionOrder": "طلب وصفة طبية",
     "pharmacyOffer": "عرض الصيدلية",
-    "orderPlaced": "تم الطلب"
+    "orderPlaced": "تم الطلب",
+    "paymentPending": "الدفع معلق",
+    "paymentPaid": "تم الدفع",
+    "paymentFailed": "فشل الدفع"
   },
   "sidebar": {
     "dashboard": "لوحة التحكم",

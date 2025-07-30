@@ -137,7 +137,7 @@ function SalesPage() {
 
       {/* Order History */}
       <div className="mt-8">
-        <OrderHistory orders={analytics.orders_history} />
+        <OrderHistory orders={analytics.orders_history} context="sales" />
       </div>
     </>
   );

@@ -24,25 +24,145 @@ function escapeCSV(value: string | null | undefined): string {
 }
 
 /**
- * Convert an array of orders to CSV format
+ * Get the patient/customer name from different order types
+ */
+function getOrderCustomerName(order: any): string {
+  // Handle DeliveryOrder structure
+  if (order.user && typeof order.user === 'object') {
+    return order.user.name || '';
+  }
+  
+  // Handle Prescription structure
+  if (order.patient && typeof order.patient === 'object') {
+    return order.patient.name || '';
+  }
+  
+  // Handle OrderHistoryItem structure
+  if (order.user && typeof order.user === 'object') {
+    return order.user.name || '';
+  }
+  
+  return '';
+}
+
+/**
+ * Get the request type from different order types with translation
+ */
+function getOrderRequestType(order: any, t?: (key: string) => string): string {
+  // Handle DeliveryOrder structure
+  if (order.order_type) {
+    const orderType = order.order_type;
+    if (t) {
+      if (orderType === 'Cart Order' || orderType === 'cart') {
+        return t('orderHistory.cartOrder');
+      } else if (orderType === 'Prescription / Rx' || orderType === 'Prescription' || orderType === 'prescription') {
+        return t('prescriptions.prescriptionRx');
+      } else if (orderType === 'Prescription Order') {
+        return t('orderHistory.prescriptionOrder');
+      }
+    }
+    return orderType;
+  }
+  
+  // Handle Prescription structure
+  if (order.prescription_text) {
+    return t ? t('prescriptions.prescriptionRx') : 'Prescription / Rx';
+  }
+  
+  // Handle OrderHistoryItem structure
+  if (order.request) {
+    const request = order.request;
+    if (t) {
+      if (request === 'Cart Order') {
+        return t('orderHistory.cartOrder');
+      } else if (request === 'Prescription / Rx' || request === 'Prescription') {
+        return t('prescriptions.prescriptionRx');
+      } else if (request === 'Prescription Order') {
+        return t('orderHistory.prescriptionOrder');
+      }
+    }
+    return request;
+  }
+  
+  return t ? t('common.notAvailable') : 'N/A';
+}
+
+/**
+ * Get the status with translation
+ */
+function getOrderStatus(order: any, t?: (key: string) => string): string {
+  const status = order.status;
+  if (!t) return status;
+  
+  switch (status) {
+    case 'pending':
+      return t('orderHistory.pending');
+    case 'processing':
+      return t('orderHistory.processing');
+    case 'shipping':
+      return t('orderHistory.shipping');
+    case 'delivered':
+      return t('orderHistory.delivered');
+    case 'canceled':
+      return t('orderHistory.canceled');
+    case 'pharmacy_offer':
+      return t('orderHistory.pharmacyOffer');
+    case 'order_placed':
+      return t('orderHistory.orderPlaced');
+    default:
+      return status;
+  }
+}
+
+/**
+ * Get the order date from different order types
+ */
+function getOrderDate(order: any): string {
+  // Handle DeliveryOrder structure
+  if (order.created_at) {
+    return order.created_at;
+  }
+  
+  // Handle Prescription structure
+  if (order.created_at) {
+    return order.created_at;
+  }
+  
+  // Handle OrderHistoryItem structure
+  if (order.start_date) {
+    return order.start_date;
+  }
+  
+  return '';
+}
+
+/**
+ * Convert an array of orders to CSV format with localized headers and content
  * @param orders The orders to convert to CSV
+ * @param t Translation function
  * @returns string CSV content
  */
-export function convertOrdersToCSV(orders: Prescription.Prescription[], t?: (key: string) => string) {
+export function convertOrdersToCSV(orders: any[], t?: (key: string) => string) {
   if (!orders || orders.length === 0) {
     return null;
   }
 
-  // CSV headers
-  const headers = ['ID', 'Patient Name', 'Request Type', 'Status', 'Date'];
+  // CSV headers with translation
+  const headers = [
+    t ? t('orderHistory.id') : 'ID',
+    t ? t('orderHistory.name') : 'Customer Name',
+    t ? t('orderHistory.request') : 'Request Type',
+    t ? t('orderHistory.status') : 'Status',
+    t ? t('orderHistory.date') : 'Date'
+  ];
   
-  // Convert data to CSV rows
+  // Convert data to CSV rows with translations
   const rows = orders.map(order => [
     escapeCSV(order.id),
-    escapeCSV(order.patient?.name),
-    escapeCSV(order.prescription_text ? 'Prescription / Rx' : 'N/A'),
-    escapeCSV(order.status),
-    escapeCSV(order.created_at ? formatPrescriptionDate(order.created_at, false, t) : '')
+    escapeCSV(getOrderCustomerName(order)),
+    escapeCSV(getOrderRequestType(order, t)),
+    escapeCSV(getOrderStatus(order, t)),
+    escapeCSV(getOrderDate(order) ? formatPrescriptionDate(getOrderDate(order), false, t) : '')
   ]);
   
   // Combine headers and rows
@@ -85,15 +205,16 @@ export function downloadCSV(csvContent: string, filename: string = 'order-histor
 }
 
 /**
- * Convenience function to directly export order data to CSV
+ * Convenience function to directly export order data to CSV with localization
  * 
  * @param orders All available orders
  * @param selectedIds Optional array of selected order IDs to filter
  * @param onlySelected Whether to export only selected orders
+ * @param t Translation function
  * @returns void
  */
 export function exportOrdersToCsv(
-  orders: Prescription.Prescription[], 
+  orders: any[], 
   selectedIds: string[] = [], 
   onlySelected: boolean = false,
   t?: (key: string) => string
@@ -129,7 +250,12 @@ export function exportOrdersToCsv(
     }
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    downloadCSV(csvContent, `order-history-${onlySelected ? 'selected' : 'all'}-${timestamp}.csv`);
+    const exportType = onlySelected ? 'selected' : 'all';
+    const filename = t 
+      ? `${t('orderHistory.title')}-${t(`common.${exportType}`)}-${timestamp}.csv`
+      : `order-history-${exportType}-${timestamp}.csv`;
+    
+    downloadCSV(csvContent, filename);
   } catch (error) {
     console.error("Error exporting orders to CSV:", error);
   }

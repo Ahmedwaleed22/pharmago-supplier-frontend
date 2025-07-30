@@ -1,15 +1,16 @@
 "use client";
 
-import DashboardLayout from "@/layouts/dashboard-layout";
-import { usePathname, useRouter } from "next/navigation";
-import { Provider, useDispatch, useSelector } from "react-redux";
-import { store } from "@/store/store";
-import React, { useEffect, useState } from "react";
-import { isAuthenticated } from "@/lib/api";
-import { initializeProductData } from "@/store/ProductCreationSlice";
+import React, { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import { getProductById } from "@/services/dashboard";
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
+import DashboardLayout from "@/layouts/dashboard-layout";
 import ProductLayout from "@/layouts/product-layout";
+import { initializeProductData } from "@/store/ProductCreationSlice";
+import { getProductById } from "@/services/dashboard";
+import { useTranslation } from "@/contexts/i18n-context";
 
 interface ProductImageData {
   url: string;
@@ -26,14 +27,12 @@ export default function DashboardRootLayout({
   children: React.ReactNode;
   params: Promise<{ id: string }>;
 }>) {
-  const dispatch = useDispatch();
   const pathname = usePathname();
-  const router = useRouter();
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
   const productData = useSelector((state: any) => state.productCreation);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Extract productId early
-  const productId =  React.use(params).id;
+  // Check if params is a Promise and unwrap it if needed
+  const productId = React.use(params).id;
   
   // Define query hook - must be called unconditionally
   const {
@@ -46,49 +45,34 @@ export default function DashboardRootLayout({
     enabled: !!productId
   });
 
-  // Authentication effect
-  useEffect(() => {
-    // Check authentication on client side
-    if (!isAuthenticated()) {
-      router.push("/");
-    } else {
-      setIsLoading(false);
-    }
-  }, [router]);
-
   // Product data initialization effect
   useEffect(() => {
     if (product && !productData?.name) {
-      // Parse tag if needed
-      let tagTitle = "";
-      let tagColor = "#2970ff";
+      // Extract category and subcategory IDs
+      const categoryId = product.category?.id || '';
+      const subCategoryId = product.category?.parent_id || '';
       
-      try {
-        if (typeof product.tag === 'string' && product.tag) {
-          const parsedTag = JSON.parse(product.tag);
-          tagTitle = parsedTag.title || "";
-          tagColor = parsedTag.color || "#2970ff";
-        } else if (product.tag && typeof product.tag === 'object') {
-          const tag: Product.Tag = product.tag;
-          tagTitle = tag.title || "";
-          tagColor = tag.color || "#2970ff";
+      // Extract tag information
+      let tagTitle = '';
+      let tagColor = '#2970FF';
+      
+      if (product.tag) {
+        if (typeof product.tag === 'object' && product.tag !== null) {
+          tagTitle = (product.tag as any).title || '';
+          tagColor = (product.tag as any).color || '#2970FF';
+        } else {
+          tagTitle = product.tag;
         }
-      } catch (e) {
-        console.error("Error parsing tag:", e);
       }
-
-      // Get category info
-      const categoryId = product.category?.parent_id || "";
-      const subCategoryId = product.category?.id || "";
       
       // Process images
-      const productImages: Array<{
+      const productImages: {
         name: string;
         url: string;
         isPrimary: boolean;
         size: number;
         id: string;
-      }> = [];
+      }[] = [];
       
       // Check if there are images in the product.images array first
       const additionalImages = (product as any).images;
@@ -135,11 +119,6 @@ export default function DashboardRootLayout({
     }
   }, [product, dispatch]);
 
-  // Show nothing while checking authentication
-  if (isLoading) {
-    return null;
-  }
-
   const nonDashboardLayoutPages = [
     "/dashboard/products/add",
     "/dashboard/products/add/step-2",
@@ -161,26 +140,25 @@ export default function DashboardRootLayout({
     (pathname.startsWith("/dashboard/products/edit/") &&
       pathname !== "/dashboard/products/edit/");
 
+  if (productLoading) {
+    return (
+      <ProductLayout>
+        <div className="w-1/2 flex justify-center items-center h-full">
+          <div>{t('products.loadingProductData')}</div>
+        </div>
+      </ProductLayout>
+    );
+  }
 
-      if (productLoading) {
-        return (
-          <ProductLayout>
-            <div className="w-1/2 flex justify-center items-center h-full">
-              <div>Loading product data...</div>
-            </div>
-          </ProductLayout>
-        );
-      }
-    
-      if (productError) {
-        return (
-          <ProductLayout>
-            <div className="w-1/2 flex justify-center items-center h-full">
-              <div>Error loading product data. Please try again.</div>
-            </div>
-          </ProductLayout>
-        );
-      }
+  if (productError) {
+    return (
+      <ProductLayout>
+        <div className="w-1/2 flex justify-center items-center h-full">
+          <div>{t('products.errorLoadingProductData')}</div>
+        </div>
+      </ProductLayout>
+    );
+  }
 
   if (shouldExcludeFromDashboard) {
     return <Provider store={store}>{children}</Provider>;

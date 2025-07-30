@@ -65,7 +65,12 @@
     "success": "Success",
     "warning": "Warning",
     "info": "Info",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "notAvailable": "N/A",
+    "all": "All",
+    "selected": "Selected",
+    "next": "Next",
+    "backToProducts": "Back to Products"
   },
   "auth": {
     "login": "Log In",
@@ -291,6 +296,9 @@
     "preview": "Preview",
     "thisIsHowProductWillAppear": "This is how your product will appear",
     "descriptionsHere": "Descriptions here",
+    "updateProductInformation": "Update your product information",
+    "loadingProductData": "Loading product data...",
+    "errorLoadingProductData": "Error loading product data. Please try again.",
     "discount": "Discount in %",
     "stockQty": "Stock QTY",
     "tag": "Tag",

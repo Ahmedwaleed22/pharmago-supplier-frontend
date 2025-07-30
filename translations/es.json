@@ -36,6 +36,7 @@
     "delivered": "Entregado",
     "canceled": "Cancelado",
     "unknownCustomer": "Cliente desconocido",
+    "unknownProduct": "Producto desconocido",
     "minute": "minuto",
     "minutes": "minutos",
     "hour": "hora",
@@ -63,7 +64,12 @@
     "success": "Éxito",
     "warning": "Advertencia",
     "info": "Información",
-    "copied": "¡Copiado!"
+    "copied": "¡Copiado!",
+    "notAvailable": "N/A",
+    "all": "Todos",
+    "selected": "Seleccionados",
+    "next": "Siguiente",
+    "backToProducts": "Volver a Productos"
   },
   "auth": {
     "login": "Iniciar sesión",
@@ -288,6 +294,9 @@
     "preview": "Vista previa",
     "thisIsHowProductWillAppear": "Así aparecerá tu producto",
     "descriptionsHere": "Descripciones aquí",
+    "updateProductInformation": "Actualiza la información de tu producto",
+    "loadingProductData": "Cargando datos del producto...",
+    "errorLoadingProductData": "Error al cargar los datos del producto. Por favor, inténtalo de nuevo.",
     "discount": "Descuento en %",
     "stockQty": "Cantidad en stock",
     "tag": "Etiqueta",
@@ -380,6 +389,9 @@
     "approved": "Aprobada",
     "prescriptionDetails": "Detalles de la receta",
     "prescriptionRequests": "Solicitudes de recetas",
+    "orders": "Pedidos",
+    "orderDetails": "Detalles del pedido",
+    "prescriptionOrderDetails": "Detalles del pedido de receta",
     "ordersHistory": "Historial de pedidos",
     "delivery": "Entrega",
     "liveTracking": "Seguimiento en vivo",
@@ -387,6 +399,29 @@
     "sales": "Ventas",
     "profile": "Perfil",
     "branches": "Sucursales"
+  },
+  "orders": {
+    "orderDetails": "Detalles del pedido",
+    "customer": "Cliente",
+    "paymentStatus": "Estado del pago",
+    "total": "Total",
+    "orderItems": "Artículos del pedido",
+    "quantity": "Cantidad",
+    "shippingInformation": "Información de envío",
+    "address": "Dirección",
+    "city": "Ciudad",
+    "state": "Estado",
+    "postalCode": "Código postal",
+    "country": "País",
+    "orderSummary": "Resumen del pedido",
+    "subtotal": "Subtotal",
+    "deliveryFees": "Tarifas de entrega",
+    "serviceFee": "Tarifa de servicio",
+    "discount": "Descuento",
+    "pharmacyInformation": "Información de la farmacia",
+    "pharmacyName": "Nombre de la farmacia",
+    "phone": "Teléfono",
+    "prescriptionOrderDetails": "Detalles del pedido de receta"
   },
   "errors": {
     "general": "Ocurrió un error. Por favor, inténtalo de nuevo.",
@@ -509,7 +544,10 @@
     "cartOrder": "Pedido del carrito",
     "prescriptionOrder": "Pedido de receta",
     "pharmacyOffer": "Oferta de farmacia",
-    "orderPlaced": "Pedido realizado"
+    "orderPlaced": "Pedido realizado",
+    "paymentPending": "Pago pendiente",
+    "paymentPaid": "Pago realizado",
+    "paymentFailed": "Pago fallido"
   },
   "sidebar": {
     "dashboard": "Panel de control",

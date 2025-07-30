@@ -9,13 +9,14 @@ import { useTranslation } from '@/contexts/i18n-context';
 interface OrderHistoryProps {
   className?: string;
   noTitle?: boolean;
-  orders: Prescription.Prescription[] | Dashboard.OrderHistoryItem[];
+  orders: Prescription.Prescription[] | Dashboard.OrderHistoryItem[] | Dashboard.DeliveryOrder[];
   onSelectionChange?: (selectedIds: string[]) => void;
   noPagination?: boolean;
   cardFooter?: React.ReactNode;
+  context?: 'sales' | 'prescriptions' | 'delivery';
 }
 
-function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFooter = <></> }: OrderHistoryProps) {
+function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFooter = <></>, context = 'sales' }: OrderHistoryProps) {
   const { t } = useTranslation();
   
   // State to store selected order IDs
@@ -46,33 +47,6 @@ function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFo
     }
   };
 
-  // Convert OrderHistoryItems to Prescription format if needed
-  const convertToPrescriptionFormat = (
-    data: (Prescription.Prescription | Dashboard.OrderHistoryItem)[]
-  ): Prescription.Prescription[] => {
-    return data.map(item => {
-      // Check if it's already a Prescription
-      if ('patient' in item && 'prescription_text' in item) {
-        return item as Prescription.Prescription;
-      }
-      
-      // It's an OrderHistoryItem, convert to Prescription format
-      const orderItem = item as Dashboard.OrderHistoryItem;
-      return {
-        id: orderItem.id,
-        name: orderItem.user?.name || 'Unknown',
-        patient: {
-          id: orderItem.user?.id || '',
-          name: orderItem.user?.name || 'Unknown'
-        },
-        file_path: orderItem.file_path || null,
-        prescription_text: orderItem.prescription_text || orderItem.request || null,
-        created_at: orderItem.start_date,
-        status: orderItem.status
-      };
-    });
-  };
-
   // Export orders to CSV
   const handleExport = (onlySelected: boolean = false) => {
     if (!orders || orders.length === 0) {
@@ -81,11 +55,8 @@ function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFo
     }
 
     try {
-      // Convert data to Prescription format if needed
-      const prescriptions = convertToPrescriptionFormat(orders);
-      
       if (onlySelected && selectedOrderIds.length > 0) {
-        const selectedOrders = prescriptions.filter(order => 
+        const selectedOrders = orders.filter(order => 
           selectedOrderIds.includes(order.id)
         );
         
@@ -97,7 +68,7 @@ function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFo
         exportOrdersToCsv(selectedOrders, selectedOrderIds, true, t);
       } else {
         // Export all orders
-        exportOrdersToCsv(prescriptions, [], false, t);
+        exportOrdersToCsv(orders, [], false, t);
       }
       
       setIsDropdownOpen(false);
@@ -150,6 +121,7 @@ function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFo
           orders={orders} 
           onSelectionChange={handleSelectionChange}
           noPagination={noPagination}
+          context={context}
         />
         {cardFooter}
       </div>

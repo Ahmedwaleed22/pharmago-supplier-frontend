@@ -37,6 +37,7 @@ function OrderHistoryPage() {
           <OrderHistory 
             noTitle={true} 
             orders={orders}
+            context="prescriptions"
           />
         )}
       </div>
