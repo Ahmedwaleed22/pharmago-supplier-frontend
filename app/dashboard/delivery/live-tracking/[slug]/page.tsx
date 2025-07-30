@@ -160,8 +160,15 @@ function PrescriptionDeliveryStatusPage() {
                 <div className="flex flex-col">
                   {trackingStatus.timestamp ? (
                     <>
-                      <span>{new Date(trackingStatus.timestamp).toLocaleDateString()}</span>
-                      <span>{new Date(trackingStatus.timestamp).toLocaleTimeString()}</span>
+                      <span>{new Intl.DateTimeFormat(navigator.language || 'en', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      }).format(new Date(trackingStatus.timestamp))}</span>
+                      <span>{new Intl.DateTimeFormat(navigator.language || 'en', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }).format(new Date(trackingStatus.timestamp))}</span>
                     </>
                   ) : (
                     <span className="text-muted-gray">{t('orderHistory.pending')}</span>

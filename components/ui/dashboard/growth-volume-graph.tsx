@@ -17,6 +17,7 @@ import {
 import {Icon} from "@iconify/react";
 import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis} from "recharts";
 import {formatPrice} from "@/helpers/products";
+import { useI18n } from '@/contexts/i18n-context';
 
 interface ChartData {
   date: string;
@@ -29,12 +30,28 @@ interface GrowthVolumeGraphProps {
   currency: Product.Currency;
 }
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string, t?: (key: string) => string) => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
+  
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date:', dateString);
+    return dateString; // Return original string if date is invalid
+  }
+  
+  // Use translation if available, otherwise fallback to locale-aware formatting
+  if (t) {
+    const month = t(`common.months.${date.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`);
+    const day = date.getDate();
+    return `${day} ${month}`;
+  }
+  
+  // Fallback to locale-aware formatting
+  return new Intl.DateTimeFormat(navigator.language || 'en', { month: "short", day: "numeric" }).format(date);
 };
 
 function GrowthVolumeGraph({ className, data, currency }: GrowthVolumeGraphProps) {
+  const { t } = useI18n();
   // Ensure data is an array and has items
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
@@ -49,12 +66,30 @@ function GrowthVolumeGraph({ className, data, currency }: GrowthVolumeGraphProps
   }
 
   // Prepare data for the chart
-  const chartData = data.map(item => ({
-    date: formatDate(item.date),
-    value: item.revenue,
-    // For comparison, if needed
-    lastYearValue: 0
-  }));
+  const chartData = data.map(item => {
+    // Check if item.date is already a formatted string or a valid date
+    let formattedDate;
+    
+    if (typeof item.date === 'string') {
+      // If it's already formatted (contains spaces), use it as is
+      if (item.date.includes(' ')) {
+        formattedDate = item.date;
+      } else {
+        // It's a date string like "2025-07-15", format it
+        formattedDate = formatDate(item.date, t);
+      }
+    } else {
+      // Fallback
+      formattedDate = formatDate(String(item.date), t);
+    }
+    
+    return {
+      date: formattedDate,
+      value: item.revenue,
+      // For comparison, if needed
+      lastYearValue: 0
+    };
+  });
 
   return (
     <Card as="dl" className="border border-transparent dark:border-default-100 bg-transparent shadow-none">
@@ -99,6 +134,10 @@ function GrowthVolumeGraph({ className, data, currency }: GrowthVolumeGraphProps
               dataKey="date"
               style={{fontSize: "var(--heroui-font-size-tiny)", transform: "translateX(-40px)"}}
               tickLine={false}
+              tickFormatter={(value) => {
+                // The value should already be formatted, just return it
+                return String(value);
+              }}
             />
             <Tooltip
               content={({label, payload}) => (
@@ -118,7 +157,13 @@ function GrowthVolumeGraph({ className, data, currency }: GrowthVolumeGraphProps
                       );
                     })}
                     <span className="text-small font-medium text-foreground-400">
-                      {label}
+                      {label ? (() => {
+                        // Try to translate the date if it contains month names
+                        const date = new Date(label);
+                        const month = t(`common.months.${date.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`);
+                        const day = date.getDate();
+                        return `${day} ${month}`;
+                      })() : label}
                     </span>
                   </div>
                 </div>

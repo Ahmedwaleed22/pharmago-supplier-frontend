@@ -191,6 +191,7 @@
     "newOrders": "Nuevos pedidos",
     "product": "Producto",
     "products": "Productos",
+    "category": "Categoría",
     "branch": "Sucursal",
     "branches": "Sucursales",
     "newClients": "Nuevos clientes",
@@ -239,7 +240,16 @@
     "peakHour": "Hora pico",
     "peakDay": "Día pico",
     "ordersByHour": "Pedidos por hora",
-    "noData": "Sin datos"
+    "noData": "Sin datos",
+    "days": {
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    }
   },
   "products": {
     "title": "Productos",
@@ -489,9 +499,17 @@
     "name": "Nombre",
     "id": "ID",
     "pending": "Pendiente",
+    "processing": "Procesando",
+    "shipping": "Enviando",
+    "delivered": "Entregado",
+    "canceled": "Cancelado",
     "totalOrders": "Total de pedidos",
     "orderContent": "Contenido del pedido",
-    "type": "Tipo"
+    "type": "Tipo",
+    "cartOrder": "Pedido del carrito",
+    "prescriptionOrder": "Pedido de receta",
+    "pharmacyOffer": "Oferta de farmacia",
+    "orderPlaced": "Pedido realizado"
   },
   "sidebar": {
     "dashboard": "Panel de control",

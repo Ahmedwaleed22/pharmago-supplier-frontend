@@ -44,3 +44,13 @@ export async function getOrderStatus({ order_id }: { order_id: string }): Promis
   
   return response.data;
 }
+
+export async function fetchOrder(orderId: string): Promise<any> {
+  const response = await axios.get(`/api/orders/${orderId}`);
+
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch order details');
+  }
+  
+  return response.data.data;
+}

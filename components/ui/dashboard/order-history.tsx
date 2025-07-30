@@ -65,8 +65,8 @@ function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFo
           id: orderItem.user?.id || '',
           name: orderItem.user?.name || 'Unknown'
         },
-        file_path: null,
-        prescription_text: orderItem.request || null,
+        file_path: orderItem.file_path || null,
+        prescription_text: orderItem.prescription_text || orderItem.request || null,
         created_at: orderItem.start_date,
         status: orderItem.status
       };
@@ -94,10 +94,10 @@ function OrderHistory({ noTitle, orders, onSelectionChange, noPagination, cardFo
           return;
         }
         
-        exportOrdersToCsv(selectedOrders, selectedOrderIds, true);
+        exportOrdersToCsv(selectedOrders, selectedOrderIds, true, t);
       } else {
         // Export all orders
-        exportOrdersToCsv(prescriptions);
+        exportOrdersToCsv(prescriptions, [], false, t);
       }
       
       setIsDropdownOpen(false);

@@ -25,7 +25,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
   const timeBasedAnalytics = analytics.time_based_analytics;
 
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 ${className}`}>
+    <div className={`grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 ${className}`}>
       {/* Revenue Breakdown */}
       <DashboardCard>
         <div className="p-6">
@@ -78,7 +78,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.averageItemsPerOrder')}</span>
-              <span className="text-sm">{orderMetrics.average_items_per_order}</span>
+              <span className="text-sm">{Math.round(orderMetrics.average_items_per_order)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.averageDeliveryFee')}</span>
@@ -133,7 +133,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
       </DashboardCard>
 
       {/* Delivery Performance */}
-      <DashboardCard>
+      {/* <DashboardCard>
         <div className="p-6">
           <h3 className="text-[#414651] font-bold text-lg mb-4 flex items-center">
             <Icon icon="mdi:truck-delivery" className="mr-2" />
@@ -163,7 +163,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             </div>
           </div>
         </div>
-      </DashboardCard>
+      </DashboardCard> */}
 
       {/* Customer Retention */}
       <DashboardCard>
@@ -196,7 +196,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
       </DashboardCard>
 
       {/* Customer Satisfaction */}
-      <DashboardCard>
+      {/* <DashboardCard>
         <div className="p-6">
           <h3 className="text-[#414651] font-bold text-lg mb-4 flex items-center">
             <Icon icon="mdi:star" className="mr-2" />
@@ -235,7 +235,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             </div>
           </div>
         </div>
-      </DashboardCard>
+      </DashboardCard> */}
 
       {/* Competitive Metrics */}
       <DashboardCard>
@@ -317,7 +317,12 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.peakDay')}</span>
-              <span className="font-semibold">{timeBasedAnalytics.peak_day}</span>
+              <span className="font-semibold">
+                {(() => {
+                  const dayKey = timeBasedAnalytics.peak_day?.toLowerCase();
+                  return dayKey ? t(`dashboard.days.${dayKey}`) : timeBasedAnalytics.peak_day;
+                })()}
+              </span>
             </div>
             <div className="pt-2 border-t border-gray-200">
               <div className="text-xs text-gray-500 mb-2">{t('dashboard.ordersByHour')}</div>

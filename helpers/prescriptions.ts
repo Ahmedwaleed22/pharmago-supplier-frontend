@@ -29,7 +29,7 @@ export function formatPrescriptionDate(
     ? t(`common.months.${date.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`)
     : date.toLocaleString('en-US', { month: 'short' });
   
-  const time = showTime ? date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) : "";
+  const time = showTime ? date.toLocaleString(navigator.language || 'en', { hour: 'numeric', minute: 'numeric', hour12: true }) : "";
 
   // Handle RTL layout if translation context is available
   

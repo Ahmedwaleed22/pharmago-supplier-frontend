@@ -28,8 +28,10 @@ function escapeCSV(value: string | null | undefined): string {
  * @param orders The orders to convert to CSV
  * @returns string CSV content
  */
-export function convertOrdersToCSV(orders: Prescription.Prescription[]) {
-  if (!orders || orders.length === 0) return '';
+export function convertOrdersToCSV(orders: Prescription.Prescription[], t?: (key: string) => string) {
+  if (!orders || orders.length === 0) {
+    return null;
+  }
 
   // CSV headers
   const headers = ['ID', 'Patient Name', 'Request Type', 'Status', 'Date'];
@@ -40,7 +42,7 @@ export function convertOrdersToCSV(orders: Prescription.Prescription[]) {
     escapeCSV(order.patient?.name),
     escapeCSV(order.prescription_text ? 'Prescription / Rx' : 'N/A'),
     escapeCSV(order.status),
-    escapeCSV(order.created_at ? formatPrescriptionDate(order.created_at, false) : '')
+    escapeCSV(order.created_at ? formatPrescriptionDate(order.created_at, false, t) : '')
   ]);
   
   // Combine headers and rows
@@ -93,7 +95,8 @@ export function downloadCSV(csvContent: string, filename: string = 'order-histor
 export function exportOrdersToCsv(
   orders: Prescription.Prescription[], 
   selectedIds: string[] = [], 
-  onlySelected: boolean = false
+  onlySelected: boolean = false,
+  t?: (key: string) => string
 ): void {
   try {
     if (!orders || orders.length === 0) {
@@ -119,7 +122,7 @@ export function exportOrdersToCsv(
       console.log(`Exporting all ${dataToExport.length} items`);
     }
     
-    const csvContent = convertOrdersToCSV(dataToExport);
+    const csvContent = convertOrdersToCSV(dataToExport, t);
     if (!csvContent) {
       console.error("Failed to generate CSV content");
       return;

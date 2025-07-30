@@ -193,6 +193,7 @@
     "newOrders": "طلبات جديدة",
     "product": "منتج",
     "products": "منتجات",
+    "category": "الفئة",
     "branch": "فرع",
     "branches": "فروع",
     "newClients": "عملاء جدد",
@@ -241,7 +242,16 @@
     "peakHour": "ساعة الذروة",
     "peakDay": "يوم الذروة",
     "ordersByHour": "الطلبات حسب الساعة",
-    "noData": "لا توجد بيانات"
+    "noData": "لا توجد بيانات",
+    "days": {
+      "monday": "الاثنين",
+      "tuesday": "الثلاثاء",
+      "wednesday": "الأربعاء",
+      "thursday": "الخميس",
+      "friday": "الجمعة",
+      "saturday": "السبت",
+      "sunday": "الأحد"
+    }
   },
   "products": {
     "title": "المنتجات",
@@ -558,9 +568,17 @@
     "name": "الاسم",
     "id": "المعرف",
     "pending": "قيد الانتظار",
+    "processing": "قيد المعالجة",
+    "shipping": "قيد الشحن",
+    "delivered": "تم التوصيل",
+    "canceled": "ملغي",
     "totalOrders": "إجمالي الطلبات",
     "orderContent": "محتوى الطلب",
-    "type": "النوع"
+    "type": "النوع",
+    "cartOrder": "طلب سلة التسوق",
+    "prescriptionOrder": "طلب وصفة طبية",
+    "pharmacyOffer": "عرض الصيدلية",
+    "orderPlaced": "تم الطلب"
   },
   "sidebar": {
     "dashboard": "لوحة التحكم",

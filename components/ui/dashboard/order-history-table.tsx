@@ -209,7 +209,7 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
       case "id":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{order && typeof order === 'object' && 'tracking_id' in order ? order.tracking_id : order.id.substring(0, 8) + '...'}</p>
+            <p className="text-bold text-small capitalize">{order && typeof order === 'object' && 'tracking_id' in order ? order.tracking_id.substring(0, 8) + '...' : order.id.substring(0, 8) + '...'}</p>
           </div>
         );
       case "name":
@@ -223,14 +223,58 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
           </User>
         );
       case "request":
+        const getRequestTranslation = (request: string) => {
+          if (request === 'Cart Order') {
+            return t('orderHistory.cartOrder');
+          } else if (request === 'Prescription / Rx' || request === 'Prescription') {
+            return t('prescriptions.prescriptionRx');
+          } else if (request === 'Prescription Order') {
+            return t('orderHistory.prescriptionOrder');
+          }
+          return request || "N/A";
+        };
+        
+        // Handle both order and prescription types
+        const getRequestText = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
+          if ('type' in order && order.type === 'prescription') {
+            return 'Prescription';
+          } else if ('request' in order) {
+            return (order as Dashboard.OrderHistoryItem).request;
+          } else if ('prescription_text' in order) {
+            return 'Prescription';
+          }
+          return 'Cart Order';
+        };
+        
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">
-              {order && typeof order === 'object' && 'prescription_text' in order ? t('prescriptions.prescriptionRx') : (order as Dashboard.OrderHistoryItem).request || "N/A"}
+              {getRequestTranslation(getRequestText(order))}
             </p>
           </div>
         );
       case "status":
+        const getStatusTranslation = (status: string) => {
+          switch (status) {
+            case 'pending':
+              return t('orderHistory.pending');
+            case 'processing':
+              return t('orderHistory.processing');
+            case 'shipping':
+              return t('orderHistory.shipping');
+            case 'delivered':
+              return t('orderHistory.delivered');
+            case 'canceled':
+              return t('orderHistory.canceled');
+            case 'pharmacy_offer':
+              return t('orderHistory.pharmacyOffer');
+            case 'order_placed':
+              return t('orderHistory.orderPlaced');
+            default:
+              return status;
+          }
+        };
+        
         return (
           <Chip
             className="capitalize"
@@ -238,14 +282,14 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
             size="sm"
             variant="flat"
           >
-            {order.status === 'pending' ? t('orderHistory.pending') : order.status}
+            {getStatusTranslation(order.status)}
           </Chip>
         );
       case "date":
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small">
-              {formatPrescriptionDate(getOrderDate(order), false)}
+              {formatPrescriptionDate(getOrderDate(order), false, t)}
             </p>
           </div>
         );
@@ -411,17 +455,42 @@ export default function OrderHistoryTable({ orders, onSelectionChange, noPaginat
         )}
       </TableHeader>
       <TableBody emptyContent={t('common.noData')} items={sortedItems}>
-        {(item) => (
-          <TableRow 
-            key={item.id}
-            className="cursor-pointer hover:bg-blue-50 transition-colors"
-            onClick={() => router.push(`/dashboard/prescriptions/requests/${item.id}`)}
-          >
-            {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey as string)}</TableCell>
-            )}
-          </TableRow>
-        )}
+        {(item) => {
+          // Determine the order type and route accordingly
+          const getOrderRoute = (order: Prescription.Prescription | Dashboard.OrderHistoryItem): string => {
+            // Check if it's a prescription
+            if ('prescription_text' in order || 'patient' in order) {
+              return `/dashboard/prescriptions/requests/${order.id}`;
+            }
+            
+            // Check if it's a cart order
+            if ('request' in order) {
+              const requestType = (order as Dashboard.OrderHistoryItem).request;
+              if (requestType === 'Cart Order' || requestType === 'cart') {
+                return `/dashboard/orders/${order.id}`;
+              }
+              // Check if it's a prescription order from offer
+              if (requestType === 'Prescription Order' || requestType === 'Prescription / Rx' || requestType === 'Prescription') {
+                return `/dashboard/orders/prescription/${order.id}`;
+              }
+            }
+            
+            // Default to prescription route for backward compatibility
+            return `/dashboard/prescriptions/requests/${order.id}`;
+          };
+
+          return (
+            <TableRow 
+              key={item.id}
+              className="cursor-pointer hover:bg-blue-50 transition-colors"
+              onClick={() => router.push(getOrderRoute(item))}
+            >
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey as string)}</TableCell>
+              )}
+            </TableRow>
+          );
+        }}
       </TableBody>
     </Table>
   );

@@ -13,6 +13,9 @@ declare module Dashboard {
     status: string;
     start_date: string;
     tracking_id: string;
+    type?: 'order' | 'prescription';
+    prescription_text?: string;
+    file_path?: string;
   }
 
   export interface Notification {
