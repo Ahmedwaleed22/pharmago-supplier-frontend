@@ -14,10 +14,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const fromDate = searchParams.get('from_date');
+    const toDate = searchParams.get('to_date');
+    
+    // Build query parameters for the backend API
+    const params: Record<string, string> = {};
+    if (fromDate) params.from_date = fromDate;
+    if (toDate) params.to_date = toDate;
+    
     // Forward the request to the actual API with the auth token
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_PHARMACY_URL}/dashboard/sales`, 
       {
+        params,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

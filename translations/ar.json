@@ -259,6 +259,16 @@
       "friday": "الجمعة",
       "saturday": "السبت",
       "sunday": "الأحد"
+    },
+    "dateRange": {
+      "fromDate": "من تاريخ",
+      "toDate": "إلى تاريخ",
+      "applyFilter": "تطبيق الفلتر",
+      "clear": "مسح",
+      "last7Days": "آخر 7 أيام",
+      "last30Days": "آخر 30 يوم",
+      "last90Days": "آخر 90 يوم",
+      "selectDates": "اختر نطاق التاريخ"
     }
   },
   "products": {

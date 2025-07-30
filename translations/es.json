@@ -257,6 +257,16 @@
       "friday": "Viernes",
       "saturday": "Sábado",
       "sunday": "Domingo"
+    },
+    "dateRange": {
+      "fromDate": "Desde Fecha",
+      "toDate": "Hasta Fecha",
+      "applyFilter": "Aplicar Filtro",
+      "clear": "Limpiar",
+      "last7Days": "Últimos 7 días",
+      "last30Days": "Últimos 30 días",
+      "last90Days": "Últimos 90 días",
+      "selectDates": "Seleccionar rango de fechas"
     }
   },
   "products": {

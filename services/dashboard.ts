@@ -20,8 +20,18 @@ export async function getDashboardAnalytics(): Promise<Dashboard.Analytics> {
   return response.data;
 }
 
-export async function getDashboardSales(): Promise<Dashboard.Sales> {
-  const response = await axios.get('/api/dashboard/sales');
+export async function getDashboardSales(fromDate?: string, toDate?: string): Promise<Dashboard.Sales> {
+  const params: Record<string, string> = {};
+  
+  if (fromDate) {
+    params.from_date = fromDate;
+  }
+  
+  if (toDate) {
+    params.to_date = toDate;
+  }
+
+  const response = await axios.get('/api/dashboard/sales', { params });
 
   if (response.status !== 200) {
     throw new Error('Failed to fetch dashboard sales');

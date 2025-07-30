@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import StatisticCard from "@/components/ui/dashboard/statistic-card";
 import GrowthVolume from "@/components/ui/dashboard/growth-volume";
 import OrderHistory from "@/components/ui/dashboard/order-history";
@@ -11,19 +11,41 @@ import StatisticCardSkeleton from "@/components/ui/dashboard/statistic-card-skel
 import ChartSkeleton from "@/components/ui/dashboard/chart-skeleton";
 import OrderHistorySkeleton from "@/components/ui/dashboard/order-history-skeleton";
 import QuickAnalyticsSkeleton from "@/components/ui/dashboard/quick-analytics-skeleton";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { useQuery } from "@tanstack/react-query";
 import createDashboardSalesQueryOptions from "@/query-options/dashboard-sales-query-options";
 import { useTranslation } from "@/contexts/i18n-context";
 
 function SalesPage() {
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+
   const {
     data: analytics,
     isLoading,
     isError,
     error,
-  } = useQuery<Dashboard.Sales>(createDashboardSalesQueryOptions());
+  } = useQuery<Dashboard.Sales>(createDashboardSalesQueryOptions(fromDate, toDate));
 
   const { t } = useTranslation();
+
+  const handleDateChange = (newFromDate: string, newToDate: string) => {
+    setFromDate(newFromDate);
+    setToDate(newToDate);
+  };
+
+  // Add some helpful default date range on first load
+  useEffect(() => {
+    if (!fromDate && !toDate) {
+      // Set default to last 30 days
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      
+      setFromDate(thirtyDaysAgo.toISOString().split('T')[0]);
+      setToDate(today.toISOString().split('T')[0]);
+    }
+  }, [fromDate, toDate]);
 
   if (isLoading) {
     return (
@@ -96,6 +118,28 @@ function SalesPage() {
 
   return (
     <>
+      {/* Date Range Picker */}
+      <div className="mb-6 flex items-center gap-4">
+        <div className="w-80">
+          <DateRangePicker
+            fromDate={fromDate}
+            toDate={toDate}
+            onDateChange={handleDateChange}
+          />
+        </div>
+        {(fromDate || toDate) && (
+          <div className="text-sm text-muted-foreground">
+            {fromDate && toDate ? (
+              <>
+                Showing data from {new Date(fromDate).toLocaleDateString()} to {new Date(toDate).toLocaleDateString()}
+              </>
+            ) : (
+              "Please select both start and end dates"
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="flex gap-4 my-10 w-full overflow-auto pb-1">
         {statistics.map((statistic) => (
           <StatisticCard
