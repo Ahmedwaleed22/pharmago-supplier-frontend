@@ -96,11 +96,11 @@ export function AppSidebar() {
         //   url: "/dashboard/prescriptions/rfqs",
         //   icon: "fontisto:prescription",
         // },
-        {
-          title: t('breadcrumbs.ordersHistory'),
-          url: "/dashboard/prescriptions/order-history",
-          icon: "solar:clock-circle-linear",
-        }
+        // {
+        //   title: t('breadcrumbs.ordersHistory'),
+        //   url: "/dashboard/prescriptions/order-history",
+        //   icon: "solar:clock-circle-linear",
+        // }
       ],
     },
     {
