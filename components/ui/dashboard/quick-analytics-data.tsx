@@ -12,23 +12,23 @@ function QuickAnalyticsData() {
   const data = [
     {
       icon: "ph:money-light",
-      value: `${formatPrice(analytics?.gross_volume?.current_revenue as number, analytics?.pharmacy?.country?.currency as Product.Currency)} (${analytics?.gross_volume.growth.toFixed(1)}%)`,
+      value: `${formatPrice(analytics?.gross_volume?.current_revenue as number || 0, analytics?.pharmacy?.country?.currency as Product.Currency)} (${analytics?.gross_volume.growth.toFixed(1) ?? '0.0'}%)`,
     },
     {
       icon: "ri:shopping-cart-line",
-      value: `${analytics?.cards.orders.count.toString()} ${t('dashboard.newOrders')}`,
+      value: `${analytics?.cards.orders.count.toString() ?? '0'} ${t('dashboard.newOrders')}`,
     },
     {
       icon: "mdi:cube-outline",
-      value: `${analytics?.medicine_count?.toString()} ${analytics?.medicine_count && analytics?.medicine_count > 1 ? t('dashboard.products') : t('dashboard.product')}`
+      value: `${analytics?.medicine_count?.toString() ?? '0'} ${analytics?.medicine_count && analytics?.medicine_count > 1 ? t('dashboard.products') : t('dashboard.product')}`
     },
     {
       icon: "solar:buildings-outline",
-      value: `${analytics?.pharmacy.branches_count} ${analytics?.pharmacy.branches_count && analytics?.pharmacy.branches_count > 1 ? t('dashboard.branches') : t('dashboard.branch')}`
+      value: `${analytics?.pharmacy.branches_count ?? '0'} ${analytics?.pharmacy.branches_count && analytics?.pharmacy.branches_count > 1 ? t('dashboard.branches') : t('dashboard.branch')}`
     },
     {
       icon: "solar:users-group-rounded-linear",
-      value: `${analytics?.new_clients?.count.toString()} ${t('dashboard.newClients')}`
+      value: `${analytics?.new_clients?.count.toString() ?? '0'} ${t('dashboard.newClients')}`
     }
   ];
   
