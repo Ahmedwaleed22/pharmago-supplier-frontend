@@ -12,6 +12,7 @@ import { PUSHER_EVENTS } from "@/config/pusher";
 import CustomButton from "@/components/custom-button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useTranslation } from "@/contexts/i18n-context";
+import { markNotificationAsRead } from "@/services/dashboard";
 
 interface PusherNotificationEvent {
   type: string;
@@ -74,6 +75,34 @@ function PrescriptionRequestsPage() {
     staleTime: Infinity,
     structuralSharing: false
   });
+
+  // Mark prescription notifications as read when visiting this page
+  useEffect(() => {
+    // Get notifications from cache and mark prescription notifications as read
+    const notifications = queryClient.getQueryData(['notifications', 0, 3]) as any;
+    if (notifications?.data) {
+      const prescriptionNotifications = notifications.data.filter((notification: any) => 
+        notification.category === 'prescription' && 
+        notification.link?.includes('/dashboard/prescriptions/requests/') &&
+        !notification.is_read &&
+        !notification.is_expired
+      );
+      
+      prescriptionNotifications.forEach(async (notification: any) => {
+        try {
+          await markNotificationAsRead(notification.id);
+          console.log(`Marked notification ${notification.id} as read for prescription requests page`);
+        } catch (error) {
+          console.error(`Failed to mark notification ${notification.id} as read:`, error);
+        }
+      });
+      
+      // Invalidate notifications cache to refresh the UI
+      if (prescriptionNotifications.length > 0) {
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      }
+    }
+  }, [queryClient]);
 
   // Handle notification events from Pusher (including new prescriptions)
   usePusherEvent<PusherNotificationEvent>(PUSHER_EVENTS.NOTIFICATION, (data) => {

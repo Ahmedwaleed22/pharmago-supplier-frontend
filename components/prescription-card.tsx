@@ -85,6 +85,7 @@ function PrescriptionCard({
       // console.log(t('prescriptions.offerSent'));
 
       queryClient.invalidateQueries({ queryKey: ["pending-prescriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
       // Optionally redirect back
       router.back();

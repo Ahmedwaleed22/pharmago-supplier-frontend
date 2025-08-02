@@ -40,6 +40,23 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
       console.log("Mark all as read successful, invalidating queries...");
       // Invalidate and refetch notifications
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      
+      // Also update the cache optimistically
+      queryClient.setQueryData(['notifications', 0, currentLimit], (oldData: any) => {
+        if (!oldData) return oldData;
+        
+        return {
+          ...oldData,
+          data: oldData.data.map((notification: Dashboard.Notification) => ({
+            ...notification,
+            is_read: true
+          })),
+          meta: {
+            ...oldData.meta,
+            unread_count: 0
+          }
+        };
+      });
     },
     onError: (error) => {
       console.error("Error marking all notifications as read:", error);
@@ -51,8 +68,26 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
     mutationFn: markNotificationAsRead,
     onSuccess: (data, variables) => {
       console.log(`Mark notification ${variables} as read successful, invalidating queries...`);
-      // Invalidate and refetch notifications
+      // Invalidate and refetch notifications - invalidate all notification queries
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      
+      // Also update the cache optimistically
+      queryClient.setQueryData(['notifications', 0, currentLimit], (oldData: any) => {
+        if (!oldData) return oldData;
+        
+        return {
+          ...oldData,
+          data: oldData.data.map((notification: Dashboard.Notification) => 
+            notification.id === variables 
+              ? { ...notification, is_read: true }
+              : notification
+          ),
+          meta: {
+            ...oldData.meta,
+            unread_count: Math.max(0, (oldData.meta?.unread_count || 0) - 1)
+          }
+        };
+      });
     },
     onError: (error) => {
       console.error("Error marking notification as read:", error);
@@ -98,12 +133,18 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
   const handleNotificationClick = (notification: Dashboard.Notification) => {
     // Mark as read if not already read
     if (!notification.is_read) {
+      console.log(`Marking notification ${notification.id} as read...`);
       markAsReadMutation.mutate(notification.id);
     }
     
     // Navigate to the notification link if provided
     if (notification.link && notification.category === "prescription") {
-      window.open(notification.link, '_self');
+      console.log(`Navigating to notification link: ${notification.link}`);
+      if (notification.is_expired) {
+        console.log(`Notification ${notification.id} is expired, skipping navigation`);
+      } else {
+        window.open(notification.link, '_self');
+      }
     }
   };
 

@@ -29,6 +29,7 @@ declare module Dashboard {
     type: string;
     category: string;
     is_read: boolean;
+    is_expired: boolean;
     created_at: string;
     updated_at: string;
   }

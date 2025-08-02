@@ -4,16 +4,18 @@ import DashboardCard from "@/components/ui/dashboard/dashboard-card";
 import { getXmlValue } from "@/helpers/prescriptions";
 import DashboardWithBreadcrumbsLayout from "@/layouts/dashboard-with-breadcrumbs-layout";
 import { fetchPrescription } from "@/services/prescriptions";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "@/contexts/i18n-context";
 import { Icon } from "@iconify/react";
+import { markNotificationAsRead } from "@/services/dashboard";
 
 function PrescriptionDetailsPage() {
   const { slug } = useParams();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [price, setPrice] = useState<string>("");
   const [discount, setDiscount] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -22,6 +24,36 @@ function PrescriptionDetailsPage() {
     queryKey: ["prescription"],
     queryFn: () => fetchPrescription(slug as string),
   });
+
+  // Mark prescription notification as read when visiting this page
+  useEffect(() => {
+    if (slug) {
+      // Get notifications from cache and mark prescription notifications as read
+      const notifications = queryClient.getQueryData(['notifications', 0, 3]) as any;
+      if (notifications?.data) {
+        const prescriptionNotifications = notifications.data.filter((notification: any) => 
+          notification.category === 'prescription' && 
+          notification.link === `/dashboard/prescriptions/requests/${slug}` &&
+          !notification.is_read &&
+          !notification.is_expired
+        );
+        
+        prescriptionNotifications.forEach(async (notification: any) => {
+          try {
+            await markNotificationAsRead(notification.id);
+            console.log(`Marked notification ${notification.id} as read for prescription ${slug}`);
+          } catch (error) {
+            console.error(`Failed to mark notification ${notification.id} as read:`, error);
+          }
+        });
+        
+        // Invalidate notifications cache to refresh the UI
+        if (prescriptionNotifications.length > 0) {
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        }
+      }
+    }
+  }, [slug, queryClient]);
 
   const loadPreview = (is_image: boolean) => {
     if (is_image) {
