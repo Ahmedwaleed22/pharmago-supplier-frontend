@@ -323,7 +323,9 @@
     "creating": "Creating...",
     "createProduct": "Create Product",
     "updating": "Updating...",
-    "updateProduct": "Update Product"
+    "updateProduct": "Update Product",
+    "noProductsFound": "No Products Found",
+    "noProductsFoundDescription": "There are currently no products to display. Add a new product or adjust your filters to see results here."
   },
   "categories": {
     "title": "Categories",
@@ -347,6 +349,9 @@
     "sendOffers": "Send Offers",
     "prescriptionOffer": "Prescription Offer",
     "discount": "Discount",
+    "update": "Update",
+    "noApprovedPrescriptions": "No Approved Prescriptions",
+    "noApprovedPrescriptionsDescription": "There are currently no approved prescriptions. Approved prescriptions will appear here once available.",
     "failedToFetch": "Failed to fetch prescription data",
     "failedToSend": "Failed to send prescription offer",
     "offerSent": "Offer sent successfully",
@@ -382,7 +387,9 @@
     "pickUp": "Pick up",
     "inProgress": "In Progress",
     "dropOff": "Drop Off",
-    "successRate": "Success Rate"
+    "successRate": "Success Rate",
+    "noActiveDeliveries": "No Active Deliveries",
+    "noActiveDeliveriesDescription": "There are currently no deliveries in progress. New delivery orders will appear here as soon as they are assigned."
   },
   "notifications": {
     "title": "Notifications",
@@ -438,7 +445,8 @@
     "pharmacyInformation": "Pharmacy Information",
     "pharmacyName": "Pharmacy Name",
     "phone": "Phone",
-    "prescriptionOrderDetails": "Prescription Order Details"
+    "prescriptionOrderDetails": "Prescription Order Details",
+    "newOrder": "New Order"
   },
   "errors": {
     "general": "An error occurred. Please try again.",
@@ -677,6 +685,11 @@
     "noAddressFound": "No address found for this location",
     "quotaExceeded": "Geocoding quota exceeded",
     "requestDenied": "Geocoding request denied",
-    "geocodingError": "Unable to get address for this location"
+    "geocodingError": "Unable to get address for this location",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "reconnect": "Reconnect",
+    "channel": "Channel",
+    "noUserIdSet": "No user ID set - notifications disabled"
   }
 } 

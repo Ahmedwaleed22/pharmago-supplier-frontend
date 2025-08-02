@@ -63,7 +63,7 @@ function GrowthVolumeGraph({ className, data, currency }: GrowthVolumeGraphProps
       <Card as="dl" className="border border-transparent dark:border-default-100 bg-transparent shadow-none">
         <section className="flex flex-col flex-nowrap h-full">
           <div className="flex items-center justify-center h-[300px] text-foreground-400">
-            No data available for chart
+            {t('common.noData')}
           </div>
         </section>
       </Card>

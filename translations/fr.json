@@ -321,7 +321,9 @@
     "creating": "Création en cours...",
     "createProduct": "Créer le produit",
     "updating": "Mise à jour en cours...",
-    "updateProduct": "Mettre à jour le produit"
+    "updateProduct": "Mettre à jour le produit",
+    "noProductsFound": "Aucun produit trouvé",
+    "noProductsFoundDescription": "Il n'y a actuellement aucun produit à afficher. Ajoutez un nouveau produit ou ajustez vos filtres pour voir les résultats ici."
   },
   "categories": {
     "title": "Catégories",
@@ -345,6 +347,9 @@
     "sendOffers": "Envoyer des offres",
     "prescriptionOffer": "Offre d'ordonnance",
     "discount": "Remise",
+    "update": "Mettre à jour",
+    "noApprovedPrescriptions": "Aucune ordonnance approuvée",
+    "noApprovedPrescriptionsDescription": "Il n'y a actuellement aucune ordonnance approuvée. Les ordonnances approuvées apparaîtront ici une fois disponibles.",
     "failedToFetch": "Échec de récupération des données d'ordonnance",
     "failedToSend": "Échec d'envoi de l'offre d'ordonnance",
     "offerSent": "Offre envoyée avec succès",
@@ -378,7 +383,9 @@
     "pickUp": "Enlèvement",
     "inProgress": "En cours",
     "dropOff": "Livraison",
-    "successRate": "Taux de réussite"
+    "successRate": "Taux de réussite",
+    "noActiveDeliveries": "Aucune livraison active",
+    "noActiveDeliveriesDescription": "Il n'y a actuellement aucune livraison en cours. Les nouvelles commandes de livraison apparaîtront ici dès qu'elles seront assignées."
   },
   "notifications": {
     "title": "Notifications",
@@ -434,7 +441,8 @@
     "pharmacyInformation": "Informations de la pharmacie",
     "pharmacyName": "Nom de la pharmacie",
     "phone": "Téléphone",
-    "prescriptionOrderDetails": "Détails de la commande d'ordonnance"
+    "prescriptionOrderDetails": "Détails de la commande d'ordonnance",
+    "newOrder": "Nouvelle commande"
   },
   "errors": {
     "general": "Une erreur s'est produite. Veuillez réessayer.",
@@ -642,6 +650,11 @@
   "profile": {
     "userProfile": "Profil utilisateur",
     "pharmacyInfo": "Infos pharmacie",
-    "branches": "Branches"
+    "branches": "Branches",
+    "connected": "Connecté",
+    "disconnected": "Déconnecté",
+    "reconnect": "Reconnecter",
+    "channel": "Canal",
+    "noUserIdSet": "Aucun ID utilisateur défini - notifications désactivées"
   }
 } 

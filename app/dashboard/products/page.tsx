@@ -254,8 +254,8 @@ function ProductPage() {
                         <rect x="36" y="28" width="8" height="4" rx="2" fill="#6366F1"/>
                       </svg>
                     </div>
-                    <h2 className="text-xl font-semibold text-blue-gray mb-2">No Products Found</h2>
-                    <p className="text-gray-500 text-center max-w-xs">There are currently no products to display. Add a new product or adjust your filters to see results here.</p>
+                    <h2 className="text-xl font-semibold text-blue-gray mb-2">{t('products.noProductsFound')}</h2>
+                    <p className="text-gray-500 text-center max-w-xs">{t('products.noProductsFoundDescription')}</p>
                   </div>
                 )}
                 

@@ -323,7 +323,9 @@
     "creating": "جاري الإنشاء...",
     "createProduct": "إنشاء المنتج",
     "updating": "جاري التحديث...",
-    "updateProduct": "تحديث المنتج"
+    "updateProduct": "تحديث المنتج",
+    "noProductsFound": "لم يتم العثور على منتجات",
+    "noProductsFoundDescription": "لا توجد منتجات للعرض حالياً. أضف منتجاً جديداً أو اضبط المرشحات لرؤية النتائج هنا."
   },
   "categories": {
     "title": "الفئات",
@@ -347,6 +349,9 @@
     "sendOffers": "إرسال العروض",
     "prescriptionOffer": "عرض الوصفة",
     "discount": "الخصم",
+    "update": "تحديث",
+    "noApprovedPrescriptions": "لا توجد وصفات مقبولة",
+    "noApprovedPrescriptionsDescription": "لا توجد وصفات مقبولة حالياً. ستظهر الوصفات المقبولة هنا بمجرد توفرها.",
     "failedToFetch": "فشل في جلب بيانات الوصفة",
     "failedToSend": "فشل في إرسال عرض الوصفة",
     "offerSent": "تم إرسال العرض بنجاح",
@@ -382,7 +387,9 @@
     "pickUp": "الاستلام",
     "inProgress": "قيد التنفيذ",
     "dropOff": "التسليم",
-    "successRate": "معدل النجاح"
+    "successRate": "معدل النجاح",
+    "noActiveDeliveries": "لا توجد توصيلات نشطة",
+    "noActiveDeliveriesDescription": "لا توجد توصيلات قيد التنفيذ حالياً. ستظهر طلبات التوصيل الجديدة هنا بمجرد تعيينها."
   },
   "notifications": {
     "title": "الإشعارات",
@@ -438,7 +445,8 @@
     "pharmacyInformation": "معلومات الصيدلية",
     "pharmacyName": "اسم الصيدلية",
     "phone": "الهاتف",
-    "prescriptionOrderDetails": "تفاصيل طلب الوصفة الطبية"
+    "prescriptionOrderDetails": "تفاصيل طلب الوصفة الطبية",
+    "newOrder": "طلب جديد"
   },
   "errors": {
     "general": "حدث خطأ. يرجى المحاولة مرة أخرى.",
@@ -677,6 +685,11 @@
     "noAddressFound": "لم يتم العثور على عنوان لهذا الموقع",
     "quotaExceeded": "تم تجاوز حصة تحديد الموقع",
     "requestDenied": "تم رفض طلب تحديد الموقع",
-    "geocodingError": "تعذر الحصول على العنوان لهذا الموقع"
+    "geocodingError": "تعذر الحصول على العنوان لهذا الموقع",
+    "connected": "متصل",
+    "disconnected": "غير متصل",
+    "reconnect": "إعادة الاتصال",
+    "channel": "القناة",
+    "noUserIdSet": "لم يتم تعيين معرف المستخدم - الإشعارات معطلة"
   }
 } 

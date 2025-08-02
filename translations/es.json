@@ -321,7 +321,9 @@
     "creating": "Creando...",
     "createProduct": "Crear producto",
     "updating": "Actualizando...",
-    "updateProduct": "Actualizar producto"
+    "updateProduct": "Actualizar producto",
+    "noProductsFound": "No se encontraron productos",
+    "noProductsFoundDescription": "Actualmente no hay productos para mostrar. Agrega un nuevo producto o ajusta tus filtros para ver resultados aquí."
   },
   "categories": {
     "title": "Categorías",
@@ -345,6 +347,9 @@
     "sendOffers": "Enviar ofertas",
     "prescriptionOffer": "Oferta de receta",
     "discount": "Descuento",
+    "update": "Actualizar",
+    "noApprovedPrescriptions": "No hay recetas aprobadas",
+    "noApprovedPrescriptionsDescription": "Actualmente no hay recetas aprobadas. Las recetas aprobadas aparecerán aquí una vez disponibles.",
     "failedToFetch": "Error al obtener los datos de la receta",
     "failedToSend": "Error al enviar la oferta de receta",
     "offerSent": "¡Oferta enviada con éxito!",
@@ -378,7 +383,9 @@
     "pickUp": "Recolección",
     "inProgress": "En progreso",
     "dropOff": "Entrega",
-    "successRate": "Tasa de éxito"
+    "successRate": "Tasa de éxito",
+    "noActiveDeliveries": "No hay entregas activas",
+    "noActiveDeliveriesDescription": "Actualmente no hay entregas en progreso. Las nuevas órdenes de entrega aparecerán aquí tan pronto como sean asignadas."
   },
   "notifications": {
     "title": "Notificaciones",
@@ -434,7 +441,8 @@
     "pharmacyInformation": "Información de la farmacia",
     "pharmacyName": "Nombre de la farmacia",
     "phone": "Teléfono",
-    "prescriptionOrderDetails": "Detalles del pedido de receta"
+    "prescriptionOrderDetails": "Detalles del pedido de receta",
+    "newOrder": "Nuevo pedido"
   },
   "errors": {
     "general": "Ocurrió un error. Por favor, inténtalo de nuevo.",
@@ -640,6 +648,11 @@
     "updating": "Actualizando...",
     "updateError": "Error al actualizar la sucursal",
     "editBranchDescription": "Editar información de la sucursal y detalles de ubicación",
-    "branchAddress": "Dirección de la sucursal"
+    "branchAddress": "Dirección de la sucursal",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "reconnect": "Reconectar",
+    "channel": "Canal",
+    "noUserIdSet": "No se ha establecido el ID de usuario - notificaciones deshabilitadas"
   }
 }

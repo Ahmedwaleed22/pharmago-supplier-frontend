@@ -99,8 +99,8 @@ function LiveTrackingPage() {
                 <rect x="36" y="28" width="8" height="4" rx="2" fill="#6366F1"/>
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-blue-gray mb-2">No Active Deliveries</h2>
-            <p className="text-gray-500 text-center max-w-xs">There are currently no deliveries in progress. New delivery orders will appear here as soon as they are assigned.</p>
+            <h2 className="text-xl font-semibold text-blue-gray mb-2">{t('delivery.noActiveDeliveries')}</h2>
+            <p className="text-gray-500 text-center max-w-xs">{t('delivery.noActiveDeliveriesDescription')}</p>
           </div>
         )}
       </div>

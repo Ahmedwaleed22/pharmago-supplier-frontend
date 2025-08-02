@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNotifications, useNewOrders } from "@/hooks/useAppPusher";
 import { usePusherContext } from "@/components/providers/PusherProvider";
+import { useTranslation } from "@/contexts/i18n-context";
 
 type Notification = {
   id: string;
@@ -13,6 +14,7 @@ type Notification = {
 };
 
 export default function PusherNotifications() {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { userId, channel, isInitialized, forceReconnect } = usePusherContext();
   const [isConnected, setIsConnected] = useState(false);
@@ -102,7 +104,7 @@ export default function PusherNotifications() {
   if (!isInitialized) {
     return (
       <div className="p-2 text-sm text-gray-400">
-        Initializing notifications...
+        {t('common.loading')}
       </div>
     );
   }
@@ -110,16 +112,16 @@ export default function PusherNotifications() {
   return (
     <div className="p-2 border rounded-lg bg-white shadow-sm">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-md font-medium">Notifications</h3>
+        <h3 className="text-md font-medium">{t('notifications.title')}</h3>
         <div className="flex items-center gap-2">
           <span className={`inline-block w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
-          <span className="text-xs text-gray-500">{isConnected ? 'Connected' : 'Disconnected'}</span>
+          <span className="text-xs text-gray-500">{isConnected ? t('common.connected') : t('common.disconnected')}</span>
           {!isConnected && (
             <button 
               onClick={handleReconnect}
               className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded"
             >
-              Reconnect
+              {t('common.reconnect')}
             </button>
           )}
         </div>
@@ -127,9 +129,9 @@ export default function PusherNotifications() {
       
       <div className="text-xs mb-2 text-gray-500">
         {userId ? (
-          <span>Channel: pharmacy.notifications.{userId}</span>
+          <span>{t('common.channel')}: pharmacy.notifications.{userId}</span>
         ) : (
-          <span className="text-red-500">No user ID set - notifications disabled</span>
+          <span className="text-red-500">{t('common.noUserIdSet')}</span>
         )}
       </div>
       
@@ -144,9 +146,9 @@ export default function PusherNotifications() {
               >
                 <div className="flex justify-between mb-1">
                   <span className="font-medium text-sm">
-                    {notification.type === 'notification' && 'Notification'}
-                    {notification.type === 'order' && 'New Order'}
-                    {notification.type === 'prescription' && 'Prescription Update'}
+                    {notification.type === 'notification' && t('notifications.title')}
+                    {notification.type === 'order' && t('orders.newOrder')}
+                    {notification.type === 'prescription' && t('prescriptions.update')}
                   </span>
                   <span className="text-xs text-gray-500">
                     {new Date(notification.timestamp).toLocaleTimeString()}
@@ -158,7 +160,7 @@ export default function PusherNotifications() {
           </ul>
         ) : (
           <p className="text-sm text-gray-500 text-center py-4">
-            No notifications yet
+            {t('notifications.noNotifications')}
           </p>
         )}
       </div>

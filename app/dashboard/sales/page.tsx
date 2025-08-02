@@ -75,7 +75,7 @@ function SalesPage() {
   }
 
   if (!analytics) {
-    return <div>No data available</div>;
+    return <div>{t('common.noData')}</div>;
   }
 
   const statistics = [

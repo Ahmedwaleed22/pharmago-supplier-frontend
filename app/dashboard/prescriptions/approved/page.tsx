@@ -61,8 +61,8 @@ function PrescriptionRequestsPage() {
                 <rect x="36" y="28" width="8" height="4" rx="2" fill="#6366F1"/>
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-blue-gray mb-2">No Approved Prescriptions</h2>
-            <p className="text-gray-500 text-center max-w-xs">There are currently no approved prescriptions. Approved prescriptions will appear here once available.</p>
+            <h2 className="text-xl font-semibold text-blue-gray mb-2">{t('prescriptions.noApprovedPrescriptions')}</h2>
+            <p className="text-gray-500 text-center max-w-xs">{t('prescriptions.noApprovedPrescriptionsDescription')}</p>
           </div>
         )
       ) : (
