@@ -96,6 +96,20 @@ function PrescriptionCard({
     }
   };
 
+  const handlePriceChange = (value: string) => {
+    if (setPrice) {
+      const numericValue = value.replace(/[^0-9.]/g, '');
+      setPrice(numericValue);
+    }
+  };
+
+  const handleDiscountChange = (value: string) => {
+    if (setDiscount) {
+      const numericValue = value.replace(/[^0-9.]/g, '');
+      setDiscount(numericValue);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -246,7 +260,7 @@ function PrescriptionCard({
                           type="number"
                           placeholder={t("forms.pricePlaceholder")}
                           value={price}
-                          onChange={(e) => setPrice && setPrice(e.target.value)}
+                          onChange={(e) => setPrice && handlePriceChange(e.target.value)}
                         />
                         <div className="bg-muted aspect-square h-10 flex items-center justify-center border border-gray-200 rounded-r-md">
                           {currencySymbol}
@@ -265,7 +279,7 @@ function PrescriptionCard({
                           type="number"
                           placeholder={t("forms.discountPlaceholder")}
                           value={discount}
-                          onChange={(e) => setDiscount && setDiscount(e.target.value)}
+                          onChange={(e) => setDiscount && handleDiscountChange(e.target.value)}
                         />
                         <div className="bg-muted aspect-square h-10 flex items-center justify-center border border-gray-200 rounded-r-md">
                           %
