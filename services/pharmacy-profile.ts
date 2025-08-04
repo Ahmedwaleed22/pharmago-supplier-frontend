@@ -244,11 +244,11 @@ export async function deletePharmacyBranch(branchId: string): Promise<void> {
 export function validateProfileFiles(files: { [key: string]: File }): string[] {
   const errors: string[] = [];
   const maxSize = 5 * 1024 * 1024; // 5MB
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
   
   Object.entries(files).forEach(([key, file]) => {
     if (!allowedTypes.includes(file.type)) {
-      errors.push(`${key} must be a valid image file (JPEG, PNG, GIF)`);
+      errors.push(`${key} must be a valid image file (JPEG, PNG, GIF, WebP)`);
     }
     
     const sizeMB = Math.round(file.size / (1024 * 1024) * 100) / 100;

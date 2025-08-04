@@ -388,7 +388,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/png, image/jpeg"
+            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
             onChange={handleFileChange}
             className="hidden"
           />
