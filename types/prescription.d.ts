@@ -1,3 +1,5 @@
+import { PrescriptionStatus } from "@/enums/prescription-status";
+
 declare module Prescription {
   export interface Prescription {
     id: string;
@@ -10,5 +12,9 @@ declare module Prescription {
     prescription_text: string | null;
     created_at: string;
     status: string;
+  }
+
+  export interface PrescriptionStatus {
+    status: PrescriptionStatus;
   }
 }

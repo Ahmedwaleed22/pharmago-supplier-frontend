@@ -371,7 +371,8 @@
     "offerExpired": "Offer period has expired (24 hours)",
     "offerExpiredDescription": "You can no longer make an offer for this prescription.",
     "emptyRequestsTitle": "No Prescription Requests",
-    "emptyRequestsDescription": "You're all caught up! New prescription requests will appear here as soon as patients submit them."
+    "emptyRequestsDescription": "You're all caught up! New prescription requests will appear here as soon as patients submit them.",
+    "alreadySentOffer": "You already sent an offer for this prescription"
   },
   "delivery": {
     "title": "Delivery",

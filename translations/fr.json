@@ -367,7 +367,8 @@
     "medicineList": "Liste des médicaments",
     "image": "Image",
     "offerExpired": "La période d'offre a expiré (24 heures)",
-    "offerExpiredDescription": "Vous ne pouvez plus faire d'offre pour cette ordonnance."
+    "offerExpiredDescription": "Vous ne pouvez plus faire d'offre pour cette ordonnance.",
+    "alreadySentOffer": "Vous avez déjà envoyé une offre pour cette ordonnance"
   },
   "delivery": {
     "title": "Livraison",

@@ -367,7 +367,8 @@
     "medicineList": "Lista de medicamentos",
     "image": "Imagen",
     "offerExpired": "El período de oferta ha expirado (24 horas)",
-    "offerExpiredDescription": "Ya no puedes hacer una oferta para esta receta."
+    "offerExpiredDescription": "Ya no puedes hacer una oferta para esta receta.",
+    "alreadySentOffer": "Ya enviaste una oferta para esta receta"
   },
   "delivery": {
     "title": "Entrega",

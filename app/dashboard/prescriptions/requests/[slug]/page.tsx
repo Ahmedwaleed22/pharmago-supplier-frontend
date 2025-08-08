@@ -1,7 +1,7 @@
 "use client";
 import PrescriptionCard from "@/components/prescription-card";
 import DashboardCard from "@/components/ui/dashboard/dashboard-card";
-import { getXmlValue } from "@/helpers/prescriptions";
+import { getXmlValue, formatPrescriptionDate } from "@/helpers/prescriptions";
 import DashboardWithBreadcrumbsLayout from "@/layouts/dashboard-with-breadcrumbs-layout";
 import { fetchPrescription } from "@/services/prescriptions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -157,7 +157,7 @@ function PrescriptionDetailsPage() {
               </div>
               <div><b>{t('prescriptions.by')}:</b> {prescription.patient?.name}</div>
               <div><b>{t('orderHistory.type')}:</b> {prescription.status}</div>
-              <div><b>{t('orderHistory.date')}:</b> {prescription.created_at}</div>
+              <div><b>{t('orderHistory.date')}:</b> {formatPrescriptionDate(prescription.created_at, true, t)}</div>
             </div>
           </div>
 

@@ -19,6 +19,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getCurrencySymbol } from "@/store/authSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { Prescription } from "@/types/prescription";
+import { PrescriptionStatus } from "@/enums/prescription-status";
 
 type PrescriptionCardStatus =
   | "request"
@@ -35,6 +37,7 @@ interface PrescriptionCardProps {
   setPrice?: Dispatch<SetStateAction<string>>;
   discount?: string;
   setDiscount?: Dispatch<SetStateAction<string>>;
+  hideLive?: boolean;
 }
 
 function PrescriptionCard({
@@ -45,6 +48,7 @@ function PrescriptionCard({
   setPrice,
   discount,
   setDiscount,
+  hideLive = false,
 }: PrescriptionCardProps) {
   const queryClient = useQueryClient();
   const currencySymbol = useSelector((state: RootState) => getCurrencySymbol(state));  
@@ -118,8 +122,14 @@ function PrescriptionCard({
           ? "gap-1"
           : "gap-4",
         status !== "delivery-status" ? "bg-white shadow-sm" : "",
+        status === "approved" ? "cursor-pointer" : "",
         className
       )}
+      onClick={() => {
+        if (status === "approved") {
+          router.push(`/dashboard/prescriptions/requests/${prescription.id}`);
+        }
+      }}
     >
       <div
         className={`flex ${
@@ -202,9 +212,15 @@ function PrescriptionCard({
             {t("prescriptions.client")})
           </span>
           <div className="text-muted-gray mt-1">
-            {formatPrescriptionDate(prescription.created_at, true, t, isRtl)} (
-            {t("prescriptions.live")}:{" "}
-            {getTranslatedTimeAgo(prescription.created_at, t, isRtl)})
+            {formatPrescriptionDate(prescription.created_at, true, t, isRtl)}
+            {!hideLive && (
+              <>
+                {" "}(
+                  {t("prescriptions.live")}:{" "}
+                  {getTranslatedTimeAgo(prescription.created_at, t, isRtl)}
+                )
+              </>
+            )}
           </div>
           {/* {status === "approved" && (
             <CustomButton
@@ -236,7 +252,13 @@ function PrescriptionCard({
           )}
           {status === "offer" && (
             <div className="my-4">
-              {isOfferExpired(prescription.created_at) ? (
+              {prescription.status === PrescriptionStatus.ORDER_PLACED ? (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 text-center">
+                  <p className="text-red-600 font-medium">
+                    {t("prescriptions.alreadySentOffer")}
+                  </p>
+                </div>
+              ) : isOfferExpired(prescription.created_at) ? (
                 <div className="bg-red-50 border border-red-200 rounded-md p-4 text-center">
                   <p className="text-red-600 font-medium">
                     {t("prescriptions.offerExpired") || "Offer period has expired (24 hours)"}

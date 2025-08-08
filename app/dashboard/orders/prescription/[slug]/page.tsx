@@ -7,7 +7,7 @@ import { useTranslation } from "@/contexts/i18n-context";
 import { Icon } from "@iconify/react";
 import DashboardCard from "@/components/ui/dashboard/dashboard-card";
 import { fetchOrder } from "@/services/orders";
-import { getXmlValue } from "@/helpers/prescriptions";
+import { formatPrescriptionDate, getXmlValue } from "@/helpers/prescriptions";
 import Image from "next/image";
 
 function PrescriptionOrderDetailsPage() {
@@ -194,7 +194,7 @@ function PrescriptionOrderDetailsPage() {
             <div><b>{t('orders.customer')}:</b> {order.user?.name}</div>
             <div><b>{t('orderHistory.status')}:</b> {getStatusTranslation(order.status)}</div>
             <div><b>{t('orders.paymentStatus')}:</b> {getPaymentStatusTranslation(order.payment_status)}</div>
-            <div><b>{t('orderHistory.date')}:</b> {order.created_at}</div>
+            <div><b>{t('orderHistory.date')}:</b> {formatPrescriptionDate(order.created_at, true, t)}</div>
             <div><b>{t('orders.total')}:</b> {order.total} {order.currency?.code || 'USD'}</div>
           </div>
         </div>

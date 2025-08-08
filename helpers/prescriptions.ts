@@ -33,7 +33,7 @@ export function formatPrescriptionDate(
 
   // Handle RTL layout if translation context is available
   
-  return `${day} ${month} ${year}`.trim();
+  return `${day} ${month} ${year} ${time}`.trim();
 }
 
 export function getTranslatedTimeAgo(

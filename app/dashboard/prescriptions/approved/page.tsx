@@ -46,7 +46,7 @@ function PrescriptionRequestsPage() {
         prescriptions.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-5">
             {prescriptions?.map((prescription, index) => (
-              <PrescriptionCard key={index} status="approved" prescription={prescription} />
+              <PrescriptionCard key={index} status="request" prescription={prescription} hideLive={true} />
             ))}
           </div>
         ) : (
