@@ -397,7 +397,9 @@
     "markingAsRead": "(marquage comme lu...)",
     "failedToFetch": "Échec de récupération des notifications",
     "failedToMarkRead": "Échec du marquage de la notification comme lue",
-    "failedToMarkAllRead": "Échec du marquage de toutes les notifications comme lues"
+    "failedToMarkAllRead": "Échec du marquage de toutes les notifications comme lues",
+    "prescription_offer_title": "Nouvelle Offre de Prescription",
+    "prescription_offer_description": "Vous avez reçu une offre pour votre prescription"
   },
   "breadcrumbs": {
     "dashboard": "Tableau de bord",

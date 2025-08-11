@@ -397,7 +397,9 @@
     "markingAsRead": "(marcando como leído...)",
     "failedToFetch": "Error al obtener notificaciones",
     "failedToMarkRead": "Error al marcar la notificación como leída",
-    "failedToMarkAllRead": "Error al marcar todas las notificaciones como leídas"
+    "failedToMarkAllRead": "Error al marcar todas las notificaciones como leídas",
+    "prescription_offer_title": "Nueva Oferta de Receta",
+    "prescription_offer_description": "Has recibido una oferta para tu receta"
   },
   "breadcrumbs": {
     "dashboard": "Panel de control",

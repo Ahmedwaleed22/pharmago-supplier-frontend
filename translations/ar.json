@@ -401,7 +401,9 @@
     "markingAsRead": "(جاري التمييز كمقروء...)",
     "failedToFetch": "فشل في جلب الإشعارات",
     "failedToMarkRead": "فشل في تمييز الإشعار كمقروء",
-    "failedToMarkAllRead": "فشل في تمييز جميع الإشعارات كمقروءة"
+    "failedToMarkAllRead": "فشل في تمييز جميع الإشعارات كمقروءة",
+    "prescription_offer_title": "عرض وصفة طبية جديد",
+    "prescription_offer_description": "لقد تلقيت عرضاً لوصفتك الطبية"
   },
   "breadcrumbs": {
     "dashboard": "لوحة التحكم",
