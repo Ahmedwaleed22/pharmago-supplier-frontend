@@ -165,6 +165,20 @@ function PrescriptionRequestsPage() {
       // Force component re-render
       setForceRefresh(prev => prev + 1);
     }
+
+    // Handle removal notifications (prescription no longer available)
+    if (data.type === "prescription_removed" && data.prescription_id) {
+      const currentData = queryClient.getQueryData<Prescription.Prescription[]>(["pending-prescriptions"]);
+      if (currentData && currentData.length) {
+        const newData = currentData.filter(p => p.id !== data.prescription_id);
+        if (newData.length !== currentData.length) {
+          queryClient.setQueryData(["pending-prescriptions"], newData);
+        }
+      } else {
+        // Fallback: ensure UI sync
+        queryClient.invalidateQueries({ queryKey: ["pending-prescriptions"] });
+      }
+    }
   });
 
 

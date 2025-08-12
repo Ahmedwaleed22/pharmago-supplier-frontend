@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Pharmago Frontend (Next.js 15 / App Router)
 
-## Getting Started
+Pharmacy dashboard frontend built with Next.js 15, React 19, Tailwind CSS v4, TanStack Query, Redux Toolkit, and Pusher for realtime updates. Internationalized (ar, en, es, fr).
 
-First, run the development server:
+### Requirements
+- Node 20+
+- Yarn
 
+### Quick start
+1) Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2) Environment
+Create a `.env.local` with:
+```bash
+NEXT_PUBLIC_PHARMACY_URL=http://localhost:8000
+NEXT_PUBLIC_PUSHER_APP_KEY=your_key
+NEXT_PUBLIC_PUSHER_CLUSTER=eu
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3) Run
+```bash
+yarn dev
+# opens http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Scripts
+- `yarn dev` — start Next.js dev server
+- `yarn build` — production build
+- `yarn start` — start production server
+- `yarn lint` — run Next.js lint
+- `yarn add-translation` — scaffold keys in all locales
+- `yarn test-translations` — validate missing/extra translation keys
 
-## Learn More
+### i18n
+- Translations in `translations/{ar,en,es,fr}.json`
+- App utilities in `lib/i18n.ts`, API i18n in `lib/api-i18n.ts`
+- See `docs/i18n-guide.md` and `README-i18n.md`
 
-To learn more about Next.js, take a look at the following resources:
+### API and Auth
+- Axios configured in `config/api.ts` with `NEXT_PUBLIC_PHARMACY_URL`
+- Requests attach Bearer token via interceptors (see `lib/api` and `lib/server-auth`)
+- Ensure Laravel backend Sanctum/CORS settings are configured for `localhost:3000`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Realtime (Pusher)
+- Config in `config/pusher.ts`
+- Client usage examples in `components/providers/PusherProvider.tsx` and `docs/pusher-integration.md`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Build/Deploy
+- Next.js config at `next.config.ts` (images, CORS headers, ignoring type/lint errors in build)
+- Tailwind v4 config with `tailwind.config.ts` and PostCSS v4
 
-## Deploy on Vercel
+### Troubleshooting
+- 401s: confirm cookies/token available and backend `SANCTUM_STATEFUL_DOMAINS` includes `localhost:3000`
+- CORS: backend `FRONTEND_URL` and frontend `NEXT_PUBLIC_PHARMACY_URL` must match the dev hosts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
