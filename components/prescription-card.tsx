@@ -13,7 +13,7 @@ import {
   getTranslatedTimeAgo,
   isOfferExpired,
 } from "@/helpers/prescriptions";
-import { sendPrescriptionOffer } from "@/services/prescriptions";
+import { sendPrescriptionOffer, dismissPrescription } from "@/services/prescriptions";
 import { useTranslation } from "@/contexts/i18n-context";
 import { useQueryClient } from "@tanstack/react-query";
 import { getCurrencySymbol } from "@/store/authSlice";
@@ -322,7 +322,22 @@ function PrescriptionCard({
                     </CustomButton>
                     <CustomButton
                       className="flex-1 bg-gray-100 text-red-500 hover:bg-gray-200 py-3 rounded-md"
-                      onClick={() => router.back()}
+                      onClick={async () => {
+                        try {
+                          await dismissPrescription(prescription.id);
+                          // Remove from local cache instantly
+                          queryClient.setQueryData<Prescription.Prescription[] | undefined>(
+                            ["pending-prescriptions"],
+                            (old) => old ? old.filter(p => p.id !== prescription.id) : old
+                          );
+                          // Invalidate to refetch server state
+                          queryClient.invalidateQueries({ queryKey: ["pending-prescriptions"] });
+                          queryClient.invalidateQueries({ queryKey: ["notifications"] });
+                          router.back();
+                        } catch (err: any) {
+                          setError(err.message || t("common.error"));
+                        }
+                      }}
                     >
                       {t("common.cancel")}
                     </CustomButton>

@@ -1,6 +1,6 @@
 import { PrescriptionStatus } from "@/enums/prescription-status";
 
-declare module Prescription {
+declare namespace Prescription {
   export interface Prescription {
     id: string;
     name: string;
