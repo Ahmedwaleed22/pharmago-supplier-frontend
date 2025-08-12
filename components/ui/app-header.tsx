@@ -121,11 +121,15 @@ function AppHeader() {
 
   // Handle new notification events from Pusher
   usePusherEvent<PusherNotificationEvent>(PUSHER_EVENTS.NOTIFICATION, (data) => {    
-    // Play notification sound
-    playNotificationSound();
-    
+    // Silent removal events should not play any sounds or show toasts
+    if (data.type === "prescription_removed") {
+      return;
+    }
+
     // Handle different types of notifications
     if (data.type === "new_prescription") {
+      // Play sound only for new prescription arrivals
+      playNotificationSound();
       // This is a prescription notification, don't update the notifications list
       // Show browser notification for prescription
       if ("Notification" in window && Notification.permission === "granted") {
@@ -135,6 +139,8 @@ function AppHeader() {
         });
       }
     } else if (data.notification) {
+      // Play sound for regular notifications
+      playNotificationSound();
       // This is a regular notification, update the notifications list
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
 

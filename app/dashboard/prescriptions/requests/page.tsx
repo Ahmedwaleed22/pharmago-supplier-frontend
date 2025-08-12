@@ -166,8 +166,13 @@ function PrescriptionRequestsPage() {
       setForceRefresh(prev => prev + 1);
     }
 
-    // Handle removal notifications (prescription no longer available)
+    // Handle removal notifications (prescription no longer available) - silent (no sound)
     if (data.type === "prescription_removed" && data.prescription_id) {
+      // Ensure no audio plays on removal events
+      if (newPrescriptionNotification.current) {
+        newPrescriptionNotification.current.pause();
+        newPrescriptionNotification.current.currentTime = 0;
+      }
       const currentData = queryClient.getQueryData<Prescription.Prescription[]>(["pending-prescriptions"]);
       if (currentData && currentData.length) {
         const newData = currentData.filter(p => p.id !== data.prescription_id);
