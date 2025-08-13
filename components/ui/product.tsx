@@ -47,9 +47,11 @@ function Product({ product }: { product: Product.Medicine }) {
             <span className="text-xs sm:text-sm font-bold text-primary">
               {formatPrice(Number(product.price) - (Number(product.price) * Number(product.discount_percentage) / 100), product.currency as Product.Currency)}
             </span>
-            <span className="text-[.7rem] font-bold text-gray-500 line-through">
-              {formatPrice(Number(product.price), product.currency as Product.Currency)}
-            </span>
+            {product.discount_percentage && Number(product.discount_percentage) > 0 && (
+              <span className="text-[.7rem] font-bold text-gray-500 line-through">
+                {formatPrice(Number(product.price), product.currency as Product.Currency)}
+              </span>
+            )}
           </div>
         </div>
       </div>
