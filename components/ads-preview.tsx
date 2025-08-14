@@ -69,15 +69,16 @@ function ADsPreview({
 
         <div className="flex flex-col gap-4">
           {images?.map((image) => (
-            <div key={image.id} className="w-full h-full">
+            <div key={image.id} className="w-full">
               <RenderHashTagAndLink />
-              <Image
-                src={image.url}
-                alt={image.name}
-                width={375}
-                height={150}
-                className="w-[375px] h-[150px] object-cover"
-              />
+              <div className="relative w-full max-w-[375px] aspect-[5/2] overflow-hidden rounded-lg">
+                <Image
+                  src={image.url}
+                  alt={image.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
             </div>
           ))}
         </div>

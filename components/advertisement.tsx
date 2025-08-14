@@ -84,15 +84,12 @@ function Advertisement({
 
   return (
     <div>
-      <div className="w-[375px] h-[150px] overflow-hidden rounded-lg shadow-md relative">
+      <div className="w-full max-w-[375px] overflow-hidden rounded-lg shadow-md relative aspect-[5/2]">
         <Image
           src={advertisement.image_url}
           alt={"Advertisement"}
-          width={375}
-          height={150}
-          objectFit="cover"
-          objectPosition="center"
-          className="w-full h-full"
+          fill
+          className="w-full h-full object-cover object-center"
         />
         <div className="absolute bottom-0 right-0 p-2 flex items-center gap-2">
           {advertisement.display_order == 0 ? (
