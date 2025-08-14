@@ -83,6 +83,8 @@ export async function POST(request: NextRequest) {
     // Get the form data from the request
     const formData = await request.formData();
     
+    console.log(formData.get('image_0'));
+
     // Forward the request to the actual API with the auth token
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_PHARMACY_URL}/ads`,
@@ -94,6 +96,8 @@ export async function POST(request: NextRequest) {
         }
       }
     );
+
+    console.log(response.data);
     
     // Return the API response
     return NextResponse.json(response.data, { status: response.status });
@@ -102,12 +106,12 @@ export async function POST(request: NextRequest) {
     console.error('Advertisement creation error:', error);
     
     // Return appropriate error response with translation
-    const errorResponse = await createTranslatedErrorResponse(
-      error, 
-      error.response?.status || 500, 
-      locale
-    );
-    return NextResponse.json(errorResponse, { status: error.response?.status || 500 });
+    // const errorResponse = await createTranslatedErrorResponse(
+    //   error, 
+    //   error.response?.status || 500, 
+    //   locale
+    // );
+    return NextResponse.json(error.response.data, { status: error.response?.status || 500 });
   }
 }
 

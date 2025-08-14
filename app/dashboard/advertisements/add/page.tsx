@@ -7,6 +7,7 @@ import { useTranslation } from "@/contexts/i18n-context";
 import ADsLayout from "@/layouts/ads-layout";
 import ImageUpload from "@/components/image-upload";
 import ADsPreview from "@/components/ads-preview";
+import axios from "axios";
 
 export interface ImageFile {
   file: File;
@@ -110,17 +111,14 @@ function ProductAddPage() {
 
   const createAdvertisementMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await fetch('/api/advertisements', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await axios.post('/api/advertisements', formData);
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+      if (response.status !== 200) {
+        const errorData = response.data;
         throw new Error(errorData.message || t('errors.general'));
       }
       
-      return response.json();
+      return response.data;
     },
     onSuccess: (data) => {
       console.log("Advertisement created successfully:", data);
