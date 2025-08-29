@@ -129,7 +129,7 @@ function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'pharmacy' | 'branches'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'pharmacy' | 'branches'>('pharmacy');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -460,19 +460,6 @@ function ProfilePage() {
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-8 pt-8" aria-label="Tabs">
             <button
-              onClick={() => setActiveTab('profile')}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm cursor-pointer ${
-                activeTab === 'profile'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <UserIcon className="w-4 h-4" />
-                <span>{t("profile.userProfile")}</span>
-              </div>
-            </button>
-            <button
               onClick={() => setActiveTab('pharmacy')}
               className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm cursor-pointer ${
                 activeTab === 'pharmacy'
@@ -483,6 +470,19 @@ function ProfilePage() {
               <div className="flex items-center space-x-2">
                 <BuildingIcon className="w-4 h-4" />
                 <span>{t("profile.pharmacyInfo")}</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm cursor-pointer ${
+                activeTab === 'profile'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <UserIcon className="w-4 h-4" />
+                <span>{t("profile.userProfile")}</span>
               </div>
             </button>
             <button
