@@ -596,7 +596,9 @@
     "deleteError": "Échec de la suppression de la publicité. Veuillez réessayer.",
     "setPrimarySuccess": "Publicité définie comme principale avec succès !",
     "setPrimaryError": "Échec de la définition de la publicité comme principale. Veuillez réessayer.",
-    "deleting": "Suppression en cours..."
+    "deleting": "Suppression en cours...",
+    "noAdvertisements": "Aucune publicité",
+    "noAdvertisementsDescription": "Il n'y a actuellement aucune publicité. Les nouvelles publicités apparaîtront ici une fois créées."
   },
   "map": {
     "selectLocation": "Sélectionner l'Emplacement",

@@ -47,8 +47,8 @@ function AdvertisementsPage() {
                 <rect x="36" y="28" width="8" height="4" rx="2" fill="#6366F1"/>
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-blue-gray mb-2">No Advertisements</h2>
-            <p className="text-gray-500 text-center max-w-xs">There are currently no advertisements. New advertisements will appear here once they are created.</p>
+            <h2 className="text-xl font-semibold text-blue-gray mb-2">{t("advertisements.noAdvertisements")}</h2>
+            <p className="text-gray-500 text-center max-w-xs">{t("advertisements.noAdvertisementsDescription")}</p>
           </div>
         )}
       </div>

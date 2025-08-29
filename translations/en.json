@@ -668,7 +668,9 @@
     "deleteError": "Failed to delete advertisement. Please try again.",
     "setPrimarySuccess": "Advertisement set as primary successfully!",
     "setPrimaryError": "Failed to set advertisement as primary. Please try again.",
-    "deleting": "Deleting..."
+    "deleting": "Deleting...",
+    "noAdvertisements": "No Advertisements",
+    "noAdvertisementsDescription": "There are currently no advertisements. New advertisements will appear here once they are created."
   },
   "map": {
     "selectLocation": "Select Location",

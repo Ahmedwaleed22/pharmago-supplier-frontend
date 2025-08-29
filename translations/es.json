@@ -599,7 +599,9 @@
     "deleteError": "Error al eliminar el anuncio. Por favor, inténtalo de nuevo.",
     "setPrimarySuccess": "¡Anuncio establecido como principal con éxito!",
     "setPrimaryError": "Error al establecer el anuncio como principal. Por favor, inténtalo de nuevo.",
-    "deleting": "Eliminando..."
+    "deleting": "Eliminando...",
+    "noAdvertisements": "No hay anuncios",
+    "noAdvertisementsDescription": "Actualmente no hay anuncios. Los nuevos anuncios aparecerán aquí una vez que se creen."
   },
   "map": {
     "selectLocation": "Seleccionar Ubicación",
