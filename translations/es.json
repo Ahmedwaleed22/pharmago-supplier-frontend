@@ -323,7 +323,14 @@
     "updating": "Actualizando...",
     "updateProduct": "Actualizar producto",
     "noProductsFound": "No se encontraron productos",
-    "noProductsFoundDescription": "Actualmente no hay productos para mostrar. Agrega un nuevo producto o ajusta tus filtros para ver resultados aquí."
+    "noProductsFoundDescription": "Actualmente no hay productos para mostrar. Agrega un nuevo producto o ajusta tus filtros para ver resultados aquí.",
+    "priceTiers": "Niveles de precios",
+    "addTier": "Añadir nivel",
+    "minQty": "Cant. mín",
+    "maxQty": "Cant. máx",
+    "noPriceTiers": "No se han añadido niveles de precios",
+    "addFirstTier": "Añadir primer nivel",
+    "priceTiersHelp": "Establezca diferentes precios según rangos de cantidad. Use '-' para rangos (ej: 100-300) o '+' para cantidades mínimas (ej: 500+)."
   },
   "categories": {
     "title": "Categorías",

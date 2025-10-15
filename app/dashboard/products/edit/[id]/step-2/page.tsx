@@ -12,6 +12,7 @@ import {
   setStock,
   setTag,
   setTagColor,
+  setPriceTiers,
 } from "@/store/ProductCreationSlice";
 import { useTranslation } from "@/contexts/i18n-context";
 import { ProductFormSkeleton, ProductPreviewSkeleton } from "@/components/ui/dashboard/product-form-skeleton";

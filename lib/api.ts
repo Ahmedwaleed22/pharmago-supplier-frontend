@@ -130,10 +130,10 @@ export async function logout(): Promise<void> {
   }
 }
 
-// Helper function to clear stored credentials
+// Helper function to clear stored remember data
 function clearStoredCredentials(): void {
   if (typeof window !== "undefined") {
-    rememberMeUtils.clearStoredCredentials();
+    rememberMeUtils.clearRememberData();
   }
 }
 

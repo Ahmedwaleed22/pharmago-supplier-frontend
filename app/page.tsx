@@ -8,6 +8,7 @@ import { isAuthenticated } from "@/lib/api";
 import { useTranslation } from "@/contexts/i18n-context";
 import LanguageSwitcher from "@/components/language-switcher";
 import { rememberMeUtils } from "@/lib/remember-me";
+import { migrateRememberMeData } from "@/lib/migrate-remember-me";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function LoginContent() {
@@ -30,26 +31,23 @@ function LoginContent() {
     }
   }, [message]);
 
-  // Load stored credentials on component mount
+  // Load stored email on component mount
   useEffect(() => {
+    // Migrate old insecure credentials to new secure system
+    migrateRememberMeData();
+
     // If user is already authenticated, redirect to dashboard
     if (isAuthenticated()) {
       window.location.href = "/dashboard";
     }
 
-    // Load stored credentials if they exist
-    const storedCredentials = rememberMeUtils.getStoredCredentials();
-    if (storedCredentials) {
-      setEmail(storedCredentials.email || "");
-      setPassword(storedCredentials.password || "");
-      setRememberMe(true); // Only set to true if credentials were actually stored
-    } else {
-      // If no full credentials, try to load just the email (but don't auto-check remember me)
-      const storedEmail = rememberMeUtils.getStoredEmail();
-      if (storedEmail) {
-        setEmail(storedEmail);
-        // Don't automatically set rememberMe to true for just email
-      }
+    // Load stored email if it exists (we no longer store passwords)
+    const storedEmail = rememberMeUtils.getStoredEmail();
+    if (storedEmail) {
+      setEmail(storedEmail);
+      // Check if there's also a remember token
+      const hasToken = rememberMeUtils.hasRememberToken();
+      setRememberMe(hasToken);
     }
     setIsFormReady(true);
   }, [router]);
@@ -58,21 +56,21 @@ function LoginContent() {
   const handleRememberMeChange = (checked: boolean) => {
     setRememberMe(checked);
     
-    // If unchecked, clear stored credentials
+    // If unchecked, clear stored remember data
     if (!checked) {
-      rememberMeUtils.clearStoredCredentials();
+      rememberMeUtils.clearRememberData();
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Store credentials if remember me is checked
+    // Store only email if remember me is checked (token will come from backend)
     if (rememberMe) {
-      rememberMeUtils.storeCredentials(email, password);
+      rememberMeUtils.storeEmailOnly(email);
     } else {
-      // Clear credentials if remember me is unchecked
-      rememberMeUtils.clearStoredCredentials();
+      // Clear remember data if remember me is unchecked
+      rememberMeUtils.clearRememberData();
     }
     
     login.mutate({ email, password, remember: rememberMe }, {
@@ -82,25 +80,15 @@ function LoginContent() {
     });
   };
 
-  // Clear specific credential when user starts typing new values
+  // Handle email change
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
-    
-    // If user changes email and remember me is on, update stored credentials
-    if (rememberMe && rememberMeUtils.hasStoredCredentials()) {
-      rememberMeUtils.updateStoredCredentials(newEmail, password);
-    }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
-    
-    // If user changes password and remember me is on, update stored credentials
-    if (rememberMe && rememberMeUtils.hasStoredCredentials()) {
-      rememberMeUtils.updateStoredCredentials(email, newPassword);
-    }
   };
 
   // Show loading state while checking for stored credentials

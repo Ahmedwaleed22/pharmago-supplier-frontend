@@ -7,6 +7,14 @@ interface ProductImage {
   size?: number;
 }
 
+export interface PriceTier {
+  id: string;
+  minQuantity: string;
+  maxQuantity: string;
+  operator: "range" | "plus";
+  price: string;
+}
+
 export interface ProductState {
   name: string;
   subName: string;
@@ -22,6 +30,7 @@ export interface ProductState {
   tagColor: string;
   image: string; // Keep for backward compatibility
   images: ProductImage[]; // New field for multiple images
+  priceTiers: PriceTier[]; // Price tier configuration
 }
 
 const initialState: ProductState = {
@@ -39,6 +48,7 @@ const initialState: ProductState = {
   tagColor: "#2970FF",
   image: "", // Keep for backward compatibility
   images: [] as ProductImage[], // New field for multiple images
+  priceTiers: [] as PriceTier[], // Price tier configuration
 };
 
 const productCreationSlice = createSlice({
@@ -161,6 +171,22 @@ const productCreationSlice = createSlice({
         state.image = state.images[primaryIndex].url;
       }
     },
+    setPriceTiers: (state, action: PayloadAction<PriceTier[]>) => {
+      state.priceTiers = action.payload;
+    },
+    addPriceTier: (state, action: PayloadAction<PriceTier>) => {
+      state.priceTiers.push(action.payload);
+    },
+    removePriceTier: (state, action: PayloadAction<string>) => {
+      state.priceTiers = state.priceTiers.filter(tier => tier.id !== action.payload);
+    },
+    updatePriceTier: (state, action: PayloadAction<{ id: string; field: keyof PriceTier; value: string }>) => {
+      const { id, field, value } = action.payload;
+      const tier = state.priceTiers.find(t => t.id === id);
+      if (tier) {
+        (tier[field] as any) = value;
+      }
+    },
     removeAllItems: (state) => {
       state.name = "";
       state.subName = "";
@@ -175,6 +201,7 @@ const productCreationSlice = createSlice({
       state.tag = "";
       state.tagColor = "";
       state.images = [];
+      state.priceTiers = [];
     },
     resetProductCreation: () => initialState
   },
@@ -198,6 +225,10 @@ export const {
   addImage,
   removeImage,
   setPrimaryImage,
+  setPriceTiers,
+  addPriceTier,
+  removePriceTier,
+  updatePriceTier,
   removeAllItems,
   resetProductCreation
 } = productCreationSlice.actions;

@@ -323,7 +323,14 @@
     "updating": "Mise à jour en cours...",
     "updateProduct": "Mettre à jour le produit",
     "noProductsFound": "Aucun produit trouvé",
-    "noProductsFoundDescription": "Il n'y a actuellement aucun produit à afficher. Ajoutez un nouveau produit ou ajustez vos filtres pour voir les résultats ici."
+    "noProductsFoundDescription": "Il n'y a actuellement aucun produit à afficher. Ajoutez un nouveau produit ou ajustez vos filtres pour voir les résultats ici.",
+    "priceTiers": "Paliers de prix",
+    "addTier": "Ajouter un palier",
+    "minQty": "Qté min",
+    "maxQty": "Qté max",
+    "noPriceTiers": "Aucun palier de prix ajouté",
+    "addFirstTier": "Ajouter le premier palier",
+    "priceTiersHelp": "Définissez différents prix en fonction des plages de quantité. Utilisez '-' pour les plages (ex: 100-300) ou '+' pour les quantités minimales (ex: 500+)."
   },
   "categories": {
     "title": "Catégories",
