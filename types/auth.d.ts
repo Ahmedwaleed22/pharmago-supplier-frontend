@@ -12,7 +12,7 @@ declare module Auth {
     account_type?: string;
   }
 
-  interface Pharmacy {
+  interface Supplier {
     id: string;
     name: string;
     description?: string | null;
@@ -28,9 +28,9 @@ declare module Auth {
     branches_count: number;
   }
 
-  interface PharmacyBranch {
+  interface SupplierBranch {
     id: string;
-    pharmacy_id: string;
+    supplier_id: string;
     name: string;
     address: string;
     latitude: string | number;
@@ -77,7 +77,7 @@ declare module Auth {
 
   interface LoginResponse {
     token: string;
-    pharmacy: Pharmacy;
+    supplier: Supplier;
     user: User;
     message?: string;
   }
@@ -86,9 +86,9 @@ declare module Auth {
   interface ProfileResponse {
     data: {
       user: User;
-      pharmacy: Pharmacy;
-      branch: PharmacyBranch;
-      branches: PharmacyBranch[];
+      supplier: Supplier;
+      branch: SupplierBranch;
+      branches: SupplierBranch[];
     };
   }
 
@@ -99,7 +99,7 @@ declare module Auth {
     phone_number?: string;
     password?: string;
     avatar?: File | string;
-    pharmacy?: {
+    supplier?: {
       name?: string;
       description?: string;
       country_id?: string;
@@ -121,8 +121,8 @@ declare module Auth {
     phone_number?: string;
     password?: string;
     password_confirmation?: string;
-    pharmacy_name?: string;
-    pharmacy_description?: string;
+    supplier_name?: string;
+    supplier_description?: string;
     country_id?: string;
     branch_name?: string;
     branch_address?: string;

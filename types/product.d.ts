@@ -46,4 +46,12 @@ declare module Product {
     color: string;
     title: string;
   }
+
+  export interface PriceTier {
+    id: string;
+    min_quantity: number;
+    max_quantity: number;
+    price: number;
+    tier_order: number;
+  }
 }

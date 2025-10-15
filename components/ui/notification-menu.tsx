@@ -6,7 +6,7 @@ import { usePusherEvent } from "@/hooks/usePusherEvent";
 import { PUSHER_EVENTS } from "@/config/pusher";
 import { markNotificationAsRead, markAllNotificationsAsRead } from "@/services/dashboard";
 import { useSelector } from "react-redux";
-import { getPharmacy } from "@/store/authSlice";
+import { getSupplier } from "@/store/authSlice";
 import { useI18n, useTranslation } from "@/contexts/i18n-context";
 
 interface PusherNotificationEvent {
@@ -20,7 +20,7 @@ interface NotificationMenuProps {
 }
 
 const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) => {
-  const pharmacy = useSelector(getPharmacy);
+  const supplier = useSelector(getSupplier);
   const menuRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const [currentLimit, setCurrentLimit] = useState(3); // Start with 3 notifications
@@ -221,9 +221,9 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
                 onClick={() => !markAsReadMutation.isPending && handleNotificationClick(notification)}
               >
                 <div className="relative">
-                  {notification.logo || pharmacy?.logo && (
+                  {notification.logo || supplier?.logo && (
                     <Image
-                      src={notification.logo || pharmacy?.logo}
+                      src={notification.logo || supplier?.logo}
                       alt={notification.title}
                       width={40}
                       height={40}

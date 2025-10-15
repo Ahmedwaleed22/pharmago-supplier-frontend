@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const locale = getLocaleFromRequest(request);
     const cookieHeader = request.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     
     // Try new profile endpoint first, fall back to old user endpoint
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_SUPPLIER_URL}/user`, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Accept-Language': locale,
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     } catch (newEndpointError) {
       // Fall back to old endpoint for backward compatibility
       console.log('New endpoint failed, falling back to old endpoint');
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_SUPPLIER_URL}/user`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return NextResponse.json(response.data);
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
   try {
     const locale = getLocaleFromRequest(request);
     const cookieHeader = request.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     
     // Try new profile endpoint first, fall back to old user endpoint
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, formData, { 
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SUPPLIER_URL}/user`, formData, { 
         headers: { 
           Authorization: `Bearer ${token}`,
           'Accept-Language': locale,
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     } catch (newEndpointError) {
       // Fall back to old endpoint for backward compatibility
       console.log('New endpoint failed, falling back to old endpoint');
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, formData, { 
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SUPPLIER_URL}/user`, formData, { 
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

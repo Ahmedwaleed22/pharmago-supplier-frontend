@@ -66,7 +66,7 @@ function ForgetPasswordPage() {
       <div className="relative flex-1 hidden lg:block">
         <div className="absolute inset-0">
           <Image
-            src="/images/pharmacy-login-bg.png"
+            src="/images/supplier-login-bg.png"
             alt="Pharmacist"
             fill
             className="object-cover"

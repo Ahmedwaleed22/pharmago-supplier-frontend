@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_SUPPLIER_URL;
 
 export async function POST(request: NextRequest) {
   try {

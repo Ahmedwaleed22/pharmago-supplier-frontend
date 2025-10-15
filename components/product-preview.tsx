@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { getCurrency, getPharmacy } from "@/store/authSlice";
+import { getCurrency, getSupplier } from "@/store/authSlice";
 import { formatPrice } from "@/helpers/products";
 import { createMainCategoriesQueryOptions } from "@/query-options/categories-query-options";
 import { useQuery } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ interface ProductPreviewProps {
 function ProductPreview({ className }: ProductPreviewProps) {
   const productData = useSelector((state: any) => state.productCreation);
   const currency = useSelector(getCurrency);
-  const pharmacy = useSelector(getPharmacy);
+  const supplier = useSelector(getSupplier);
   const router = useRouter();
   const { t, isRtl } = useTranslation();
 
@@ -134,8 +134,8 @@ function ProductPreview({ className }: ProductPreviewProps) {
             )}
           </div>
           <div className={`flex items-center ml-auto`}>
-            {pharmacy?.logo && (
-              <Image className="h-8 w-auto" src={pharmacy?.logo} alt={pharmacy?.name || ""} width={100} height={32} />
+            {supplier?.logo && (
+              <Image className="h-8 w-auto" src={supplier?.logo} alt={supplier?.name || ""} width={100} height={32} />
             )}
           </div>
         </div>

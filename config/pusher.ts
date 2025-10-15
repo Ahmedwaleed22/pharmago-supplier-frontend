@@ -4,8 +4,8 @@
 export const PUSHER_CONFIG = {
   APP_KEY: process.env.NEXT_PUBLIC_PUSHER_APP_KEY || '',
   CLUSTER: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'eu',
-  CHANNEL_NAME_PREFIX: 'pharmacy.notifications.',
-  getChannelName: (userId: string | number) => `pharmacy.notifications.${userId}`,
+  CHANNEL_NAME_PREFIX: 'supplier.notifications.',
+  getChannelName: (userId: string | number) => `supplier.notifications.${userId}`,
 };
 
 /**

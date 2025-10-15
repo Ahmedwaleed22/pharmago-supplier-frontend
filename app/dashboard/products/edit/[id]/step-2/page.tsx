@@ -6,12 +6,14 @@ import { useDispatch, useSelector } from "react-redux";
 import ProductLayout from "@/layouts/product-layout";
 import LabeledInput from "@/components/labeled-input";
 import ProductPreview from "@/components/product-preview";
+import PriceTierInput from "@/components/price-tier-input";
 import {
   setPrice,
   setDiscount,
   setStock,
   setTag,
   setTagColor,
+  setPriceTiers,
 } from "@/store/ProductCreationSlice";
 import { useTranslation } from "@/contexts/i18n-context";
 import { ProductFormSkeleton, ProductPreviewSkeleton } from "@/components/ui/dashboard/product-form-skeleton";
@@ -91,6 +93,11 @@ function ProductEditStep2Page({ params }: { params: Promise<{ id: string }> }) {
             onChange={(value) => dispatch(setTag(value))}
             onColorChange={(value) => dispatch(setTagColor(value))}
             color={productData.tagColor}
+          />
+
+          <PriceTierInput
+            tiers={productData.priceTiers || []}
+            onChange={(tiers) => dispatch(setPriceTiers(tiers))}
           />
 
           <button

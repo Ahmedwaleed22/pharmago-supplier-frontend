@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import SearchBar from "./search-bar";
 import NotificationMenu from "./notification-menu";
 import { useSelector } from "react-redux";
-import { getPharmacy } from "@/store/authSlice";
+import { getSupplier } from "@/store/authSlice";
 import { RootState } from "@/store/store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createNotificationsQueryOptions } from "@/query-options/notifications-query-options";
@@ -29,7 +29,7 @@ interface PusherNotificationEvent {
 function AppHeader() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
-  const pharmacy = useSelector(getPharmacy);
+  const supplier = useSelector(getSupplier);
   const isAuthLoading = useSelector((state: RootState) => state.auth.isLoading);
   const queryClient = useQueryClient();
   const { logout } = useAuth();
@@ -43,6 +43,8 @@ function AppHeader() {
   const { data: notificationResponse } = useQuery(createNotificationsQueryOptions(0, 1, locale));
   const unreadCount = notificationResponse?.meta?.unread_count || 0;
 
+
+  console.log(supplier);
   // Handle global clicks to close notification menu
   useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
@@ -203,7 +205,7 @@ function AppHeader() {
               onClose={() => setIsNotificationMenuOpen(false)}
             />
           </div>
-          {isAuthLoading || !pharmacy ? (
+          {isAuthLoading || !supplier ? (
             // Loading skeleton
             <div className="flex items-center gap-2 p-1">
               <div className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px] rounded-full bg-gray-200 animate-pulse" />
@@ -216,16 +218,16 @@ function AppHeader() {
             <Dropdown placement="bottom-end">
               <DropdownTrigger className="cursor-pointer">
                 <div className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors">
-                  {pharmacy?.logo && (
+                  {supplier?.logo && (
                     <Image
-                      src={pharmacy?.logo}
-                      alt={pharmacy?.name}
+                      src={supplier?.logo}
+                      alt={supplier?.name}
                       width={40}
                       height={40}
                       className="sm:w-[48px] sm:h-[48px] w-[40px] h-[40px] rounded-full"
                       unoptimized={true}
                       onError={(e) => {
-                        console.warn('Failed to load pharmacy logo in header:', pharmacy?.logo);
+                        console.warn('Failed to load supplier logo in header:', supplier?.logo);
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
                       }}
@@ -233,10 +235,10 @@ function AppHeader() {
                   )}
                   <div className="flex flex-col sm:flex">
                     <h2 className="text-sm font-medium text-blue-gray">
-                      {pharmacy?.name}
+                      {supplier?.name}
                     </h2>
                     <h3 className="text-xs font-medium text-[#717171]">
-                      {t('auth.pharmacyAdmin')}
+                      {t('auth.supplierAdmin')}
                     </h3>
                   </div>
                 </div>

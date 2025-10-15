@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     
     // Forward the request to the actual API with the auth token
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`, 
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/user`, 
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response.data);
   } catch (error: any) {
     const locale = getLocaleFromRequest(request);
-    console.error('Pharmacy profile API route error:', error);
+    console.error('Supplier profile API route error:', error);
     
     // Return appropriate error response with translation
     const errorResponse = await createTranslatedErrorResponse(
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     
     // Forward the request to the actual API with the auth token
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/user`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/user`,
       formData,
       {
         headers: {
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response.data);
   } catch (error: any) {
     const locale = getLocaleFromRequest(request);
-    console.error('Pharmacy profile update API route error:', error);
+    console.error('Supplier profile update API route error:', error);
     
     // Return appropriate error response with translation
     // const errorResponse = await createTranslatedErrorResponse(

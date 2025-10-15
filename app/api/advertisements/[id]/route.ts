@@ -14,7 +14,7 @@ export async function DELETE(
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -28,7 +28,7 @@ export async function DELETE(
     
     // Forward the DELETE request to the actual API with the auth token
     const response = await axios.delete(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/ads/${id}`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/ads/${id}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -67,7 +67,7 @@ export async function PATCH(
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -81,7 +81,7 @@ export async function PATCH(
     
     // Forward the PATCH request to the actual API with the auth token
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/ads/${id}`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/ads/${id}`,
       body,
       {
         headers: {

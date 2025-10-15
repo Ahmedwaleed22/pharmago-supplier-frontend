@@ -10,9 +10,9 @@ import Breadcrumb from "@/components/ui/breadcrumb";
 import GoogleMapPicker from "@/components/google-map-picker";
 import CountryCodeSelect from "@/components/ui/country-code-select";
 import {
-  getPharmacyBranches,
-  updatePharmacyBranch,
-} from "@/services/pharmacy-profile";
+  getSupplierBranches,
+  updateSupplierBranch,
+} from "@/services/supplier-profile";
 import DashboardLayoutWithBreadcrumb from "@/layouts/dashboard-with-breadcrumbs-layout";
 
 interface FormData {
@@ -50,7 +50,7 @@ const EditBranchPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [countryCode, setCountryCode] = useState("");
-  const [originalBranch, setOriginalBranch] = useState<Auth.PharmacyBranch | null>(null);
+  const [originalBranch, setOriginalBranch] = useState<Auth.SupplierBranch | null>(null);
 
   // Map picker state
   const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
@@ -70,7 +70,7 @@ const EditBranchPage: React.FC = () => {
   const loadBranchData = async () => {
     try {
       setIsLoading(true);
-      const branches = await getPharmacyBranches();
+      const branches = await getSupplierBranches();
       const branch = branches.find(b => b.id === branchId);
       
       if (!branch) {
@@ -268,7 +268,7 @@ const EditBranchPage: React.FC = () => {
         phone_number: fullPhoneNumber,
       };
 
-      await updatePharmacyBranch(branchId, branchData);
+      await updateSupplierBranch(branchId, branchData);
       
       // Redirect to branches list on success
       router.push("/dashboard/profile");

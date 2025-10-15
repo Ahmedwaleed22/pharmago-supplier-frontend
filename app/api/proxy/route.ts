@@ -3,7 +3,7 @@ import axios from 'axios';
 import { headers as nextHeaders } from 'next/headers';
 import FormData from 'form-data';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_SUPPLIER_URL || '';
 
 // Helper function to get Accept-Language header from locale
 function getAcceptLanguageHeader(request: NextRequest, headersFromBody?: Record<string, string>): string {

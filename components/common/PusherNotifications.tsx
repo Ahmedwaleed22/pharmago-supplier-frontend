@@ -129,7 +129,7 @@ export default function PusherNotifications() {
       
       <div className="text-xs mb-2 text-gray-500">
         {userId ? (
-          <span>{t('common.channel')}: pharmacy.notifications.{userId}</span>
+          <span>{t('common.channel')}: supplier.notifications.{userId}</span>
         ) : (
           <span className="text-red-500">{t('common.noUserIdSet')}</span>
         )}

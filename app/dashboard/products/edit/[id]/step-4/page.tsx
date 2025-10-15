@@ -193,7 +193,7 @@ function ProductEditStep4Page({ params }: { params: Promise<{ id: string }> }) {
     onSuccess: (data) => {
       console.log("Product updated successfully:", data);
       queryClient.invalidateQueries({ queryKey: ['product', productId] });
-      queryClient.invalidateQueries({ queryKey: ['pharmacy-products'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-products'] });
       router.push("/dashboard/products"); // Correct redirect path
       dispatch(resetProductCreation());
     },

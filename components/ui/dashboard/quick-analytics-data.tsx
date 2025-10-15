@@ -12,7 +12,7 @@ function QuickAnalyticsData() {
   const data = [
     {
       icon: "ph:money-light",
-      value: `${formatPrice(analytics?.gross_volume?.current_revenue as number || 0, analytics?.pharmacy?.country?.currency as Product.Currency)} (${analytics?.gross_volume.growth.toFixed(1) ?? '0.0'}%)`,
+      value: `${formatPrice(analytics?.gross_volume?.current_revenue as number || 0, analytics?.supplier?.country?.currency as Product.Currency)} (${analytics?.gross_volume.growth.toFixed(1) ?? '0.0'}%)`,
     },
     {
       icon: "ri:shopping-cart-line",
@@ -24,7 +24,7 @@ function QuickAnalyticsData() {
     },
     {
       icon: "solar:buildings-outline",
-      value: `${analytics?.pharmacy.branches_count ?? '0'} ${analytics?.pharmacy.branches_count && analytics?.pharmacy.branches_count > 1 ? t('dashboard.branches') : t('dashboard.branch')}`
+      value: `${analytics?.supplier.branches_count ?? '0'} ${analytics?.supplier.branches_count && analytics?.supplier.branches_count > 1 ? t('dashboard.branches') : t('dashboard.branch')}`
     },
     {
       icon: "solar:users-group-rounded-linear",

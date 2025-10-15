@@ -6,16 +6,16 @@ import Breadcrumb from "@/components/ui/breadcrumb";
 import { useTranslation } from "@/contexts/i18n-context";
 import CustomButton from "@/components/custom-button";
 import { useSelector } from "react-redux";
-import { getPharmacy, getUser } from "@/store/authSlice";
+import { getSupplier, getUser } from "@/store/authSlice";
 import Image from "next/image";
 import LanguageSwitcher from "@/components/language-switcher";
 import {
-  getPharmacyProfile,
-  updatePharmacyProfile,
+  getSupplierProfile,
+  updateSupplierProfile,
   validateProfileFiles,
-  getPharmacyBranches,
-  deletePharmacyBranch,
-} from "@/services/pharmacy-profile";
+  getSupplierBranches,
+  deleteSupplierBranch,
+} from "@/services/supplier-profile";
 import { useRouter } from "next/navigation";
 
 interface FormData {
@@ -26,9 +26,9 @@ interface FormData {
   password: string;
   password_confirmation: string;
   
-  // Pharmacy fields
-  pharmacy_name: string;
-  pharmacy_description: string;
+  // Supplier fields
+  supplier_name: string;
+  supplier_description: string;
   country_id: string;
 }
 
@@ -38,8 +38,8 @@ interface FormErrors {
   phone_number?: string;
   password?: string;
   password_confirmation?: string;
-  pharmacy_name?: string;
-  pharmacy_description?: string;
+  supplier_name?: string;
+  supplier_description?: string;
   country_id?: string;
   logo?: string;
   avatar?: string;
@@ -124,12 +124,12 @@ const ProfileSkeleton = () => (
 function ProfilePage() {
   const { t, isRtl } = useTranslation();
   const user = useSelector(getUser);
-  const pharmacy = useSelector(getPharmacy);
+  const supplier = useSelector(getSupplier);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'pharmacy' | 'branches'>('pharmacy');
+  const [activeTab, setActiveTab] = useState<'profile' | 'supplier' | 'branches'>('supplier');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -138,7 +138,7 @@ function ProfilePage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<Auth.ProfileResponse | null>(null);
-  const [branches, setBranches] = useState<Auth.PharmacyBranch[]>([]);
+  const [branches, setBranches] = useState<Auth.SupplierBranch[]>([]);
   const [isBranchesLoading, setIsBranchesLoading] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -149,9 +149,9 @@ function ProfilePage() {
     password: "",
     password_confirmation: "",
     
-    // Pharmacy fields
-    pharmacy_name: "",
-    pharmacy_description: "",
+    // Supplier fields
+    supplier_name: "",
+    supplier_description: "",
     country_id: "",
   });
 
@@ -175,7 +175,7 @@ function ProfilePage() {
   const loadProfileData = async () => {
     try {
       setIsLoading(true);
-      const data = await getPharmacyProfile();
+      const data = await getSupplierProfile();
       setProfileData(data);
       
       // Populate form with existing data
@@ -187,10 +187,10 @@ function ProfilePage() {
         password: "",
         password_confirmation: "",
         
-        // Pharmacy fields
-        pharmacy_name: data.data.pharmacy.name || "",
-        pharmacy_description: data.data.pharmacy.description || "",
-        country_id: data.data.pharmacy.country_id?.toString() || "",
+        // Supplier fields
+        supplier_name: data.data.supplier.name || "",
+        supplier_description: data.data.supplier.description || "",
+        country_id: data.data.supplier.country_id?.toString() || "",
       });
     } catch (error: any) {
       console.error("Error loading profile data:", error);
@@ -210,12 +210,12 @@ function ProfilePage() {
           phone_number: user.phone_number || user.phone || "",
         }));
       }
-      if (pharmacy) {
+      if (supplier) {
         setFormData(prevData => ({
           ...prevData,
-          pharmacy_name: pharmacy.name || "",
-          pharmacy_description: pharmacy.description || "",
-          country_id: pharmacy.country_id?.toString() || "",
+          supplier_name: supplier.name || "",
+          supplier_description: supplier.description || "",
+          country_id: supplier.country_id?.toString() || "",
         }));
       }
     } finally {
@@ -226,7 +226,7 @@ function ProfilePage() {
   const loadBranches = async () => {
     try {
       setIsBranchesLoading(true);
-      const branchData = await getPharmacyBranches();
+      const branchData = await getSupplierBranches();
       setBranches(branchData);
     } catch (error: any) {
       console.error("Error loading branches:", error);
@@ -252,7 +252,7 @@ function ProfilePage() {
     }
 
     try {
-      await deletePharmacyBranch(branchId);
+      await deleteSupplierBranch(branchId);
       // Reload branches after deletion
       await loadBranches();
     } catch (error: any) {
@@ -356,9 +356,9 @@ function ProfilePage() {
       }
     }
 
-    // Validate pharmacy fields
-    if (formData.pharmacy_name && !formData.pharmacy_name.trim()) {
-      newErrors.pharmacy_name = t("profile.pharmacyNameRequired");
+    // Validate supplier fields
+    if (formData.supplier_name && !formData.supplier_name.trim()) {
+      newErrors.supplier_name = t("profile.supplierNameRequired");
     }
 
     setErrors(newErrors);
@@ -383,20 +383,20 @@ function ProfilePage() {
         phone_number: formData.phone_number || undefined,
         password: formData.password || undefined,
         avatar: files.avatar,
-        pharmacy: {
-          name: formData.pharmacy_name || undefined,
-          description: formData.pharmacy_description || undefined,
+        supplier: {
+          name: formData.supplier_name || undefined,
+          description: formData.supplier_description || undefined,
           country_id: formData.country_id || undefined,
           logo: files.logo,
         },
       };
 
       // Remove empty nested objects
-      if (!Object.values(profileUpdateData.pharmacy!).some(v => v !== undefined)) {
-        delete profileUpdateData.pharmacy;
+      if (!Object.values(profileUpdateData.supplier!).some(v => v !== undefined)) {
+        delete profileUpdateData.supplier;
       }
 
-      const result = await updatePharmacyProfile(profileUpdateData);
+      const result = await updateSupplierProfile(profileUpdateData);
 
       // Success
       setSuccessMessage(t("profile.profileUpdatedSuccess"));
@@ -460,16 +460,16 @@ function ProfilePage() {
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-8 pt-8" aria-label="Tabs">
             <button
-              onClick={() => setActiveTab('pharmacy')}
+              onClick={() => setActiveTab('supplier')}
               className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm cursor-pointer ${
-                activeTab === 'pharmacy'
+                activeTab === 'supplier'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
                 <BuildingIcon className="w-4 h-4" />
-                <span>{t("profile.pharmacyInfo")}</span>
+                <span>{t("profile.supplierInfo")}</span>
               </div>
             </button>
             <button
@@ -594,7 +594,7 @@ function ProfilePage() {
                 <h2 className="text-xl font-semibold text-blue-gray">
                   {formData.name || user?.name}
                 </h2>
-                <p className="text-sm text-gray-600">{t("profile.pharmacyAdmin")}</p>
+                <p className="text-sm text-gray-600">{t("profile.supplierAdmin")}</p>
               </div>
 
               {/* User Information Fields */}
@@ -696,9 +696,9 @@ function ProfilePage() {
             </div>
           )}
 
-          {activeTab === 'pharmacy' && (
+          {activeTab === 'supplier' && (
             <div>
-              {/* Pharmacy Logo Section */}
+              {/* Supplier Logo Section */}
               <div className="flex justify-center mb-8">
                 <div className="relative">
                   <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center border-4 border-white shadow-sm overflow-hidden">
@@ -710,16 +710,16 @@ function ProfilePage() {
                         width={96}
                         height={96}
                       />
-                    ) : profileData?.data?.pharmacy?.logo ? (
+                    ) : profileData?.data?.supplier?.logo ? (
                       <Image
-                        src={profileData.data.pharmacy.logo}
-                        alt={t("profile.pharmacyLogo")}
+                        src={profileData.data.supplier.logo}
+                        alt={t("profile.supplierLogo")}
                         className="w-full h-full object-cover rounded-full"
                         width={96}
                         height={96}
                         unoptimized={true}
                         onError={(e) => {
-                          console.warn('Failed to load pharmacy logo:', profileData.data.pharmacy.logo);
+                          console.warn('Failed to load supplier logo:', profileData.data.supplier.logo);
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
                         }}
@@ -747,28 +747,28 @@ function ProfilePage() {
 
               <div className="text-center mb-8">
                 <h2 className="text-xl font-semibold text-blue-gray">
-                  {formData.pharmacy_name || pharmacy?.name || t("profile.pharmacyName")}
+                  {formData.supplier_name || supplier?.name || t("profile.supplierName")}
                 </h2>
-                <p className="text-sm text-gray-600">{t("profile.pharmacyInformation")}</p>
+                <p className="text-sm text-gray-600">{t("profile.supplierInformation")}</p>
               </div>
 
-              {/* Pharmacy Information Fields */}
+              {/* Supplier Information Fields */}
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("profile.pharmacyName")}
+                    {t("profile.supplierName")}
                   </label>
                   <input
                     type="text"
-                    value={formData.pharmacy_name}
-                    onChange={(e) => handleInputChange("pharmacy_name", e.target.value)}
+                    value={formData.supplier_name}
+                    onChange={(e) => handleInputChange("supplier_name", e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
-                      errors.pharmacy_name ? "border-red-500" : "border-gray-200"
+                      errors.supplier_name ? "border-red-500" : "border-gray-200"
                     }`}
-                    placeholder={t("profile.enterPharmacyName")}
+                    placeholder={t("profile.enterSupplierName")}
                   />
-                  {errors.pharmacy_name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.pharmacy_name}</p>
+                  {errors.supplier_name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.supplier_name}</p>
                   )}
                 </div>
               </div>
@@ -871,7 +871,7 @@ function ProfilePage() {
             </div>
           )}
 
-          {/* Save Button - only show for profile and pharmacy tabs */}
+          {/* Save Button - only show for profile and supplier tabs */}
           {activeTab !== 'branches' && (
           <div className="flex justify-start mt-8">
             <CustomButton

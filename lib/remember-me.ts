@@ -1,39 +1,36 @@
 // Constants for remember me functionality
-const REMEMBER_CREDENTIALS_KEY = "pharmago_remember_credentials";
+const REMEMBER_TOKEN_KEY = "pharmago_remember_token";
 const REMEMBER_EMAIL_KEY = "pharmago_remember_email";
 
-// Interface for stored credentials
-interface StoredCredentials {
+// Interface for stored remember data
+interface RememberData {
   email: string;
-  password: string;
+  token: string;
 }
 
 // Utility functions for remember me functionality
 export const rememberMeUtils = {
-  // Store credentials securely
-  storeCredentials: (email: string, password: string): void => {
+  // Store remember token securely (only email + token, no password)
+  storeRememberToken: (email: string, token: string): void => {
     try {
-      // For better security, we could encrypt this data
-      const credentials: StoredCredentials = { email, password };
-      localStorage.setItem(REMEMBER_CREDENTIALS_KEY, JSON.stringify(credentials));
       localStorage.setItem(REMEMBER_EMAIL_KEY, email);
+      localStorage.setItem(REMEMBER_TOKEN_KEY, token);
     } catch (error) {
-      console.error("Failed to store credentials:", error);
+      console.error("Failed to store remember token:", error);
     }
   },
 
-  // Get stored credentials
-  getStoredCredentials: (): StoredCredentials | null => {
+  // Get stored remember token
+  getRememberToken: (): string | null => {
     try {
-      const stored = localStorage.getItem(REMEMBER_CREDENTIALS_KEY);
-      return stored ? JSON.parse(stored) : null;
+      return localStorage.getItem(REMEMBER_TOKEN_KEY);
     } catch (error) {
-      console.error("Failed to retrieve credentials:", error);
+      console.error("Failed to retrieve remember token:", error);
       return null;
     }
   },
 
-  // Get stored email only
+  // Get stored email
   getStoredEmail: (): string | null => {
     try {
       return localStorage.getItem(REMEMBER_EMAIL_KEY);
@@ -43,36 +40,46 @@ export const rememberMeUtils = {
     }
   },
 
-  // Check if credentials are stored
-  hasStoredCredentials: (): boolean => {
+  // Get both email and token
+  getRememberData: (): RememberData | null => {
     try {
-      return !!localStorage.getItem(REMEMBER_CREDENTIALS_KEY);
+      const email = localStorage.getItem(REMEMBER_EMAIL_KEY);
+      const token = localStorage.getItem(REMEMBER_TOKEN_KEY);
+      
+      if (email && token) {
+        return { email, token };
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to retrieve remember data:", error);
+      return null;
+    }
+  },
+
+  // Check if remember token exists
+  hasRememberToken: (): boolean => {
+    try {
+      return !!localStorage.getItem(REMEMBER_TOKEN_KEY);
     } catch (error) {
       return false;
     }
   },
 
-  // Clear stored credentials
-  clearStoredCredentials: (): void => {
+  // Clear stored remember data
+  clearRememberData: (): void => {
     try {
-      localStorage.removeItem(REMEMBER_CREDENTIALS_KEY);
+      localStorage.removeItem(REMEMBER_TOKEN_KEY);
       localStorage.removeItem(REMEMBER_EMAIL_KEY);
     } catch (error) {
-      console.error("Failed to clear credentials:", error);
+      console.error("Failed to clear remember data:", error);
     }
   },
 
-  // Update stored credentials (when user changes email/password)
-  updateStoredCredentials: (email: string, password: string): void => {
-    if (rememberMeUtils.hasStoredCredentials()) {
-      rememberMeUtils.storeCredentials(email, password);
-    }
-  },
-
-  // Store only email (for partial remember functionality)
+  // Store only email (for showing email in login form without auto-login)
   storeEmailOnly: (email: string): void => {
     try {
       localStorage.setItem(REMEMBER_EMAIL_KEY, email);
+      localStorage.removeItem(REMEMBER_TOKEN_KEY);
     } catch (error) {
       console.error("Failed to store email:", error);
     }
@@ -80,4 +87,4 @@ export const rememberMeUtils = {
 };
 
 // Export constants for use in API functions
-export { REMEMBER_CREDENTIALS_KEY, REMEMBER_EMAIL_KEY }; 
+export { REMEMBER_TOKEN_KEY, REMEMBER_EMAIL_KEY }; 

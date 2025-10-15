@@ -77,42 +77,15 @@ export function AppSidebar() {
       icon: "lets-icons:paper-light",
     },
     {
-      title: t('navigation.prescriptions'),
-      url: "/dashboard/prescriptions",
-      icon: "solar:scanner-outline",
-      subItems: [
-        {
-          title: t('prescriptions.approved'),
-          url: "/dashboard/prescriptions/approved",
-          icon: "solar:check-circle-linear",
-        },
-        {
-          title: t('breadcrumbs.prescriptionRequests'),
-          url: "/dashboard/prescriptions/requests",
-          icon: "fontisto:prescription",
-        },
-        // {
-        //   title: t('navigation.rfqsRequests'),
-        //   url: "/dashboard/prescriptions/rfqs",
-        //   icon: "fontisto:prescription",
-        // },
-        // {
-        //   title: t('breadcrumbs.ordersHistory'),
-        //   url: "/dashboard/prescriptions/order-history",
-        //   icon: "solar:clock-circle-linear",
-        // }
-      ],
-    },
-    {
       title: t('navigation.delivery'),
       url: "/dashboard/delivery",
       icon: "material-symbols:delivery-truck-speed-outline",
       subItems: [
-        {
-          title: t('breadcrumbs.liveTracking'),
-          url: "/dashboard/delivery/live-tracking",
-          icon: "ph:gps-light",
-        },
+        // {
+        //   title: t('breadcrumbs.liveTracking'),
+        //   url: "/dashboard/delivery/live-tracking",
+        //   icon: "ph:gps-light",
+        // },
         {
           title: t('navigation.deliveryHistory'),
           url: "/dashboard/delivery/history",
@@ -120,23 +93,23 @@ export function AppSidebar() {
         },
       ],
     },
-    {
-      title: t('navigation.advertisement'),
-      url: "/dashboard/advertisements",
-      icon: "solar:gallery-bold",
-      subItems: [
-        {
-          title: t('advertisements.addAdvertisement'),
-          url: "/dashboard/advertisements/add",
-          icon: "hugeicons:add-square",
-        },
-        {
-          title: t('navigation.advertisementList'),
-          url: "/dashboard/advertisements",
-          icon: "ph:squares-four-light",
-        },
-      ],
-    },
+    // {
+    //   title: t('navigation.advertisement'),
+    //   url: "/dashboard/advertisements",
+    //   icon: "solar:gallery-bold",
+    //   subItems: [
+    //     {
+    //       title: t('advertisements.addAdvertisement'),
+    //       url: "/dashboard/advertisements/add",
+    //       icon: "hugeicons:add-square",
+    //     },
+    //     {
+    //       title: t('navigation.advertisementList'),
+    //       url: "/dashboard/advertisements",
+    //       icon: "ph:squares-four-light",
+    //     },
+    //   ],
+    // },
   ];
 
   const [openItems, setOpenItems] = React.useState<Record<string, boolean>>(() => {

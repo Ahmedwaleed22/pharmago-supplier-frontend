@@ -1,13 +1,13 @@
-# Pharmacy Profile Management System - Implementation Guide
+# Supplier Profile Management System - Implementation Guide
 
 ## Overview
 
-This implementation provides a comprehensive pharmacy profile management system based on the API specification from `docs/pharmacy-updates.md`. The system includes:
+This implementation provides a comprehensive supplier profile management system based on the API specification from `docs/supplier-updates.md`. The system includes:
 
-- **Modern Profile Management**: Complete user, pharmacy, and branch data management
+- **Modern Profile Management**: Complete user, supplier, and branch data management
 - **Dual Format Support**: Both modern nested format and legacy flat format
 - **File Upload Support**: Avatar and logo uploads with validation
-- **Branch Management**: Full CRUD operations for pharmacy branches
+- **Branch Management**: Full CRUD operations for supplier branches
 - **Internationalization**: Full i18n support
 - **Responsive Design**: Mobile-first responsive interface
 
@@ -16,8 +16,8 @@ This implementation provides a comprehensive pharmacy profile management system 
 ### API Endpoints
 
 #### New Profile Management
-- `GET /api/user/profile` - Get complete pharmacy profile
-- `POST /api/user/profile` - Update pharmacy profile (modern nested format)
+- `GET /api/user/profile` - Get complete supplier profile
+- `POST /api/user/profile` - Update supplier profile (modern nested format)
 
 #### Branch Management
 - `GET /api/branches` - List all branches
@@ -35,7 +35,7 @@ This implementation provides a comprehensive pharmacy profile management system 
 #### Main Profile Page
 - **File**: `/app/dashboard/profile/page.tsx`
 - **Features**: 
-  - Tabbed interface (User Profile, Pharmacy Info, Branches)
+  - Tabbed interface (User Profile, Supplier Info, Branches)
   - Real-time form validation
   - File upload with preview
   - Modern nested data format
@@ -51,12 +51,12 @@ This implementation provides a comprehensive pharmacy profile management system 
 
 ### Services
 
-#### Pharmacy Profile Service
-- **File**: `/services/pharmacy-profile.ts`
+#### Supplier Profile Service
+- **File**: `/services/supplier-profile.ts`
 - **Functions**:
-  - `getPharmacyProfile()` - Fetch complete profile
-  - `updatePharmacyProfile()` - Modern nested format update
-  - `updatePharmacyProfileLegacy()` - Legacy flat format support
+  - `getSupplierProfile()` - Fetch complete profile
+  - `updateSupplierProfile()` - Modern nested format update
+  - `updateSupplierProfileLegacy()` - Legacy flat format support
   - Branch management functions
   - File validation utilities
 
@@ -68,7 +68,7 @@ This implementation provides a comprehensive pharmacy profile management system 
   - `ProfileResponse` - Complete profile data structure
   - `ProfileUpdateData` - Modern nested update format
   - `LegacyProfileUpdateData` - Legacy flat format
-  - `PharmacyBranch` - Branch data structure
+  - `SupplierBranch` - Branch data structure
   - `BranchCreateData` & `BranchUpdateData` - Branch operations
 
 ## Usage Examples
@@ -76,14 +76,14 @@ This implementation provides a comprehensive pharmacy profile management system 
 ### Basic Profile Update (Modern Format)
 
 ```typescript
-import { updatePharmacyProfile } from '@/services/pharmacy-profile';
+import { updateSupplierProfile } from '@/services/supplier-profile';
 
 const profileData: Auth.ProfileUpdateData = {
   name: "John Doe",
-  email: "john@pharmacy.com",
-  pharmacy: {
-    name: "Main Pharmacy",
-    description: "Your trusted neighborhood pharmacy",
+  email: "john@supplier.com",
+  supplier: {
+    name: "Main Supplier",
+    description: "Your trusted neighborhood supplier",
     logo: logoFile
   },
   branch: {
@@ -94,20 +94,20 @@ const profileData: Auth.ProfileUpdateData = {
   avatar: avatarFile
 };
 
-await updatePharmacyProfile(profileData);
+await updateSupplierProfile(profileData);
 ```
 
 ### Branch Management
 
 ```typescript
 import { 
-  createPharmacyBranch, 
-  updatePharmacyBranch, 
-  deletePharmacyBranch 
-} from '@/services/pharmacy-profile';
+  createSupplierBranch, 
+  updateSupplierBranch, 
+  deleteSupplierBranch 
+} from '@/services/supplier-profile';
 
 // Create new branch
-const newBranch = await createPharmacyBranch({
+const newBranch = await createSupplierBranch({
   name: "North Branch",
   address: "456 North Ave",
   latitude: "25.0760",
@@ -116,26 +116,26 @@ const newBranch = await createPharmacyBranch({
 });
 
 // Update branch
-await updatePharmacyBranch(branchId, {
+await updateSupplierBranch(branchId, {
   name: "Updated Branch Name"
 });
 
 // Delete branch
-await deletePharmacyBranch(branchId);
+await deleteSupplierBranch(branchId);
 ```
 
 ### File Upload with Validation
 
 ```typescript
-import { validateProfileFiles } from '@/services/pharmacy-profile';
+import { validateProfileFiles } from '@/services/supplier-profile';
 
 const files = { logo: logoFile, avatar: avatarFile };
 const errors = validateProfileFiles(files);
 
 if (errors.length === 0) {
   // Files are valid, proceed with upload
-  await updatePharmacyProfile({ 
-    pharmacy: { logo: logoFile },
+  await updateSupplierProfile({ 
+    supplier: { logo: logoFile },
     avatar: avatarFile 
   });
 }
@@ -146,7 +146,7 @@ if (errors.length === 0) {
 ### ✅ Core Features
 - [x] Complete profile data fetching
 - [x] User profile management (name, email, phone, avatar)
-- [x] Pharmacy information management (name, description, logo)
+- [x] Supplier information management (name, description, logo)
 - [x] Main branch management (address, coordinates, phone)
 - [x] Password change functionality
 - [x] File upload with validation and preview
@@ -176,7 +176,7 @@ if (errors.length === 0) {
 The frontend expects the following API endpoints to be available:
 
 1. **Profile Endpoint**: `GET/POST /api/v1/pharmacies/user`
-   - Returns complete profile data including user, pharmacy, branch, and branches array
+   - Returns complete profile data including user, supplier, branch, and branches array
    - Accepts nested format updates
 
 2. **Branch Endpoints**: 
@@ -196,7 +196,7 @@ If the new endpoints are not available, the system gracefully falls back to:
 
 ### Profile Section
 - Enhanced profile translations with new fields
-- Separate sections for user profile, pharmacy info, and branches
+- Separate sections for user profile, supplier info, and branches
 - Validation messages for all form fields
 
 ### Branch Management Section
@@ -216,7 +216,7 @@ If the new endpoints are not available, the system gracefully falls back to:
 ### Update Workflow
 
 1. Users see enhanced profile interface immediately
-2. New features (branches, enhanced pharmacy info) become available when backend implements new endpoints
+2. New features (branches, enhanced supplier info) become available when backend implements new endpoints
 3. File uploads and basic profile updates work with both old and new backends
 
 ## Testing
@@ -232,8 +232,8 @@ If the new endpoints are not available, the system gracefully falls back to:
 - [ ] Form validation errors
 - [ ] Success messages
 
-#### Pharmacy Tab
-- [ ] Pharmacy name update
+#### Supplier Tab
+- [ ] Supplier name update
 - [ ] Description update
 - [ ] Logo upload and preview
 - [ ] Branch information update
@@ -291,4 +291,4 @@ If the new endpoints are not available, the system gracefully falls back to:
 - [ ] Audit trail for profile changes
 - [ ] Webhook support for profile updates
 
-This implementation provides a solid foundation for pharmacy profile management while maintaining backward compatibility and supporting future enhancements.
+This implementation provides a solid foundation for supplier profile management while maintaining backward compatibility and supporting future enhancements.

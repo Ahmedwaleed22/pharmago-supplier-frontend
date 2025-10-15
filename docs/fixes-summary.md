@@ -14,7 +14,7 @@
 - **Fix**: Updated `components/ui/app-header.tsx`
   - Added translation import and hook
   - Changed hardcoded "Search..." to `t('ui.searchPlaceholder')`
-  - Added "Pharmacy Admin" translation (`t('auth.pharmacyAdmin')`)
+  - Added "Supplier Admin" translation (`t('auth.supplierAdmin')`)
   - Fixed mobile search input translation
 
 ### 3. **Dashboard Components Translated** ✅
@@ -45,7 +45,7 @@
 ```json
 {
   "auth": {
-    "pharmacyAdmin": "Pharmacy Admin"
+    "supplierAdmin": "Supplier Admin"
   },
   "dashboard": {
     "newOrders": "New Orders",
@@ -62,7 +62,7 @@
 ```json
 {
   "auth": {
-    "pharmacyAdmin": "مدير الصيدلية"
+    "supplierAdmin": "مدير الصيدلية"
   },
   "dashboard": {
     "newOrders": "طلبات جديدة",
@@ -79,7 +79,7 @@
 ```json
 {
   "auth": {
-    "pharmacyAdmin": "Administrateur de pharmacie"
+    "supplierAdmin": "Administrateur de pharmacie"
   },
   "dashboard": {
     "newOrders": "Nouvelles commandes",

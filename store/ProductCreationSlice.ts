@@ -7,13 +7,21 @@ interface ProductImage {
   size?: number;
 }
 
+export interface PriceTier {
+  id: string;
+  min_quantity: string;
+  max_quantity: string;
+  operator: "range" | "plus";
+  price: string;
+}
+
 export interface ProductState {
   name: string;
   subName: string;
   notes: string;
   category: string;
   subCategory: string;
-  pharmacyLogo: string;
+  supplierLogo: string;
   productDetails: string;
   price: string;
   discount: string;
@@ -22,6 +30,7 @@ export interface ProductState {
   tagColor: string;
   image: string; // Keep for backward compatibility
   images: ProductImage[]; // New field for multiple images
+  priceTiers: PriceTier[]; // Price tier configuration
 }
 
 const initialState: ProductState = {
@@ -30,7 +39,7 @@ const initialState: ProductState = {
   notes: "",
   category: "",
   subCategory: "",
-  pharmacyLogo: "",
+  supplierLogo: "",
   productDetails: "",
   price: "",
   discount: "",
@@ -39,6 +48,7 @@ const initialState: ProductState = {
   tagColor: "#2970FF",
   image: "", // Keep for backward compatibility
   images: [] as ProductImage[], // New field for multiple images
+  priceTiers: [] as PriceTier[], // Price tier configuration
 };
 
 const productCreationSlice = createSlice({
@@ -63,8 +73,8 @@ const productCreationSlice = createSlice({
     setSubCategory: (state, action) => {
       state.subCategory = action.payload;
     },
-    setPharmacyLogo: (state, action) => {
-      state.pharmacyLogo = action.payload;
+    setSupplierLogo: (state, action) => {
+      state.supplierLogo = action.payload;
     },
     setProductDetails: (state, action) => {
       state.productDetails = action.payload;
@@ -161,13 +171,29 @@ const productCreationSlice = createSlice({
         state.image = state.images[primaryIndex].url;
       }
     },
+    setPriceTiers: (state, action: PayloadAction<PriceTier[]>) => {
+      state.priceTiers = action.payload;
+    },
+    addPriceTier: (state, action: PayloadAction<PriceTier>) => {
+      state.priceTiers.push(action.payload);
+    },
+    removePriceTier: (state, action: PayloadAction<string>) => {
+      state.priceTiers = state.priceTiers.filter(tier => tier.id !== action.payload);
+    },
+    updatePriceTier: (state, action: PayloadAction<{ id: string; field: keyof PriceTier; value: string }>) => {
+      const { id, field, value } = action.payload;
+      const tier = state.priceTiers.find(t => t.id === id);
+      if (tier) {
+        (tier[field] as any) = value;
+      }
+    },
     removeAllItems: (state) => {
       state.name = "";
       state.subName = "";
       state.notes = "";
       state.category = "";
       state.subCategory = "";
-      state.pharmacyLogo = "";
+      state.supplierLogo = "";
       state.productDetails = "";
       state.price = "";
       state.discount = "";
@@ -175,6 +201,7 @@ const productCreationSlice = createSlice({
       state.tag = "";
       state.tagColor = "";
       state.images = [];
+      state.priceTiers = [];
     },
     resetProductCreation: () => initialState
   },
@@ -187,7 +214,7 @@ export const {
   setNotes,
   setCategory,
   setSubCategory,
-  setPharmacyLogo,
+  setSupplierLogo,
   setProductDetails,
   setPrice,
   setDiscount,
@@ -198,6 +225,10 @@ export const {
   addImage,
   removeImage,
   setPrimaryImage,
+  setPriceTiers,
+  addPriceTier,
+  removePriceTier,
+  updatePriceTier,
   removeAllItems,
   resetProductCreation
 } = productCreationSlice.actions;

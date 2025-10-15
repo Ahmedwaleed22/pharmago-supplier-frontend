@@ -29,7 +29,7 @@ export default function useAuth() {
                 updated_at: userData.updated_at,
                 address: userData.address,
               },
-              pharmacy: userData.pharmacy,
+              supplier: userData.supplier,
               token: getAuthToken() || '',
             })
           );

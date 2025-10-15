@@ -12,7 +12,7 @@ export async function GET(
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -21,7 +21,7 @@ export async function GET(
     
     // Forward the request to the actual API with the auth token
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/prescriptions/${slug}`, 
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/prescriptions/${slug}`, 
       {
         headers: {
           'Authorization': `Bearer ${token}`,

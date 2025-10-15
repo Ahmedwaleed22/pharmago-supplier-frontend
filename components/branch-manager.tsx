@@ -5,11 +5,11 @@ import { PlusIcon, EditIcon, TrashIcon, MapPinIcon, PhoneIcon } from "lucide-rea
 import { useTranslation } from "@/contexts/i18n-context";
 import CustomButton from "@/components/custom-button";
 import {
-  getPharmacyBranches,
-  createPharmacyBranch,
-  updatePharmacyBranch,
-  deletePharmacyBranch,
-} from "@/services/pharmacy-profile";
+  getSupplierBranches,
+  createSupplierBranch,
+  updateSupplierBranch,
+  deleteSupplierBranch,
+} from "@/services/supplier-profile";
 
 interface BranchManagerProps {
   onBranchUpdate?: () => void;
@@ -27,10 +27,10 @@ interface FormErrors {
 const BranchManager: React.FC<BranchManagerProps> = ({ onBranchUpdate }) => {
   const { t, isRtl } = useTranslation();
   
-  const [branches, setBranches] = useState<Auth.PharmacyBranch[]>([]);
+  const [branches, setBranches] = useState<Auth.SupplierBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBranch, setEditingBranch] = useState<Auth.PharmacyBranch | null>(null);
+  const [editingBranch, setEditingBranch] = useState<Auth.SupplierBranch | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   
@@ -50,7 +50,7 @@ const BranchManager: React.FC<BranchManagerProps> = ({ onBranchUpdate }) => {
   const loadBranches = async () => {
     try {
       setIsLoading(true);
-      const branchesData = await getPharmacyBranches();
+      const branchesData = await getSupplierBranches();
       setBranches(branchesData);
     } catch (error) {
       console.error("Error loading branches:", error);
@@ -116,7 +116,7 @@ const BranchManager: React.FC<BranchManagerProps> = ({ onBranchUpdate }) => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (branch: Auth.PharmacyBranch) => {
+  const openEditModal = (branch: Auth.SupplierBranch) => {
     setEditingBranch(branch);
     setFormData({
       name: branch.name,
@@ -136,10 +136,10 @@ const BranchManager: React.FC<BranchManagerProps> = ({ onBranchUpdate }) => {
     try {
       if (editingBranch) {
         // Update existing branch
-        await updatePharmacyBranch(editingBranch.id, formData);
+        await updateSupplierBranch(editingBranch.id, formData);
       } else {
         // Create new branch
-        await createPharmacyBranch(formData);
+        await createSupplierBranch(formData);
       }
 
       setIsModalOpen(false);
@@ -161,7 +161,7 @@ const BranchManager: React.FC<BranchManagerProps> = ({ onBranchUpdate }) => {
     if (!confirm(t("branches.deleteConfirmation"))) return;
 
     try {
-      await deletePharmacyBranch(branchId);
+      await deleteSupplierBranch(branchId);
       await loadBranches();
       onBranchUpdate?.();
     } catch (error) {

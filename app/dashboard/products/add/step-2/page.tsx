@@ -1,17 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import ProductLayout from "@/layouts/product-layout";
 import LabeledInput from "@/components/labeled-input";
 import ProductPreview from "@/components/product-preview";
+import PriceTierInput, { PriceTier } from "@/components/price-tier-input";
 import {
   setPrice,
   setDiscount,
   setStock,
   setTag,
   setTagColor,
+  setPriceTiers,
 } from "@/store/ProductCreationSlice";
 import { useTranslation } from "@/contexts/i18n-context";
 import { ProductFormSkeleton, ProductPreviewSkeleton } from "@/components/ui/dashboard/product-form-skeleton";
@@ -47,7 +49,7 @@ function ProductAddStep2Page() {
         </p>
 
         <div className="space-y-4 xl:space-y-6">
-          <LabeledInput
+          {/* <LabeledInput
             id="price"
             label={t('products.price')}
             placeholder={t('forms.pricePlaceholder')}
@@ -58,9 +60,9 @@ function ProductAddStep2Page() {
                 dispatch(setPrice(value));
               }
             }}
-          />
+          /> */}
 
-          <LabeledInput
+          {/* <LabeledInput
             id="discount"
             label={t('products.discount')}
             placeholder={t('products.discountPlaceholder')}
@@ -70,7 +72,7 @@ function ProductAddStep2Page() {
                 dispatch(setDiscount(value));
               }
             }}
-          />
+          /> */}
 
           <LabeledInput
             id="stock-qty"
@@ -89,6 +91,11 @@ function ProductAddStep2Page() {
             onChange={(value) => dispatch(setTag(value))}
             onColorChange={(value) => dispatch(setTagColor(value))}
             color={productData.tagColor}
+          />
+
+          <PriceTierInput
+            tiers={productData.priceTiers || []}
+            onChange={(tiers) => dispatch(setPriceTiers(tiers))}
           />
 
           <button

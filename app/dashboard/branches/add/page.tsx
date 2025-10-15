@@ -10,8 +10,8 @@ import Breadcrumb from "@/components/ui/breadcrumb";
 import GoogleMapPicker from "@/components/google-map-picker";
 import CountryCodeSelect from "@/components/ui/country-code-select";
 import {
-  createPharmacyBranch,
-} from "@/services/pharmacy-profile";
+  createSupplierBranch,
+} from "@/services/supplier-profile";
 
 interface FormData {
   name: string;
@@ -247,7 +247,7 @@ const AddBranchPage: React.FC = () => {
         phone_number: fullPhoneNumber,
       };
 
-      await createPharmacyBranch(branchData);
+      await createSupplierBranch(branchData);
       
       // Redirect to branches list on success
       router.push("/dashboard/branches");

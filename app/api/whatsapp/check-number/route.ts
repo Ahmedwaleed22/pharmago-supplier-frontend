@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     
     // Extract auth token from cookies
     const cookieHeader = request.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     // Get the request data

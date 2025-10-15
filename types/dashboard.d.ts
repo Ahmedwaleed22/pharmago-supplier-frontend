@@ -346,7 +346,7 @@ declare module Dashboard {
     };
     gross_volume: GrossVolumeData;
     orders_history: OrderHistoryItem[];
-    pharmacy: Auth.Pharmacy;
+    supplier: Auth.Supplier;
     medicine_count: number;
     new_clients: StatisticCard;
     revenue_breakdown: RevenueBreakdown;
@@ -377,7 +377,7 @@ declare module Dashboard {
     };
     gross_volume: GrossVolumeData;
     orders_history: OrderHistoryItem[];
-    pharmacy: Auth.Pharmacy;
+    supplier: Auth.Supplier;
     medicine_count: number;
     new_clients: StatisticCard;
     revenue_breakdown: RevenueBreakdown;

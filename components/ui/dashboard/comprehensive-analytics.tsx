@@ -37,25 +37,25 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.totalRevenue')}</span>
               <span className="font-semibold text-lg">
-                {formatPrice(revenueBreakdown.total_revenue, analytics.pharmacy.country.currency)}
+                {formatPrice(revenueBreakdown.total_revenue, analytics.supplier.country.currency)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.productSales')}</span>
               <span className="text-sm">
-                {formatPrice(revenueBreakdown.revenue_breakdown.product_sales, analytics.pharmacy.country.currency)}
+                {formatPrice(revenueBreakdown.revenue_breakdown.product_sales, analytics.supplier.country.currency)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.deliveryFees')}</span>
               <span className="text-sm">
-                {formatPrice(revenueBreakdown.revenue_breakdown.delivery_fees, analytics.pharmacy.country.currency)}
+                {formatPrice(revenueBreakdown.revenue_breakdown.delivery_fees, analytics.supplier.country.currency)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.serviceFees')}</span>
               <span className="text-sm">
-                {formatPrice(revenueBreakdown.revenue_breakdown.service_fees, analytics.pharmacy.country.currency)}
+                {formatPrice(revenueBreakdown.revenue_breakdown.service_fees, analytics.supplier.country.currency)}
               </span>
             </div>
           </div>
@@ -73,7 +73,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.averageOrderValue')}</span>
               <span className="font-semibold">
-                {formatPrice(orderMetrics.average_order_value, analytics.pharmacy.country.currency)}
+                {formatPrice(orderMetrics.average_order_value, analytics.supplier.country.currency)}
               </span>
             </div>
             <div className="flex justify-between items-center">
@@ -83,13 +83,13 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.averageDeliveryFee')}</span>
               <span className="text-sm">
-                {formatPrice(orderMetrics.average_delivery_fee, analytics.pharmacy.country.currency)}
+                {formatPrice(orderMetrics.average_delivery_fee, analytics.supplier.country.currency)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.averageDiscount')}</span>
               <span className="text-sm">
-                {formatPrice(orderMetrics.average_discount_per_order, analytics.pharmacy.country.currency)}
+                {formatPrice(orderMetrics.average_discount_per_order, analytics.supplier.country.currency)}
               </span>
             </div>
           </div>
@@ -188,7 +188,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('dashboard.customerLifetimeValue')}</span>
               <span className="text-sm">
-                {formatPrice(customerRetention.customer_lifetime_value, analytics.pharmacy.country.currency)}
+                {formatPrice(customerRetention.customer_lifetime_value, analytics.supplier.country.currency)}
               </span>
             </div>
           </div>
@@ -238,7 +238,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
       </DashboardCard> */}
 
       {/* Competitive Metrics */}
-      <DashboardCard>
+      {/* <DashboardCard>
         <div className="p-6">
           <h3 className="text-[#414651] font-bold text-lg mb-4 flex items-center">
             <Icon icon="mdi:chart-line" className="mr-2" />
@@ -263,10 +263,10 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             </div>
           </div>
         </div>
-      </DashboardCard>
+      </DashboardCard> */}
 
       {/* Geographical Analytics */}
-      <DashboardCard>
+      {/* <DashboardCard>
         <div className="p-6">
           <h3 className="text-[#414651] font-bold text-lg mb-4 flex items-center">
             <Icon icon="mdi:map-marker" className="mr-2" />
@@ -288,23 +288,23 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-500">{t('dashboard.revenue')}</span>
                   <span className="text-xs">
-                    {formatPrice(location.total_revenue, analytics.pharmacy.country.currency)}
+                    {formatPrice(location.total_revenue, analytics.supplier.country.currency)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-500">{t('dashboard.averageOrderValue')}</span>
                   <span className="text-xs">
-                    {formatPrice(location.average_order_value, analytics.pharmacy.country.currency)}
+                    {formatPrice(location.average_order_value, analytics.supplier.country.currency)}
                   </span>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </DashboardCard>
+      </DashboardCard> */}
 
       {/* Time Based Analytics */}
-      <DashboardCard>
+      {/* <DashboardCard>
         <div className="p-6">
           <h3 className="text-[#414651] font-bold text-lg mb-4 flex items-center">
             <Icon icon="mdi:clock" className="mr-2" />
@@ -335,7 +335,7 @@ function ComprehensiveAnalytics({ analytics, className }: ComprehensiveAnalytics
             </div>
           </div>
         </div>
-      </DashboardCard>
+      </DashboardCard> */}
     </div>
   );
 }

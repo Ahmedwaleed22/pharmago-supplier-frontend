@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const NEXT_PUBLIC_PHARMACY_URL = process.env.NEXT_PUBLIC_PHARMACY_URL;
+const NEXT_PUBLIC_SUPPLIER_URL = process.env.NEXT_PUBLIC_SUPPLIER_URL;
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const acceptLanguage = request.headers.get('accept-language') || 'en';
 
     // Forward the request to the backend API
-    const response = await fetch(`${NEXT_PUBLIC_PHARMACY_URL}/reset-password-token`, {
+    const response = await fetch(`${NEXT_PUBLIC_SUPPLIER_URL}/reset-password-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

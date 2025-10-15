@@ -32,7 +32,7 @@ interface I18nProviderProps {
 export function I18nProvider({ children, initialLocale, initialTranslations }: I18nProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale || defaultLocale);
   const [translations, setTranslations] = useState<any>(initialTranslations || {});
-  const [isLoading, setIsLoading] = useState(!initialTranslations);
+  const [isLoading, setIsLoading] = useState(false); // Always start as not loading since we have initial translations
 
   // Initialize locale on client side only if no initial locale was provided
   useEffect(() => {
@@ -46,35 +46,40 @@ export function I18nProvider({ children, initialLocale, initialTranslations }: I
   useEffect(() => {
     // If we have initial translations for the current locale, don't reload
     if (initialTranslations && locale === initialLocale) {
+      setTranslations(initialTranslations);
+      setIsLoading(false);
       return;
     }
 
-    let isMounted = true;
+    // Only load translations if we don't have them or if locale changed
+    if (!initialTranslations || locale !== initialLocale) {
+      let isMounted = true;
 
-    async function loadTranslations() {
-      setIsLoading(true);
-      try {
-        const newTranslations = await getTranslations(locale);
-        if (isMounted) {
-          setTranslations(newTranslations);
-        }
-      } catch (error) {
-        console.error('Failed to load translations:', error);
-        if (isMounted) {
-          setTranslations({});
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
+      async function loadTranslations() {
+        setIsLoading(true);
+        try {
+          const newTranslations = await getTranslations(locale);
+          if (isMounted) {
+            setTranslations(newTranslations);
+          }
+        } catch (error) {
+          console.error('Failed to load translations:', error);
+          if (isMounted) {
+            setTranslations({});
+          }
+        } finally {
+          if (isMounted) {
+            setIsLoading(false);
+          }
         }
       }
+
+      loadTranslations();
+
+      return () => {
+        isMounted = false;
+      };
     }
-
-    loadTranslations();
-
-    return () => {
-      isMounted = false;
-    };
   }, [locale, initialLocale, initialTranslations]);
 
   // Update document direction and lang attribute only if they differ from server-side values
@@ -134,7 +139,7 @@ export function I18nProvider({ children, initialLocale, initialTranslations }: I
   return (
     <I18nContext.Provider value={contextValue}>
       {/* Only render children when translations are loaded or when we have initial translations */}
-      {(!isLoading || initialTranslations) ? children : (
+      {(!isLoading || initialTranslations || Object.keys(translations).length > 0) ? children : (
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>

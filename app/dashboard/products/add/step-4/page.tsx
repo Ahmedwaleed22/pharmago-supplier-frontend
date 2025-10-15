@@ -21,14 +21,14 @@ function ProductAddStep4Page() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_PHARMACY_URL;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_SUPPLIER_URL;
 
   const prepareProductData = async (productData: any) => {
     const formData = new FormData();
     formData.append("name", productData.name);
     formData.append("details", productData.productDetails);
     formData.append("description", productData.subName || "");
-    formData.append("price", productData.price);
+    formData.append("price_tiers", JSON.stringify(productData.priceTiers));
     formData.append("discount_percentage", productData.discount || "0");
     formData.append("tag", JSON.stringify(
       {
@@ -184,7 +184,7 @@ function ProductAddStep4Page() {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['pharmacy-products'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-products'] });
       router.push("/dashboard/products"); // Correct redirect path
       dispatch(resetProductCreation());
     },

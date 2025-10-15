@@ -3,7 +3,7 @@ import { getAuthToken } from "@/lib/api";
 import { getServerToken } from "@/lib/server-auth";
 
 export const ClientAPI = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_PHARMACY_URL,
+  baseURL: process.env.NEXT_PUBLIC_SUPPLIER_URL,
   headers: {
     "Content-Type": "application/json",
     "Accept": "application/json",
@@ -27,7 +27,7 @@ ClientAPI.interceptors.request.use((config) => {
 // Create a function to get a server-side API client with cookies
 export function createServerAPI(cookieString: string) {
   const serverAPI = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_PHARMACY_URL,
+    baseURL: process.env.NEXT_PUBLIC_SUPPLIER_URL,
     headers: {
       "Content-Type": "application/json",
       "Accept": "application/json",

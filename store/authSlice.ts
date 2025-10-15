@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
   user: Auth.User | null;
-  pharmacy: Auth.Pharmacy | null;
+  supplier: Auth.Supplier | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -11,7 +11,7 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  pharmacy: null,
+  supplier: null,
   token: null,
   isAuthenticated: false,
   isLoading: false,
@@ -22,9 +22,9 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setAuth: (state, action: PayloadAction<{ user: Auth.User; pharmacy: Auth.Pharmacy; token: string }>) => {
+    setAuth: (state, action: PayloadAction<{ user: Auth.User; supplier: Auth.Supplier; token: string }>) => {
       state.user = action.payload.user;
-      state.pharmacy = action.payload.pharmacy;
+      state.supplier = action.payload.supplier;
       state.token = action.payload.token;
       state.isAuthenticated = true;
       state.error = null;
@@ -38,7 +38,7 @@ export const authSlice = createSlice({
     },
     logout: (state) => {
       state.user = null;
-      state.pharmacy = null;
+      state.supplier = null;
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
@@ -47,11 +47,11 @@ export const authSlice = createSlice({
 });
 
 export const getCurrency = (state: { auth: AuthState }) => {
-  return state.auth.pharmacy?.country?.currency || null;
+  return state.auth.supplier?.country?.currency || null;
 };
 
-export const getPharmacy = (state: { auth: AuthState }) => {
-  return state.auth.pharmacy;
+export const getSupplier = (state: { auth: AuthState }) => {
+  return state.auth.supplier;
 };
 
 export const getUser = (state: { auth: AuthState }) => {
@@ -59,7 +59,7 @@ export const getUser = (state: { auth: AuthState }) => {
 };
 
 export const getCurrencySymbol = (state: { auth: AuthState }) => {
-  return state.auth.pharmacy?.country?.currency?.symbol || "$";
+  return state.auth.supplier?.country?.currency?.symbol || "$";
 };
 
 export const { setAuth, setLoading, setError, logout } = authSlice.actions;

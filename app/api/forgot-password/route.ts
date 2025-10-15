@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     
     // Extract auth token from cookies (optional for forgot password, but following the pattern)
     const cookieHeader = request.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     // Get the request data
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     
     // Forward request to the external API
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/forgot-password`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/forgot-password`,
       { phone_number: phoneNumber },
       {
         headers: {

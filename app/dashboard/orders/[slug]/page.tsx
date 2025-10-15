@@ -37,8 +37,8 @@ function OrderDetailsPage() {
         return t('orderHistory.delivered');
       case 'canceled':
         return t('orderHistory.canceled');
-      case 'pharmacy_offer':
-        return t('orderHistory.pharmacyOffer');
+      case 'supplier_offer':
+        return t('orderHistory.supplierOffer');
       case 'order_placed':
         return t('orderHistory.orderPlaced');
       default:
@@ -198,17 +198,17 @@ function OrderDetailsPage() {
           </div>
         </div>
 
-        {/* Pharmacy Information */}
-        {/* {order.pharmacy && (
+        {/* Supplier Information */}
+        {/* {order.supplier && (
           <div className="bg-white rounded-lg shadow p-6 flex flex-col gap-2">
-            <h2 className="text-lg font-bold mb-2">{t('orders.pharmacyInformation')}</h2>
+            <h2 className="text-lg font-bold mb-2">{t('orders.supplierInformation')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div><b>{t('orders.pharmacyName')}:</b> {order.pharmacy.name}</div>
-              {order.pharmacy.phone_number && (
-                <div><b>{t('orders.phone')}:</b> {order.pharmacy.phone_number}</div>
+              <div><b>{t('orders.supplierName')}:</b> {order.supplier.name}</div>
+              {order.supplier.phone_number && (
+                <div><b>{t('orders.phone')}:</b> {order.supplier.phone_number}</div>
               )}
-              {order.pharmacy.address && (
-                <div><b>{t('orders.address')}:</b> {order.pharmacy.address}</div>
+              {order.supplier.address && (
+                <div><b>{t('orders.address')}:</b> {order.supplier.address}</div>
               )}
             </div>
           </div>

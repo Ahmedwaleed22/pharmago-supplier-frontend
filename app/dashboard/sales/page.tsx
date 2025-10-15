@@ -86,13 +86,13 @@ function SalesPage() {
       growth: analytics.cards.orders.trend,
       trend_direction: analytics.cards.orders.trend_direction
     },
-    {
-      title: t('dashboard.prescriptions'),
-      value: analytics.cards.prescriptions.count.toString(),
-      icon: "/images/dashboard/order.svg",
-      growth: analytics.cards.prescriptions.trend,
-      trend_direction: analytics.cards.prescriptions.trend_direction
-    },
+    // {
+    //   title: t('dashboard.prescriptions'),
+    //   value: analytics.cards.prescriptions.count.toString(),
+    //   icon: "/images/dashboard/order.svg",
+    //   growth: analytics.cards.prescriptions.trend,
+    //   trend_direction: analytics.cards.prescriptions.trend_direction
+    // },
     {
       title: t('dashboard.sales'),
       value: analytics.cards.sales.count.toString(),
@@ -107,13 +107,13 @@ function SalesPage() {
       growth: analytics.cards.deliveries.trend,
       trend_direction: analytics.cards.deliveries.trend_direction
     },
-    {
-      title: t('dashboard.visits'),
-      value: analytics.cards.visits.count.toString(),
-      icon: "/images/dashboard/visits.svg",
-      growth: analytics.cards.visits.trend,
-      trend_direction: analytics.cards.visits.trend_direction
-    }
+    // {
+    //   title: t('dashboard.visits'),
+    //   value: analytics.cards.visits.count.toString(),
+    //   icon: "/images/dashboard/visits.svg",
+    //   growth: analytics.cards.visits.trend,
+    //   trend_direction: analytics.cards.visits.trend_direction
+    // }
   ];
 
   return (
@@ -157,7 +157,7 @@ function SalesPage() {
         <div className="col-span-1 md:col-span-2 h-full">
           <GrowthVolume
             data={analytics.gross_volume}
-            currency={analytics.pharmacy.country.currency}
+            currency={analytics.supplier.country.currency}
             className={{ graph: "w-full h-[250px] min-h-[250px]" }}
           />
         </div>
@@ -170,7 +170,7 @@ function SalesPage() {
       <div className="mt-8">
         <TopSellingProducts 
           products={analytics.top_selling_products}
-          currency={analytics.pharmacy.country.currency}
+          currency={analytics.supplier.country.currency}
         />
       </div>
 

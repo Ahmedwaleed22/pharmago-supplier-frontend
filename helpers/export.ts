@@ -105,8 +105,8 @@ function getOrderStatus(order: any, t?: (key: string) => string): string {
       return t('orderHistory.delivered');
     case 'canceled':
       return t('orderHistory.canceled');
-    case 'pharmacy_offer':
-      return t('orderHistory.pharmacyOffer');
+    case 'supplier_offer':
+      return t('orderHistory.supplierOffer');
     case 'order_placed':
       return t('orderHistory.orderPlaced');
     default:

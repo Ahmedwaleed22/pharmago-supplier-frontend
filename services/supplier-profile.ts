@@ -2,12 +2,12 @@ import { apiClient } from "@/lib/api";
 import { getAcceptLanguageHeader } from "@/lib/api";
 
 /**
- * Service for managing pharmacy profile operations
+ * Service for managing supplier profile operations
  * Supports both modern nested format and legacy flat format for backward compatibility
  */
 
-// Get pharmacy profile with branches
-export async function getPharmacyProfile(): Promise<Auth.ProfileResponse> {
+// Get supplier profile with branches
+export async function getSupplierProfile(): Promise<Auth.ProfileResponse> {
   try {
     const response = await apiClient.get("/api/user", {
       headers: {
@@ -36,21 +36,21 @@ export async function getPharmacyProfile(): Promise<Auth.ProfileResponse> {
           created_at: userData.created_at || new Date().toISOString(),
           updated_at: userData.updated_at || new Date().toISOString(),
         },
-        pharmacy: {
-          id: userData.pharmacy?.id,
-          name: userData.pharmacy?.name || userData.pharmacy_name,
-          description: userData.pharmacy?.description || userData.pharmacy_description,
-          logo: userData.pharmacy?.logo,
-          country_id: userData.pharmacy?.country_id || userData.country_id,
-          country: userData.pharmacy?.country,
-          rating: userData.pharmacy?.rating || 0,
-          rating_count: userData.pharmacy?.rating_count || 0,
-          account_id: userData.pharmacy?.account_id || userData.id,
-          created_at: userData.pharmacy?.created_at || new Date().toISOString(),
-          updated_at: userData.pharmacy?.updated_at || new Date().toISOString(),
-          has_branches: userData.pharmacy?.has_branches || false,
-          is_approved: userData.pharmacy?.is_approved !== undefined ? userData.pharmacy.is_approved : false,
-          branches_count: userData.pharmacy?.branches_count || (userData.branches?.length || 0),
+        supplier: {
+          id: userData.supplier?.id,
+          name: userData.supplier?.name || userData.supplier_name,
+          description: userData.supplier?.description || userData.supplier_description,
+          logo: userData.supplier?.logo,
+          country_id: userData.supplier?.country_id || userData.country_id,
+          country: userData.supplier?.country,
+          rating: userData.supplier?.rating || 0,
+          rating_count: userData.supplier?.rating_count || 0,
+          account_id: userData.supplier?.account_id || userData.id,
+          created_at: userData.supplier?.created_at || new Date().toISOString(),
+          updated_at: userData.supplier?.updated_at || new Date().toISOString(),
+          has_branches: userData.supplier?.has_branches || false,
+          is_approved: userData.supplier?.is_approved !== undefined ? userData.supplier.is_approved : false,
+          branches_count: userData.supplier?.branches_count || (userData.branches?.length || 0),
         },
         // Include main branch info
         branch: userData.branch || {
@@ -68,13 +68,13 @@ export async function getPharmacyProfile(): Promise<Auth.ProfileResponse> {
 
     return transformedResponse;
   } catch (error) {
-    console.error("Error fetching pharmacy profile:", error);
+    console.error("Error fetching supplier profile:", error);
     throw error;
   }
 }
 
-// Update pharmacy profile using modern nested format
-export async function updatePharmacyProfile(
+// Update supplier profile using modern nested format
+export async function updateSupplierProfile(
   profileData: Auth.ProfileUpdateData
 ): Promise<any> {
   try {
@@ -87,20 +87,20 @@ export async function updatePharmacyProfile(
     if (profileData.password) formData.append("password", profileData.password);
     
     // For now, use legacy flat format since backend doesn't support nested yet
-    if (profileData.pharmacy?.name) {
-      formData.append("pharmacy_name", profileData.pharmacy.name);
+    if (profileData.supplier?.name) {
+      formData.append("supplier_name", profileData.supplier.name);
     }
-    if (profileData.pharmacy?.description) {
-      formData.append("pharmacy_description", profileData.pharmacy.description);
+    if (profileData.supplier?.description) {
+      formData.append("supplier_description", profileData.supplier.description);
     }
-    if (profileData.pharmacy?.country_id) {
-      formData.append("country_id", profileData.pharmacy.country_id);
+    if (profileData.supplier?.country_id) {
+      formData.append("country_id", profileData.supplier.country_id);
     }
-    if (profileData.pharmacy?.logo) {
-      if (profileData.pharmacy.logo instanceof File) {
-        formData.append("logo", profileData.pharmacy.logo);
-      } else if (typeof profileData.pharmacy.logo === 'string') {
-        formData.append("logo", profileData.pharmacy.logo);
+    if (profileData.supplier?.logo) {
+      if (profileData.supplier.logo instanceof File) {
+        formData.append("logo", profileData.supplier.logo);
+      } else if (typeof profileData.supplier.logo === 'string') {
+        formData.append("logo", profileData.supplier.logo);
       }
     }
     
@@ -141,13 +141,13 @@ export async function updatePharmacyProfile(
 
     return response.data;
   } catch (error) {
-    console.error("Error updating pharmacy profile:", error);
+    console.error("Error updating supplier profile:", error);
     throw error;
   }
 }
 
-// Update pharmacy profile using legacy flat format (for backward compatibility)
-export async function updatePharmacyProfileLegacy(
+// Update supplier profile using legacy flat format (for backward compatibility)
+export async function updateSupplierProfileLegacy(
   profileData: Auth.LegacyProfileUpdateData
 ): Promise<any> {
   try {
@@ -174,15 +174,15 @@ export async function updatePharmacyProfileLegacy(
 
     return response.data;
   } catch (error) {
-    console.error("Error updating pharmacy profile (legacy):", error);
+    console.error("Error updating supplier profile (legacy):", error);
     throw error;
   }
 }
 
 // Branch management services
 
-// Get pharmacy branches
-export async function getPharmacyBranches(): Promise<Auth.PharmacyBranch[]> {
+// Get supplier branches
+export async function getSupplierBranches(): Promise<Auth.SupplierBranch[]> {
   try {
     const response = await apiClient.get("/api/branches", {
       headers: {
@@ -191,13 +191,13 @@ export async function getPharmacyBranches(): Promise<Auth.PharmacyBranch[]> {
     });
     return response.data.data || response.data || [];
   } catch (error) {
-    console.error("Error fetching pharmacy branches:", error);
+    console.error("Error fetching supplier branches:", error);
     throw error;
   }
 }
 
-// Create a new pharmacy branch
-export async function createPharmacyBranch(branchData: Auth.BranchCreateData): Promise<Auth.PharmacyBranch> {
+// Create a new supplier branch
+export async function createSupplierBranch(branchData: Auth.BranchCreateData): Promise<Auth.SupplierBranch> {
   try {
     const response = await apiClient.post("/api/branches", branchData, {
       headers: {
@@ -206,13 +206,13 @@ export async function createPharmacyBranch(branchData: Auth.BranchCreateData): P
     });
     return response.data.data || response.data;
   } catch (error) {
-    console.error("Error creating pharmacy branch:", error);
+    console.error("Error creating supplier branch:", error);
     throw error;
   }
 }
 
-// Update a pharmacy branch
-export async function updatePharmacyBranch(branchId: string, branchData: Auth.BranchUpdateData): Promise<Auth.PharmacyBranch> {
+// Update a supplier branch
+export async function updateSupplierBranch(branchId: string, branchData: Auth.BranchUpdateData): Promise<Auth.SupplierBranch> {
   try {
     const response = await apiClient.put(`/api/branches/${branchId}`, branchData, {
       headers: {
@@ -221,13 +221,13 @@ export async function updatePharmacyBranch(branchId: string, branchData: Auth.Br
     });
     return response.data.data || response.data;
   } catch (error) {
-    console.error("Error updating pharmacy branch:", error);
+    console.error("Error updating supplier branch:", error);
     throw error;
   }
 }
 
-// Delete a pharmacy branch
-export async function deletePharmacyBranch(branchId: string): Promise<void> {
+// Delete a supplier branch
+export async function deleteSupplierBranch(branchId: string): Promise<void> {
   try {
     await apiClient.delete(`/api/branches/${branchId}`, {
       headers: {
@@ -235,7 +235,7 @@ export async function deletePharmacyBranch(branchId: string): Promise<void> {
       }
     });
   } catch (error) {
-    console.error("Error deleting pharmacy branch:", error);
+    console.error("Error deleting supplier branch:", error);
     throw error;
   }
 }

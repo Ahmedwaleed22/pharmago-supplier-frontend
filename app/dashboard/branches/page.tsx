@@ -6,18 +6,18 @@ import { useTranslation } from "@/contexts/i18n-context";
 import CustomButton from "@/components/custom-button";
 import Breadcrumb from "@/components/ui/breadcrumb";
 import {
-  getPharmacyBranches,
-  createPharmacyBranch,
-  updatePharmacyBranch,
-  deletePharmacyBranch,
-} from "@/services/pharmacy-profile";
+  getSupplierBranches,
+  createSupplierBranch,
+  updateSupplierBranch,
+  deleteSupplierBranch,
+} from "@/services/supplier-profile";
 import { useRouter } from "next/navigation";
 
 const BranchManagementPage: React.FC = () => {
   const { t, isRtl } = useTranslation();
   const router = useRouter();
   
-  const [branches, setBranches] = useState<Auth.PharmacyBranch[]>([]);
+  const [branches, setBranches] = useState<Auth.SupplierBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +30,7 @@ const BranchManagementPage: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const branchData = await getPharmacyBranches();
+      const branchData = await getSupplierBranches();
       setBranches(branchData);
     } catch (error: any) {
       console.error("Error loading branches:", error);
@@ -54,7 +54,7 @@ const BranchManagementPage: React.FC = () => {
     }
 
     try {
-      await deletePharmacyBranch(branchId);
+      await deleteSupplierBranch(branchId);
       // Reload branches after deletion
       await loadBranches();
     } catch (error: any) {

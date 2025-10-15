@@ -1,13 +1,13 @@
-# Pharmacy Profile Management System
+# Supplier Profile Management System
 
 ## 📋 Overview
 
-The Pharmacy Profile Management System provides comprehensive APIs for pharmacies to manage their complete profile information, including user account details, pharmacy information, and branch locations. The system supports both modern nested data formats and legacy flat formats for backward compatibility.
+The Supplier Profile Management System provides comprehensive APIs for pharmacies to manage their complete profile information, including user account details, supplier information, and branch locations. The system supports both modern nested data formats and legacy flat formats for backward compatibility.
 
 ## 🚀 Features
 
 - **User Profile Management**: Update name, email, phone, avatar, and password
-- **Pharmacy Information**: Manage pharmacy name, description, logo, and country
+- **Supplier Information**: Manage supplier name, description, logo, and country
 - **Branch Management**: Handle multiple branch locations with full address and contact details
 - **File Upload Support**: Logo and avatar uploads via BunnyCDN
 - **Dual Format Support**: Both nested and legacy data formats
@@ -34,16 +34,16 @@ Content-Type: application/json
   "data": {
     "user": {
       "id": "uuid",
-      "name": "Pharmacy Manager Name",
-      "email": "manager@pharmacy.com",
+      "name": "Supplier Manager Name",
+      "email": "manager@supplier.com",
       "phone_number": "+1234567890",
       "avatar": "https://cdn.example.com/avatars/avatar.jpg",
-      "account_type": "pharmacy"
+      "account_type": "supplier"
     },
-    "pharmacy": {
+    "supplier": {
       "id": "uuid",
-      "name": "Main Pharmacy",
-      "description": "Your trusted neighborhood pharmacy",
+      "name": "Main Supplier",
+      "description": "Your trusted neighborhood supplier",
       "logo": "https://cdn.example.com/logos/logo.jpg",
       "country": {
         "id": "uuid",
@@ -95,12 +95,12 @@ Content-Type: application/json
 ```json
 {
   "name": "Updated Manager Name",
-  "email": "updated@pharmacy.com",
+  "email": "updated@supplier.com",
   "phone_number": "+9876543210",
   "password": "newpassword123",
-  "pharmacy": {
-    "name": "Updated Pharmacy Name",
-    "description": "Updated pharmacy description",
+  "supplier": {
+    "name": "Updated Supplier Name",
+    "description": "Updated supplier description",
     "country_id": "country-uuid",
     "logo": "base64_file_or_file_upload"
   },
@@ -120,10 +120,10 @@ Content-Type: application/json
 ```json
 {
   "name": "Updated Manager Name",
-  "email": "updated@pharmacy.com",
+  "email": "updated@supplier.com",
   "phone_number": "+9876543210",
-  "pharmacy_name": "Updated Pharmacy Name",
-  "pharmacy_description": "Updated description",
+  "supplier_name": "Updated Supplier Name",
+  "supplier_description": "Updated description",
   "country_id": "country-uuid",
   "branch_name": "Updated Branch",
   "branch_address": "Updated Address",
@@ -187,7 +187,7 @@ DELETE /api/v1/pharmacies/branches/{branch_id}
 ## 📁 File Upload Support
 
 The system supports file uploads for:
-- **Pharmacy Logo**: `pharmacy.logo` or `logo` (legacy)
+- **Supplier Logo**: `supplier.logo` or `logo` (legacy)
 - **User Avatar**: `avatar`
 
 ### File Upload Methods
@@ -195,7 +195,7 @@ The system supports file uploads for:
 1. **Multipart Form Data** (Recommended):
 ```javascript
 const formData = new FormData();
-formData.append('pharmacy[logo]', logoFile);
+formData.append('supplier[logo]', logoFile);
 formData.append('avatar', avatarFile);
 formData.append('name', 'Updated Name');
 ```
@@ -203,7 +203,7 @@ formData.append('name', 'Updated Name');
 2. **Base64 Encoding**:
 ```json
 {
-  "pharmacy": {
+  "supplier": {
     "logo": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
   },
   "avatar": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA..."
@@ -214,8 +214,8 @@ formData.append('name', 'Updated Name');
 
 All endpoints require:
 - **Authentication**: Valid Sanctum Bearer token
-- **Role Authorization**: User must have `pharmacy` role
-- **Approval Status**: Pharmacy must be approved (`CheckPharmacyApproval` middleware)
+- **Role Authorization**: User must have `supplier` role
+- **Approval Status**: Supplier must be approved (`CheckSupplierApproval` middleware)
 
 ## 📊 Data Models
 
@@ -225,10 +225,10 @@ All endpoints require:
 - `email` (string, unique)
 - `phone_number` (string, unique by account type)
 - `avatar` (string, URL)
-- `account_type` (enum: pharmacy)
+- `account_type` (enum: supplier)
 - `approval_status` (string)
 
-### Pharmacy Model
+### Supplier Model
 - `id` (UUID)
 - `account_id` (UUID, foreign key to users)
 - `name` (string)
@@ -237,9 +237,9 @@ All endpoints require:
 - `country_id` (UUID, foreign key)
 - `is_approved` (boolean)
 
-### PharmacyBranch Model
+### SupplierBranch Model
 - `id` (UUID)
-- `pharmacy_id` (UUID, foreign key)
+- `supplier_id` (UUID, foreign key)
 - `name` (string)
 - `address` (string)
 - `latitude` (decimal)
@@ -255,11 +255,11 @@ All endpoints require:
 - `password`: optional|string|min:8
 - `avatar`: optional|image|max:2048
 
-### Pharmacy Fields (Nested Format)
-- `pharmacy.name`: required_with:pharmacy|string|max:255
-- `pharmacy.description`: optional|string|max:1000
-- `pharmacy.country_id`: optional|exists:countries,id
-- `pharmacy.logo`: optional|image|max:5120
+### Supplier Fields (Nested Format)
+- `supplier.name`: required_with:supplier|string|max:255
+- `supplier.description`: optional|string|max:1000
+- `supplier.country_id`: optional|exists:countries,id
+- `supplier.logo`: optional|image|max:5120
 
 ### Branch Fields (Nested Format)
 - `branch.name`: required_with:branch|string|max:255
@@ -280,17 +280,17 @@ All endpoints require:
   - `profile()`: Get user profile with relationships
   - `updateProfile()`: Update profile with dual format support
 
-### Request Validation: `UpdatePharmacyUserProfileRequest`
-- **Location**: `app/Http/Requests/v1/Pharmacies/UpdatePharmacyUserProfileRequest.php`
+### Request Validation: `UpdateSupplierUserProfileRequest`
+- **Location**: `app/Http/Requests/v1/Pharmacies/UpdateSupplierUserProfileRequest.php`
 - **Features**: Nested and legacy validation rules, custom phone validation
 
-### Resource: `PharmacyUserProfileResource`
-- **Location**: `app/Http/Resources/v1/Pharmacies/PharmacyUserProfileResource.php`
-- **Purpose**: Transform user data with complete pharmacy and branch information
+### Resource: `SupplierUserProfileResource`
+- **Location**: `app/Http/Resources/v1/Pharmacies/SupplierUserProfileResource.php`
+- **Purpose**: Transform user data with complete supplier and branch information
 
 ### Branch Controller: `BranchController`
 - **Location**: `app/Http/Controllers/v1/Pharmacies/BranchController.php`
-- **Features**: Full CRUD operations for pharmacy branches
+- **Features**: Full CRUD operations for supplier branches
 
 ## 🚀 Usage Examples
 
@@ -313,8 +313,8 @@ const updateProfile = async (profileData) => {
   const formData = new FormData();
   
   // Add files
-  if (profileData.pharmacy?.logo) {
-    formData.append('pharmacy[logo]', profileData.pharmacy.logo);
+  if (profileData.supplier?.logo) {
+    formData.append('supplier[logo]', profileData.supplier.logo);
   }
   if (profileData.avatar) {
     formData.append('avatar', profileData.avatar);
@@ -322,7 +322,7 @@ const updateProfile = async (profileData) => {
   
   // Add other data
   formData.append('name', profileData.name);
-  formData.append('pharmacy[name]', profileData.pharmacy.name);
+  formData.append('supplier[name]', profileData.supplier.name);
   formData.append('branch[address]', profileData.branch.address);
   
   const response = await fetch('/api/v1/pharmacies/user', {
@@ -349,8 +349,8 @@ curl -X GET "https://api.pharmago.com/v1/pharmacies/user" \
 curl -X POST "https://api.pharmago.com/v1/pharmacies/user" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "name=Updated Name" \
-  -F "pharmacy[name]=Updated Pharmacy" \
-  -F "pharmacy[logo]=@logo.jpg" \
+  -F "supplier[name]=Updated Supplier" \
+  -F "supplier[logo]=@logo.jpg" \
   -F "branch[address]=New Address"
 ```
 
@@ -358,7 +358,7 @@ curl -X POST "https://api.pharmago.com/v1/pharmacies/user" \
 
 ### Test Coverage
 - User profile updates (individual fields)
-- Pharmacy data updates (nested format)
+- Supplier data updates (nested format)
 - Branch data updates (nested format)
 - Legacy format compatibility
 - File upload functionality
@@ -367,11 +367,11 @@ curl -X POST "https://api.pharmago.com/v1/pharmacies/user" \
 
 ### Running Tests
 ```bash
-# Run all pharmacy profile tests
-php artisan test tests/Feature/Pharmacies/PharmacyProfileUpdateTest.php
+# Run all supplier profile tests
+php artisan test tests/Feature/Pharmacies/SupplierProfileUpdateTest.php
 
 # Run specific test method
-php artisan test --filter=pharmacy_can_update_user_profile_data
+php artisan test --filter=supplier_can_update_user_profile_data
 ```
 
 ## 🔍 Troubleshooting
@@ -379,12 +379,12 @@ php artisan test --filter=pharmacy_can_update_user_profile_data
 ### Common Issues
 
 1. **404 Route Not Found**
-   - Verify route registration in `routes/v1/Pharmacy/api.php`
+   - Verify route registration in `routes/v1/Supplier/api.php`
    - Check middleware requirements
 
 2. **403 Unauthorized**
-   - Ensure user has `pharmacy` role
-   - Verify pharmacy approval status
+   - Ensure user has `supplier` role
+   - Verify supplier approval status
 
 3. **422 Validation Error**
    - Check validation rules in request class
@@ -420,7 +420,7 @@ php artisan test --filter=pharmacy_can_update_user_profile_data
 
 ## 📞 Support
 
-For technical support or questions about the Pharmacy Profile Management System:
+For technical support or questions about the Supplier Profile Management System:
 - Review this documentation
 - Check the test files for usage examples
 - Verify API routes and middleware configuration

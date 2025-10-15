@@ -9,7 +9,7 @@ export async function DELETE(
     const { slug } = await params;
 
     const cookieHeader = request.headers.get('cookie') || '';
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
 
     if (!token) {
@@ -17,7 +17,7 @@ export async function DELETE(
     }
 
     const response = await axios.delete(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/prescriptions/${slug}/visibility`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/prescriptions/${slug}/visibility`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,

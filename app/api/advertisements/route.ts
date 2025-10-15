@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     
     // Forward the request to the actual API with the auth token and query parameters
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/ads`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/ads`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Forward the request to the actual API with the auth token
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/ads`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/ads`,
       formData,
       {
         headers: {

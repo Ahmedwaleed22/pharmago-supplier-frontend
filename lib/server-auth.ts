@@ -1,8 +1,8 @@
 'use server';
 
 // Cookie keys (must match client-side)
-const TOKEN_KEY = "pharmacy_auth_token";
-const USER_KEY = "pharmacy_user";
+const TOKEN_KEY = "supplier_auth_token";
+const USER_KEY = "supplier_user";
 
 /**
  * Server action to get the auth token

@@ -18,7 +18,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "PharmaGo | Business Dashboard",
-  description: "PharmaGo | Business Dashboard | Pharmacy Management System",
+  description: "PharmaGo | Business Dashboard | Supplier Management System",
 };
 
 if (process.env.NODE_ENV === "production") console.log = function () {};

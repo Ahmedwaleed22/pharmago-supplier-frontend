@@ -5,8 +5,8 @@ import { rememberMeUtils } from "./remember-me";
 const API_BASE_URL = '/';
 
 // For client-side storage
-const TOKEN_KEY = "pharmacy_auth_token";
-const USER_KEY = "pharmacy_user";
+const TOKEN_KEY = "supplier_auth_token";
+const USER_KEY = "supplier_user";
 const USER_ID_KEY = "user_id";
 
 // Default cookie expiration (30 days for remember me)
@@ -78,7 +78,7 @@ apiClient.interceptors.response.use(
   }
 );
 
-export async function loginPharmacy(
+export async function loginSupplier(
   credentials: Auth.LoginCredentials
 ): Promise<Auth.LoginResponse> {
   try {
@@ -130,10 +130,10 @@ export async function logout(): Promise<void> {
   }
 }
 
-// Helper function to clear stored credentials
+// Helper function to clear stored remember data
 function clearStoredCredentials(): void {
   if (typeof window !== "undefined") {
-    rememberMeUtils.clearStoredCredentials();
+    rememberMeUtils.clearRememberData();
   }
 }
 
@@ -342,7 +342,7 @@ export async function proxyRequest(
   }
 }
 
-// Fetch the authenticated pharmacy user data
+// Fetch the authenticated supplier user data
 export async function fetchAuthenticatedUser(): Promise<any> {
   try {
     const response = await axios.get("/api/user", { 

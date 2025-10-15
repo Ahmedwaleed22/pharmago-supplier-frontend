@@ -10,7 +10,7 @@ export async function GET(
     const cookieHeader = request.headers.get('cookie') || '';
     
     // Extract the auth token from the cookie
-    const tokenMatch = cookieHeader.match(/pharmacy_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/supplier_auth_token=([^;]+)/);
     const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
     
     if (!token) {

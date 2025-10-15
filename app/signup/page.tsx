@@ -169,6 +169,7 @@ function SignupPage() {
   const [currentStep, setCurrentStep] = useState(1);
 
   // Step 1 - User Details
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [retypePassword, setRetypePassword] = useState("");
@@ -178,14 +179,15 @@ function SignupPage() {
   const [phoneNumberError, setPhoneNumberError] = useState<string | null>(null);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
 
-  // Step 2 - Pharmacy Details
-  const [pharmacyName, setPharmacyName] = useState("");
-  const [firstBranchName, setFirstBranchName] = useState("");
-  const [branchAddress, setBranchAddress] = useState("");
-  const [locationOfBranch, setLocationOfBranch] = useState("");
-  const [branchCountryCode, setBranchCountryCode] = useState("");
-  const [branchPhoneNumber, setBranchPhoneNumber] = useState("");
-  const [branchPhoneNumberError, setBranchPhoneNumberError] = useState<string | null>(null);
+  // Step 2 - Company Details
+  const [companyName, setCompanyName] = useState("");
+  const [companyLicense, setCompanyLicense] = useState("");
+  const [description, setDescription] = useState("");
+  const [locationName, setLocationName] = useState("");
+  const [locationAddress, setLocationAddress] = useState("");
+  const [locationCountryCode, setLocationCountryCode] = useState("");
+  const [locationPhoneNumber, setLocationPhoneNumber] = useState("");
+  const [locationPhoneNumberError, setLocationPhoneNumberError] = useState<string | null>(null);
 
   // Step 3 - Image Upload
   const [uploadedImage, setUploadedImage] = useState<File>();
@@ -252,7 +254,7 @@ function SignupPage() {
     }
   };
 
-  const handleBranchPhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLocationPhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
     // Remove all non-numeric characters for simpler handling when using country code select
@@ -260,21 +262,21 @@ function SignupPage() {
     
     // Basic formatting for US numbers if using +1
     let formattedValue = numericValue;
-    if (branchCountryCode === "+1" && numericValue.length >= 6) {
+    if (locationCountryCode === "+1" && numericValue.length >= 6) {
       formattedValue = numericValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
     } else if (numericValue.length > 0) {
       // For other countries, add spaces every 3 digits for readability
       formattedValue = numericValue.replace(/(\d{3})(?=\d)/g, '$1 ');
     }
     
-    setBranchPhoneNumber(formattedValue);
+    setLocationPhoneNumber(formattedValue);
     
     // Real-time validation
     if (formattedValue.trim() !== '') {
       const validation = validatePhoneNumber(formattedValue, t);
-      setBranchPhoneNumberError(validation.isValid ? null : validation.error || null);
+      setLocationPhoneNumberError(validation.isValid ? null : validation.error || null);
     } else {
-      setBranchPhoneNumberError(null);
+      setLocationPhoneNumberError(null);
     }
   };
 
@@ -375,6 +377,10 @@ function SignupPage() {
     // Validate all required fields in Step 1
     const errors: string[] = [];
     
+    if (!name.trim()) {
+      errors.push(t("auth.nameRequired"));
+    }
+    
     if (!email.trim()) {
       errors.push(t("auth.emailRequired"));
     }
@@ -455,74 +461,74 @@ function SignupPage() {
     setError(null);
     setSuccess(null);
     setWhatsAppError(null);
+    setCurrentStep(3);
+    // setError(null);
+    // setSuccess(null);
+    // setWhatsAppError(null);
 
-    // Validate all required fields in Step 2
-    const errors: string[] = [];
+    // // Validate all required fields in Step 2
+    // const errors: string[] = [];
     
-    if (!pharmacyName.trim()) {
-      errors.push(t("auth.pharmacyNameRequired"));
-    }
+    // if (!companyName.trim()) {
+    //   errors.push(t("auth.companyNameRequired"));
+    // }
     
-    if (!firstBranchName.trim()) {
-      errors.push(t("auth.firstBranchNameRequired"));
-    }
+    // if (!locationName.trim()) {
+    //   errors.push(t("auth.locationNameRequired"));
+    // }
     
-    if (!branchAddress.trim()) {
-      errors.push(t("auth.branchAddressRequired"));
-    }
+    // if (!locationAddress.trim()) {
+    //   errors.push(t("auth.locationAddressRequired"));
+    // }
     
-    if (!locationOfBranch.trim()) {
-      errors.push(t("auth.locationOfBranchRequired"));
-    }
+    // if (!selectedLocationData || !selectedLocationData.lat || !selectedLocationData.lng) {
+    //   errors.push(t("auth.mapLocationRequired"));
+    // }
     
-    if (!selectedLocationData || !selectedLocationData.lat || !selectedLocationData.lng) {
-      errors.push(t("auth.mapLocationRequired"));
-    }
+    // // if (!locationPhoneNumber.trim()) {
+    // //   errors.push(t("auth.locationPhoneNumberRequired"));
+    // // }
     
-    if (!branchPhoneNumber.trim()) {
-      errors.push(t("auth.branchPhoneNumberRequired"));
-    }
-    
-    if (!agreeToTerms) {
-      errors.push(t("auth.agreeToTermsRequired"));
-    }
+    // if (!agreeToTerms) {
+    //   errors.push(t("auth.agreeToTermsRequired"));
+    // }
 
-    // Validate branch phone number format
-    if (branchPhoneNumber.trim()) {
-      const branchPhoneValidation = validatePhoneNumber(branchPhoneNumber, t);
-      if (!branchPhoneValidation.isValid) {
-        setBranchPhoneNumberError(branchPhoneValidation.error || t("auth.validBranchPhoneNumberRequired"));
-        errors.push(t("auth.validBranchPhoneNumberRequired"));
-      }
-    }
+    // // Validate location phone number format
+    // // if (locationPhoneNumber.trim()) {
+    // //   const locationPhoneValidation = validatePhoneNumber(locationPhoneNumber, t);
+    // //   if (!locationPhoneValidation.isValid) {
+    // //     setLocationPhoneNumberError(locationPhoneValidation.error || t("auth.validLocationPhoneNumberRequired"));
+    // //     errors.push(t("auth.validLocationPhoneNumberRequired"));
+    // //   }
+    // // }
 
-    if (errors.length > 0) {
-      setError(errors.join(". "));
-      return;
-    }
+    // if (errors.length > 0) {
+    //   setError(errors.join(". "));
+    //   return;
+    // }
 
-    // Check if branch phone number has WhatsApp
-    setIsCheckingWhatsApp(true);
-    try {
-      const whatsAppCheck = await checkWhatsAppNumber(branchPhoneNumber, branchCountryCode);
+    // // Check if location phone number has WhatsApp
+    // setIsCheckingWhatsApp(true);
+    // try {
+    //   const whatsAppCheck = await checkWhatsAppNumber(locationPhoneNumber, locationCountryCode);
       
-      if (whatsAppCheck.error) {
-        setWhatsAppError(whatsAppCheck.error);
-        return;
-      }
+    //   if (whatsAppCheck.error) {
+    //     setWhatsAppError(whatsAppCheck.error);
+    //     return;
+    //   }
       
-      if (!whatsAppCheck.hasWhatsApp) {
-        setWhatsAppError(t("auth.branchPhoneNumberNoWhatsApp") || "This branch phone number doesn't have a WhatsApp account. Please use a number with WhatsApp.");
-        return;
-      }
+    //   if (!whatsAppCheck.hasWhatsApp) {
+    //     setWhatsAppError(t("auth.locationPhoneNumberNoWhatsApp") || "This location phone number doesn't have a WhatsApp account. Please use a number with WhatsApp.");
+    //     return;
+    //   }
       
-      // If WhatsApp check passes, proceed to next step
-      setCurrentStep(3);
-    } catch (error) {
-      setWhatsAppError(t("auth.whatsAppCheckFailed") || "Failed to verify WhatsApp number. Please try again.");
-    } finally {
-      setIsCheckingWhatsApp(false);
-    }
+    //   // If WhatsApp check passes, proceed to next step
+    //   setCurrentStep(3);
+    // } catch (error) {
+    //   setWhatsAppError(t("auth.whatsAppCheckFailed") || "Failed to verify WhatsApp number. Please try again.");
+    // } finally {
+    //   setIsCheckingWhatsApp(false);
+    // }
   };
 
   const handleStep3Submit = async (e: React.FormEvent) => {
@@ -537,6 +543,7 @@ function SignupPage() {
       const errors: string[] = [];
 
       // Step 1 validation
+      if (!name.trim()) errors.push(t("auth.nameRequired"));
       if (!email.trim()) errors.push(t("auth.emailRequired"));
       if (!password.trim()) errors.push(t("auth.passwordRequired"));
       if (!country) errors.push(t("auth.countrySelectionRequired"));
@@ -544,14 +551,13 @@ function SignupPage() {
       if (!agreeToTerms) errors.push(t("auth.agreementToTermsRequired"));
 
       // Step 2 validation
-      if (!pharmacyName.trim()) errors.push(t("auth.pharmacyNameRequired"));
-      if (!firstBranchName.trim()) errors.push(t("auth.firstBranchNameRequired"));
-      if (!branchAddress.trim()) errors.push(t("auth.branchAddressRequired"));
-      if (!locationOfBranch.trim()) errors.push(t("auth.locationOfBranchRequired"));
+      if (!companyName.trim()) errors.push(t("auth.companyNameRequired"));
+      if (!locationName.trim()) errors.push(t("auth.locationNameRequired"));
+      if (!locationAddress.trim()) errors.push(t("auth.locationAddressRequired"));
       if (!selectedLocationData || !selectedLocationData.lat || !selectedLocationData.lng) {
         errors.push(t("auth.mapLocationRequired"));
       }
-      if (!branchPhoneNumber.trim()) errors.push(t("auth.branchPhoneNumberRequired"));
+      // if (!locationPhoneNumber.trim()) errors.push(t("auth.locationPhoneNumberRequired"));
 
       // Step 3 validation
       if (!uploadedImage) {
@@ -560,23 +566,24 @@ function SignupPage() {
 
       // Phone number format validation
       const phoneValidation = validatePhoneNumber(phoneNumber, t);
-      const branchPhoneValidation = validatePhoneNumber(branchPhoneNumber, t);
+      const locationPhoneValidation = validatePhoneNumber(locationPhoneNumber, t);
 
       if (!phoneValidation.isValid) {
         setPhoneNumberError(phoneValidation.error || t("auth.validPhoneNumberRequired"));
         errors.push(t("auth.validPhoneNumberRequired"));
       }
 
-      if (!branchPhoneValidation.isValid) {
-        setBranchPhoneNumberError(branchPhoneValidation.error || t("auth.validBranchPhoneNumberRequired"));
-        errors.push(t("auth.validBranchPhoneNumberRequired"));
-      }
+      // if (!locationPhoneValidation.isValid) {
+      //   setLocationPhoneNumberError(locationPhoneValidation.error || t("auth.validLocationPhoneNumberRequired"));
+      //   errors.push(t("auth.validLocationPhoneNumberRequired"));
+      // }
 
       if (errors.length > 0) {
         setError(errors.join(". "));
         
         // Navigate to the appropriate step based on the type of error
         if (errors.some(error => 
+          error === t("auth.nameRequired") ||
           error === t("auth.emailRequired") || 
           error === t("auth.passwordRequired") || 
           error === t("auth.retypePasswordRequired") ||
@@ -590,13 +597,12 @@ function SignupPage() {
         )) {
           setCurrentStep(1);
         } else if (errors.some(error => 
-          error === t("auth.pharmacyNameRequired") ||
-          error === t("auth.firstBranchNameRequired") ||
-          error === t("auth.branchAddressRequired") ||
-          error === t("auth.locationOfBranchRequired") ||
-          error === t("auth.mapLocationRequired") ||
-          error === t("auth.branchPhoneNumberRequired") ||
-          error === t("auth.validBranchPhoneNumberRequired")
+          error === t("auth.companyNameRequired") ||
+          error === t("auth.locationNameRequired") ||
+          error === t("auth.locationAddressRequired") ||
+          error === t("auth.mapLocationRequired")
+          // error === t("auth.locationPhoneNumberRequired") ||
+          // error === t("auth.validLocationPhoneNumberRequired")
         )) {
           setCurrentStep(2);
         } else {
@@ -607,7 +613,7 @@ function SignupPage() {
       
       // Create FormData object for multipart/form-data submission
       const formData = new FormData();
-      formData.append('name', pharmacyName);
+      formData.append('name', name);
       formData.append('email', email);
       
       // Combine country code with phone number
@@ -615,18 +621,27 @@ function SignupPage() {
       formData.append('phone_number', fullPhoneNumber);
       
       formData.append('password', password);
-      formData.append('password_confirmation', password);
+      formData.append('company_name', companyName);
+      
+      // Optional fields
+      if (companyLicense.trim()) {
+        formData.append('company_license', companyLicense);
+      }
+      if (description.trim()) {
+        formData.append('description', description);
+      }
+      
       formData.append('country_id', country?.toString() || '');
       
-      // Append nested branch data with bracket notation
-      formData.append('branch[name]', firstBranchName);
-      formData.append('branch[address]', branchAddress);
-      formData.append('branch[latitude]', selectedLocationData?.lat?.toString() || '');
-      formData.append('branch[longitude]', selectedLocationData?.lng?.toString() || '');
+      // Append nested location data with bracket notation
+      formData.append('location[name]', locationName);
+      formData.append('location[address]', locationAddress);
+      formData.append('location[latitude]', selectedLocationData?.lat?.toString() || '');
+      formData.append('location[longitude]', selectedLocationData?.lng?.toString() || '');
       
-      // Combine branch country code with branch phone number
-      const fullBranchPhoneNumber = branchCountryCode ? `${branchCountryCode}${cleanPhoneNumber(branchPhoneNumber)}` : cleanPhoneNumber(branchPhoneNumber);
-      formData.append('branch[phone_number]', fullBranchPhoneNumber);
+      // Combine location country code with location phone number
+      const fullLocationPhoneNumber = locationCountryCode ? `${locationCountryCode}${cleanPhoneNumber(locationPhoneNumber)}` : cleanPhoneNumber(locationPhoneNumber);
+      formData.append('location[phone_number]', fullLocationPhoneNumber);
       
       // Append the file
       if (uploadedImage) {
@@ -671,7 +686,8 @@ function SignupPage() {
 
   const handleLocationSelect = (location: { name: string; lat: number; lng: number; address: string }) => {
     setSelectedLocationData(location);
-    setLocationOfBranch(location.address);
+    setLocationAddress(location.address);
+    setLocationName(location.name);
   };
 
   const openMapPicker = () => {
@@ -692,6 +708,25 @@ function SignupPage() {
       <input type="hidden" name="signup" value="1" />
       <input type="hidden" name="registration" value="true" />
       
+      <div className="flex flex-col">
+        <label htmlFor="name" className="text-sm text-blue-gray mb-3 px-0.5">
+          {t("auth.name")}
+        </label>
+        <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            placeholder={t("auth.enterYourName")}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
+            required
+          />
+        </div>
+      </div>
+
       <div className="flex flex-col">
         <label htmlFor="email" className="text-sm text-blue-gray mb-3 px-0.5">
           {t("auth.email")}
@@ -891,88 +926,113 @@ function SignupPage() {
     <form onSubmit={handleStep2Submit} className="flex flex-col gap-4" name="registration-step2" data-form-type="signup">
       <div className="flex flex-col">
         <label
-          htmlFor="pharmacyName"
+          htmlFor="companyName"
           className="text-sm text-blue-gray mb-3 px-0.5"
         >
-          {t("auth.pharmacyName")}
+          {t("auth.companyName")}
         </label>
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
-            id="pharmacyName"
-            name="pharmacyName"
+            id="companyName"
+            name="companyName"
             type="text"
             autoComplete="organization"
-            placeholder={t("auth.enterPharmacyName")}
-            value={pharmacyName}
-            onChange={(e) => setPharmacyName(e.target.value)}
+            placeholder={t("auth.enterCompanyName")}
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
             className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
             required
           />
         </div>
       </div>
 
-      <div className="flex flex-col">
+      {/* <div className="flex flex-col">
         <label
-          htmlFor="firstBranchName"
+          htmlFor="companyLicense"
           className="text-sm text-blue-gray mb-3 px-0.5"
         >
-          {t("auth.firstBranchName")}
+          {t("auth.companyLicense")} ({t("auth.optional")})
         </label>
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
-            id="firstBranchName"
-            name="firstBranchName"
+            id="companyLicense"
+            name="companyLicense"
             type="text"
-            autoComplete="organization-title"
-            placeholder={t("auth.enterFirstBranchName")}
-            value={firstBranchName}
-            onChange={(e) => setFirstBranchName(e.target.value)}
+            autoComplete="off"
+            placeholder={t("auth.enterCompanyLicense")}
+            value={companyLicense}
+            onChange={(e) => setCompanyLicense(e.target.value)}
             className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
-            required
           />
         </div>
-      </div>
+      </div> */}
 
-      <div className="flex flex-col">
+      {/* <div className="flex flex-col">
         <label
-          htmlFor="branchAddress"
+          htmlFor="description"
           className="text-sm text-blue-gray mb-3 px-0.5"
         >
-          {t("auth.branchAddress")}
+          {t("auth.description")} ({t("auth.optional")})
+        </label>
+        <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
+          <textarea
+            id="description"
+            name="description"
+            autoComplete="off"
+            placeholder={t("auth.enterDescription")}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black min-h-[80px] resize-y"
+            maxLength={1000}
+          />
+        </div>
+        {description.length > 0 && (
+          <p className="text-xs text-gray-500 mt-1 px-0.5">
+            {description.length}/1000 {t("auth.characters")}
+          </p>
+        )}
+      </div> */}
+
+      {/* <div className="flex flex-col">
+        <label
+          htmlFor="locationName"
+          className="text-sm text-blue-gray mb-3 px-0.5"
+        >
+          {t("auth.locationName")}
         </label>
         <div className="flex items-center border-2 border-[#E4E4E7] rounded-xl shadow-sm px-3 py-2">
           <input
-            id="branchAddress"
-            name="branchAddress"
+            id="locationName"
+            name="locationName"
             type="text"
-            autoComplete="street-address"
-            placeholder={t("auth.enterBranchAddress")}
-            value={branchAddress}
-            onChange={(e) => setBranchAddress(e.target.value)}
+            autoComplete="off"
+            placeholder={t("auth.enterLocationName")}
+            value={locationName}
+            onChange={(e) => setLocationName(e.target.value)}
             className="w-full text-sm focus:outline-none placeholder:text-[#71717A] text-black"
             required
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="flex flex-col">
         <label
-          htmlFor="locationOfBranch"
+          htmlFor="locationAddress"
           className="text-sm text-blue-gray mb-3 px-0.5"
         >
-          {t("auth.locationOfBranch")}
+          {t("auth.locationAddress")}
         </label>
         <div className={`flex items-center border-2 rounded-xl shadow-sm px-3 py-2 ${
           selectedLocationData ? 'border-green-500 bg-green-50' : 'border-[#E4E4E7]'
         }`}>
           <input
-            id="locationOfBranch"
-            name="locationOfBranch"
+            id="locationAddress"
+            name="locationAddress"
             type="text"
-            autoComplete="address-line1"
-            placeholder={t("auth.locationOfBranch")}
-            value={locationOfBranch}
-            onChange={(e) => setLocationOfBranch(e.target.value)}
+            autoComplete="street-address"
+            placeholder={t("auth.enterLocationAddress")}
+            value={locationAddress}
+            onChange={(e) => setLocationAddress(e.target.value)}
             className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] ${
               selectedLocationData ? 'text-green-900 bg-green-50' : 'text-black'
             }`}
@@ -997,41 +1057,6 @@ function SignupPage() {
             <Icon icon="solar:check-circle-bold" className="w-3 h-3" />
             {t("map.locationSelected")}: {selectedLocationData.name}
           </p>
-        )}
-      </div>
-
-      <div className="flex flex-col">
-        <label
-          htmlFor="branchPhoneNumber"
-          className="text-sm text-blue-gray mb-3 px-0.5"
-        >
-          {t("auth.branchPhoneNumber")}
-        </label>
-        <div className="flex items-center">
-          <CountryCodeSelect
-            selectedCountryCode={branchCountryCode}
-            onCountryCodeChange={setBranchCountryCode}
-          />
-          <div className={`flex-1 flex items-center border-2 border-l-0 rounded-r-xl shadow-sm px-3 py-2 ${
-            branchPhoneNumberError ? 'border-red-500 bg-red-50' : 'border-[#E4E4E7]'
-          }`}>
-            <input
-              id="branchPhoneNumber"
-              name="branchPhoneNumber"
-              type="tel"
-              autoComplete="work tel"
-              placeholder={t("auth.enterBranchPhoneNumber")}
-              value={branchPhoneNumber}
-              onChange={handleBranchPhoneNumberChange}
-              className={`w-full text-sm focus:outline-none placeholder:text-[#71717A] text-left ${
-                branchPhoneNumberError ? 'text-red-900 bg-red-50' : 'text-black'
-              }`}
-              required
-            />
-          </div>
-        </div>
-        {branchPhoneNumberError && (
-          <p className="text-red-500 text-xs mt-1 px-0.5">{branchPhoneNumberError}</p>
         )}
       </div>
 
@@ -1161,7 +1186,7 @@ function SignupPage() {
                 PharmaGo
               </h1>
               <p className="text-white font-medium text-[10px] leading-4 tracking-tight">
-                {t("brand.bringingPharmacyToYourDoor")}
+                {t("brand.bringingSupplierToYourDoor")}
               </p>
             </div>
           </div>

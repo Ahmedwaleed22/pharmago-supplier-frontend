@@ -161,11 +161,11 @@ export default function PusherExample() {
           <h3 className="text-md font-medium mb-2">Debug Information</h3>
           <div className="text-sm mb-3">
             <div className="mb-1">
-              <strong>Channel Name Format:</strong> pharmacy.notifications.{'{userId}'}
+              <strong>Channel Name Format:</strong> supplier.notifications.{'{userId}'}
             </div>
             {userId && (
               <div className="mb-1">
-                <strong>Your Channel:</strong> pharmacy.notifications.{userId}
+                <strong>Your Channel:</strong> supplier.notifications.{userId}
               </div>
             )}
             <div className="mb-1">

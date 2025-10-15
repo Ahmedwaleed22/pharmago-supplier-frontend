@@ -57,13 +57,13 @@ function Page() {
       growth: analytics.cards.orders.trend,
       trend_direction: analytics.cards.orders.trend_direction
     },
-    {
-      title: t('dashboard.prescriptions'),
-      value: analytics.cards.prescriptions.count.toString(),
-      icon: "/images/dashboard/order.svg",
-      growth: analytics.cards.prescriptions.trend,
-      trend_direction: analytics.cards.prescriptions.trend_direction
-    },
+    // {
+    //   title: t('dashboard.prescriptions'),
+    //   value: analytics.cards.prescriptions.count.toString(),
+    //   icon: "/images/dashboard/order.svg",
+    //   growth: analytics.cards.prescriptions.trend,
+    //   trend_direction: analytics.cards.prescriptions.trend_direction
+    // },
     {
       title: t('dashboard.sales'),
       value: analytics.cards.sales.count.toString(),
@@ -78,13 +78,13 @@ function Page() {
       growth: analytics.cards.deliveries.trend,
       trend_direction: analytics.cards.deliveries.trend_direction
     },
-    {
-      title: t('dashboard.visits'),
-      value: analytics.cards.visits.count.toString(),
-      icon: "/images/dashboard/visits.svg",
-      growth: analytics.cards.visits.trend,
-      trend_direction: analytics.cards.visits.trend_direction
-    }
+    // {
+    //   title: t('dashboard.visits'),
+    //   value: analytics.cards.visits.count.toString(),
+    //   icon: "/images/dashboard/visits.svg",
+    //   growth: analytics.cards.visits.trend,
+    //   trend_direction: analytics.cards.visits.trend_direction
+    // }
   ];
 
   return (
@@ -103,7 +103,7 @@ function Page() {
         ))}
       </div>
       <div className="mt-8">
-        <GrowthVolume currency={analytics.pharmacy.country.currency} data={analytics.gross_volume} />
+        <GrowthVolume currency={analytics.supplier.country.currency} data={analytics.gross_volume} />
       </div>
       <div className="mt-8">
         <OrderHistory orders={analytics.orders_history} context="sales" />

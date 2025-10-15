@@ -22,7 +22,7 @@ yarn add pusher-js
 The Pusher integration consists of several parts:
 
 - A singleton Pusher instance that is initialized once across the application
-- User-specific channels in the format `pharmacy.notifications.{userId}`
+- User-specific channels in the format `supplier.notifications.{userId}`
 - A context provider that initializes the Pusher connection
 - Custom hooks for components to listen to Pusher events
 
@@ -112,7 +112,7 @@ Check out `components/examples/PusherExample.tsx` for a working example of how t
 When triggering events from the backend, make sure to use the correct channel name format:
 
 ```
-pharmacy.notifications.{userId}
+supplier.notifications.{userId}
 ```
 
 Where `{userId}` is the ID of the user who should receive the notification.

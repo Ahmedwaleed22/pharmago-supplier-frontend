@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     console.log(formData);
 
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_PHARMACY_URL}/register`,
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/register`,
       formData,
       {
         headers: {
