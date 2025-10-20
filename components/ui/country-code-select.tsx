@@ -211,6 +211,7 @@ export default function CountryCodeSelect({
       {countries.map((country) => (
         <SelectItem
           key={country.iso2}
+          textValue={`+${country.phone_code}`}
           startContent={
             <Image
               alt={country.name}
