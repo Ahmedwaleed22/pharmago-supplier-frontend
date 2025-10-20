@@ -247,6 +247,7 @@ function AppHeader() {
               >
                 <DropdownItem 
                   key="profile"
+                  textValue={t('navigation.profile')}
                   startContent={<User className="w-4 h-4" />}
                   className="py-3"
                 >
@@ -256,6 +257,7 @@ function AppHeader() {
                 </DropdownItem>
                 <DropdownItem 
                   key="logout"
+                  textValue={t('navigation.logout')}
                   startContent={<LogOut className="w-4 h-4" />}
                   className="py-3 text-red-600"
                   color="danger"

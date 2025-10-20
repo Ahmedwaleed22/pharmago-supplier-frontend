@@ -144,7 +144,7 @@ function DeliveryHistoryPage() {
               onSelectionChange={(e) => handleStatusChange(e.currentKey as string)}
             >
               {statusList.map((status) => (
-                <SelectItem key={status.key} className="text-blue-gray">{status.label}</SelectItem>
+                <SelectItem key={status.key} textValue={status.label} className="text-blue-gray">{status.label}</SelectItem>
               ))}
             </Select>
           </div>
