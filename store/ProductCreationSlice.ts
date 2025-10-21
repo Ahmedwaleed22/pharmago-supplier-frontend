@@ -202,7 +202,6 @@ const productCreationSlice = createSlice({
       state.tagColor = "";
       state.images = [];
       state.priceTiers = [];
-      state.priceTiers = [];
     },
     resetProductCreation: () => initialState
   },
@@ -227,7 +226,11 @@ export const {
   removeImage,
   setPrimaryImage,
   removeAllItems,
-  resetProductCreation
+  resetProductCreation,
+  setPriceTiers,
+  addPriceTier,
+  removePriceTier,
+  updatePriceTier,
 } = productCreationSlice.actions;
 
 export default productCreationSlice.reducer;
