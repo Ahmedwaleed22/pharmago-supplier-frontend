@@ -31,6 +31,7 @@ export interface ProductState {
   image: string; // Keep for backward compatibility
   images: ProductImage[]; // New field for multiple images
   priceTiers: PriceTier[]; // Price tier configuration
+  priceTiers: PriceTier[]; // Price tier configuration
 }
 
 const initialState: ProductState = {
@@ -48,6 +49,7 @@ const initialState: ProductState = {
   tagColor: "#2970FF",
   image: "", // Keep for backward compatibility
   images: [] as ProductImage[], // New field for multiple images
+  priceTiers: [] as PriceTier[], // Price tier configuration
   priceTiers: [] as PriceTier[], // Price tier configuration
 };
 
@@ -187,6 +189,22 @@ const productCreationSlice = createSlice({
         (tier[field] as any) = value;
       }
     },
+    setPriceTiers: (state, action: PayloadAction<PriceTier[]>) => {
+      state.priceTiers = action.payload;
+    },
+    addPriceTier: (state, action: PayloadAction<PriceTier>) => {
+      state.priceTiers.push(action.payload);
+    },
+    removePriceTier: (state, action: PayloadAction<string>) => {
+      state.priceTiers = state.priceTiers.filter(tier => tier.id !== action.payload);
+    },
+    updatePriceTier: (state, action: PayloadAction<{ id: string; field: keyof PriceTier; value: string }>) => {
+      const { id, field, value } = action.payload;
+      const tier = state.priceTiers.find(t => t.id === id);
+      if (tier) {
+        (tier[field] as any) = value;
+      }
+    },
     removeAllItems: (state) => {
       state.name = "";
       state.subName = "";
@@ -201,6 +219,7 @@ const productCreationSlice = createSlice({
       state.tag = "";
       state.tagColor = "";
       state.images = [];
+      state.priceTiers = [];
       state.priceTiers = [];
     },
     resetProductCreation: () => initialState
@@ -225,6 +244,10 @@ export const {
   addImage,
   removeImage,
   setPrimaryImage,
+  setPriceTiers,
+  addPriceTier,
+  removePriceTier,
+  updatePriceTier,
   setPriceTiers,
   addPriceTier,
   removePriceTier,
