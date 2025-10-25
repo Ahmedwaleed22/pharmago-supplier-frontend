@@ -3,7 +3,7 @@ export function formatPrice(price: number, currency: Product.Currency | null) {
   
   // Handle NaN, null, or undefined values
   if (isNaN(numPrice) || numPrice === null || numPrice === undefined) {
-    return currency?.symbol ? `${currency.symbol}0.00` : '0.00';
+    return currency?.code ? `${currency.code}0.00` : '0.00';
   }
 
   if (!currency) {
@@ -11,11 +11,11 @@ export function formatPrice(price: number, currency: Product.Currency | null) {
   }
 
   // Ensure currency symbol is not truncated
-  const symbol = currency.symbol || currency.code || '';
+  const symbol = currency.code || '';
   
   if (currency?.symbol_first === true) {
     return `${symbol}${numPrice.toFixed(currency?.precision || 2)}`;
   }
 
-  return `${numPrice.toFixed(currency?.precision || 2)}${symbol}`;
+  return `${symbol} ${numPrice.toFixed(currency?.precision || 2)}`;
 }
