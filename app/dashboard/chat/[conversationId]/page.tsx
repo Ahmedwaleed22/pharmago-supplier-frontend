@@ -454,7 +454,7 @@ function ChatDetailPage() {
               return (
               <div
                 key={`${conversation.buyer_id}-${conversation.medicine_id}`}
-                className={`p-3 pl-0 rounded-lg cursor-pointer transition-colors ${
+                className={`p-3 rounded-lg cursor-pointer transition-colors ${
                   isActive
                     ? "bg-blue-50 border border-blue-200"
                     : "hover:bg-gray-100"
@@ -471,8 +471,13 @@ function ChatDetailPage() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">
+                    <p className="font-medium text-gray-900 truncate flex items-center gap-2">
                       {conversation.buyer.name}
+                      {conversation.unread_count > 0 && (
+                        <span className="bg-red-500 text-white text-[8px] rounded-full h-[15px] w-[15px] flex items-center justify-center">
+                          {conversation.unread_count}
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs text-blue-600 truncate font-medium">
                       {conversation.medicine.name}

@@ -3,9 +3,17 @@
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import { User, Package } from "lucide-react";
-import { chatService, ChatConversation, ChatMessage } from "@/services/chatService";
+import {
+  chatService,
+  ChatConversation,
+  ChatMessage,
+} from "@/services/chatService";
 import useAuth from "@/hooks/useAuth";
-import { subscribeToChatChannel, unsubscribeFromChatChannel, getPusherInstance } from "@/services/pusher";
+import {
+  subscribeToChatChannel,
+  unsubscribeFromChatChannel,
+  getPusherInstance,
+} from "@/services/pusher";
 
 function ChatPage() {
   const router = useRouter();
@@ -35,12 +43,12 @@ function ChatPage() {
       return;
     }
 
-    console.log('Setting up Pusher listeners for all conversations');
+    console.log("Setting up Pusher listeners for all conversations");
 
     // Subscribe to all conversation channels
     conversations.forEach((conv) => {
       const channelName = `supplier-chat.${conv.supplier_id}.${conv.buyer_id}.${conv.medicine_id}`;
-      
+
       if (!channelsRef.current[channelName]) {
         const channel = subscribeToChatChannel(
           conv.supplier_id,
@@ -52,9 +60,9 @@ function ChatPage() {
           channelsRef.current[channelName] = channel;
 
           // Listen for new messages
-          channel.bind('new_message', (data: ChatMessage) => {
-            console.log('Received new message in conversations list:', data);
-            
+          channel.bind("new_message", (data: ChatMessage) => {
+            console.log("Received new message in conversations list:", data);
+
             // Update the conversation list with the new last message
             setConversations((prevConversations) => {
               return prevConversations.map((convItem) => {
@@ -75,9 +83,10 @@ function ChatPage() {
                     },
                     updated_at: data.created_at,
                     // Increment unread count if message is not from current user
-                    unread_count: data.sender_id === user?.id 
-                      ? convItem.unread_count 
-                      : convItem.unread_count + 1,
+                    unread_count:
+                      data.sender_id === user?.id
+                        ? convItem.unread_count
+                        : convItem.unread_count + 1,
                   };
                 }
                 return convItem;
@@ -90,14 +99,14 @@ function ChatPage() {
 
     // Cleanup function
     return () => {
-      console.log('Cleaning up conversation Pusher listeners');
+      console.log("Cleaning up conversation Pusher listeners");
       Object.keys(channelsRef.current).forEach((channelName) => {
         const channel = channelsRef.current[channelName];
         if (channel) {
           channel.unbind_all();
         }
       });
-      
+
       // Unsubscribe from all channels
       conversations.forEach((conv) => {
         unsubscribeFromChatChannel(
@@ -254,8 +263,13 @@ function ChatPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900 truncate">
+                    <h3 className="font-medium text-gray-900 truncate flex items-center gap-2">
                       {conversation.buyer.name}
+                      {conversation.unread_count > 0 && (
+                        <span className="bg-red-500 text-white text-[8px] rounded-full h-[15px] w-[15px] flex items-center justify-center">
+                          {conversation.unread_count}
+                        </span>
+                      )}
                     </h3>
                     {conversation.unread_count > 0 && (
                       <span className="inline-block bg-red-500 text-white text-xs rounded-full px-2 py-1">
