@@ -19,11 +19,12 @@ import {
 } from "lucide-react";
 import { chatService, ChatMessage, ChatConversation } from "@/services/chatService";
 import useAuth from "@/hooks/useAuth";
+import { useChatPusher } from "@/hooks/useChatPusher";
 
 function ChatDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth();
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [activeConversation, setActiveConversation] =
     useState<ChatConversation | null>(null);
@@ -75,6 +76,63 @@ function ChatDetailPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Listen for real-time messages via Pusher
+  useChatPusher({
+    supplierId: user?.id || '',
+    buyerId: activeConversation?.buyer_id || '',
+    medicineId: activeConversation?.medicine_id || '',
+    onNewMessage: (newMessage: ChatMessage) => {
+      console.log('Received new message via Pusher:', newMessage);
+      
+      // Only add the message if it's for the current conversation
+      if (
+        activeConversation &&
+        newMessage.supplier_id === activeConversation.supplier_id &&
+        newMessage.buyer_id === activeConversation.buyer_id &&
+        newMessage.medicine_id === activeConversation.medicine_id
+      ) {
+        // Check if message already exists (avoid duplicates)
+        setMessages((prevMessages) => {
+          const exists = prevMessages.some((msg) => msg.id === newMessage.id);
+          if (!exists) {
+            return [...prevMessages, newMessage];
+          }
+          return prevMessages;
+        });
+      }
+      
+      // Update conversations to reflect the new last message
+      setConversations((prevConversations) => {
+        return prevConversations.map((conv) => {
+          if (
+            conv.supplier_id === newMessage.supplier_id &&
+            conv.buyer_id === newMessage.buyer_id &&
+            conv.medicine_id === newMessage.medicine_id
+          ) {
+            return {
+              ...conv,
+              last_message: {
+                id: newMessage.id,
+                message: newMessage.message,
+                message_type: newMessage.message_type,
+                sender_name: newMessage.sender.name,
+                is_sent_by_me: newMessage.sender_id === user?.id,
+                created_at: newMessage.created_at,
+              },
+              updated_at: newMessage.created_at,
+            };
+          }
+          return conv;
+        });
+      });
+    },
+    enabled: !!(
+      activeConversation &&
+      user?.id &&
+      activeConversation.supplier_id === user.id
+    ),
+  });
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -223,9 +281,10 @@ function ChatDetailPage() {
   // Show loading while checking authentication
   if (isAuthLoading) {
     return (
-      <div className="flex h-[600px] p-4">
-        {/* Left Panel - Conversations Skeleton */}
-        <div className="w-80 bg-white border-r border-gray-200 p-4 pl-2">
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
+        <div className="flex h-[600px] p-4">
+          {/* Left Panel - Conversations Skeleton */}
+          <div className="w-80 bg-white border-r border-gray-200 p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -274,6 +333,7 @@ function ChatDetailPage() {
               <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse"></div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     );
@@ -286,9 +346,10 @@ function ChatDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[600px] p-4">
-        {/* Left Panel - Conversations Skeleton */}
-        <div className="w-80 bg-white border-r border-gray-200 p-4 pl-2">
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
+        <div className="flex h-[600px] p-4">
+          {/* Left Panel - Conversations Skeleton */}
+          <div className="w-80 bg-white border-r border-gray-200 p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -337,6 +398,7 @@ function ChatDetailPage() {
               <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse"></div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     );
@@ -392,7 +454,7 @@ function ChatDetailPage() {
               return (
               <div
                 key={`${conversation.buyer_id}-${conversation.medicine_id}`}
-                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                className={`p-3 pl-0 rounded-lg cursor-pointer transition-colors ${
                   isActive
                     ? "bg-blue-50 border border-blue-200"
                     : "hover:bg-gray-100"

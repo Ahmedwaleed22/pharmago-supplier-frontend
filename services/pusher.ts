@@ -154,6 +154,77 @@ export function disconnectPusher(): void {
 }
 
 /**
+ * Subscribe to a specific chat channel
+ * @param supplierId - The supplier's user ID
+ * @param buyerId - The buyer's user ID
+ * @param medicineId - The medicine ID
+ * @returns The channel instance or null
+ */
+export function subscribeToChatChannel(
+  supplierId: string | number,
+  buyerId: string | number,
+  medicineId: string | number
+): any | null {
+  const channelName = `supplier-chat.${supplierId}.${buyerId}.${medicineId}`;
+  console.log('Subscribing to chat channel:', channelName);
+
+  // If already subscribed, return the existing channel
+  if (channelInstances[channelName]) {
+    return channelInstances[channelName];
+  }
+
+  const pusher = getPusherInstance();
+
+  if (!pusher) {
+    console.error('Pusher instance not available');
+    return null;
+  }
+
+  try {
+    const channel = pusher.subscribe(channelName);
+    channelInstances[channelName] = channel;
+
+    channel.bind('subscription_succeeded', () => {
+      console.log(`Successfully subscribed to chat channel: ${channelName}`);
+    });
+
+    channel.bind('subscription_error', (err: any) => {
+      console.error(`Error subscribing to chat channel ${channelName}:`, err);
+    });
+
+    return channel;
+  } catch (err) {
+    console.error(`Error subscribing to chat channel ${channelName}:`, err);
+    return null;
+  }
+}
+
+/**
+ * Unsubscribe from a specific chat channel
+ * @param supplierId - The supplier's user ID
+ * @param buyerId - The buyer's user ID
+ * @param medicineId - The medicine ID
+ */
+export function unsubscribeFromChatChannel(
+  supplierId: string | number,
+  buyerId: string | number,
+  medicineId: string | number
+): void {
+  const channelName = `supplier-chat.${supplierId}.${buyerId}.${medicineId}`;
+  console.log('Unsubscribing from chat channel:', channelName);
+
+  if (channelInstances[channelName] && pusherInstance) {
+    try {
+      pusherInstance.unsubscribe(channelName);
+      delete channelInstances[channelName];
+      console.log(`Unsubscribed from chat channel: ${channelName}`);
+    } catch (err) {
+      console.error(`Error unsubscribing from chat channel ${channelName}:`, err);
+    }
+  }
+}
+
+/**
  * React hook to use Pusher and the user's channel in components
  * If userId is not provided, it uses the current user ID set via setPusherUserId
  */

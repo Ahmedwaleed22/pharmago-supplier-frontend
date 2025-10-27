@@ -1,17 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { User, Package } from "lucide-react";
-import { chatService, ChatConversation } from "@/services/chatService";
+import { chatService, ChatConversation, ChatMessage } from "@/services/chatService";
 import useAuth from "@/hooks/useAuth";
+import { subscribeToChatChannel, unsubscribeFromChatChannel, getPusherInstance } from "@/services/pusher";
 
 function ChatPage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth();
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const channelsRef = useRef<Record<string, any>>({});
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -26,6 +28,88 @@ function ChatPage() {
       loadConversations();
     }
   }, [isAuthenticated, isAuthLoading]);
+
+  // Listen for real-time updates on all conversation channels
+  useEffect(() => {
+    if (!user?.id || !isAuthenticated || conversations.length === 0) {
+      return;
+    }
+
+    console.log('Setting up Pusher listeners for all conversations');
+
+    // Subscribe to all conversation channels
+    conversations.forEach((conv) => {
+      const channelName = `supplier-chat.${conv.supplier_id}.${conv.buyer_id}.${conv.medicine_id}`;
+      
+      if (!channelsRef.current[channelName]) {
+        const channel = subscribeToChatChannel(
+          conv.supplier_id,
+          conv.buyer_id,
+          conv.medicine_id
+        );
+
+        if (channel) {
+          channelsRef.current[channelName] = channel;
+
+          // Listen for new messages
+          channel.bind('new_message', (data: ChatMessage) => {
+            console.log('Received new message in conversations list:', data);
+            
+            // Update the conversation list with the new last message
+            setConversations((prevConversations) => {
+              return prevConversations.map((convItem) => {
+                if (
+                  convItem.supplier_id === data.supplier_id &&
+                  convItem.buyer_id === data.buyer_id &&
+                  convItem.medicine_id === data.medicine_id
+                ) {
+                  return {
+                    ...convItem,
+                    last_message: {
+                      id: data.id,
+                      message: data.message,
+                      message_type: data.message_type,
+                      sender_name: data.sender.name,
+                      is_sent_by_me: data.sender_id === user?.id,
+                      created_at: data.created_at,
+                    },
+                    updated_at: data.created_at,
+                    // Increment unread count if message is not from current user
+                    unread_count: data.sender_id === user?.id 
+                      ? convItem.unread_count 
+                      : convItem.unread_count + 1,
+                  };
+                }
+                return convItem;
+              });
+            });
+          });
+        }
+      }
+    });
+
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up conversation Pusher listeners');
+      Object.keys(channelsRef.current).forEach((channelName) => {
+        const channel = channelsRef.current[channelName];
+        if (channel) {
+          channel.unbind_all();
+        }
+      });
+      
+      // Unsubscribe from all channels
+      conversations.forEach((conv) => {
+        unsubscribeFromChatChannel(
+          conv.supplier_id,
+          conv.buyer_id,
+          conv.medicine_id
+        );
+      });
+
+      channelsRef.current = {};
+    };
+  }, [conversations, user?.id, isAuthenticated]);
 
   const loadConversations = async () => {
     try {

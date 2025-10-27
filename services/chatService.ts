@@ -27,6 +27,10 @@ export interface ChatMessage {
     account_type: string;
     avatar?: string;
   };
+  medicine?: {
+    id: string;
+    name: string;
+  };
   display_message?: string;
   image_url?: string;
   offer_details?: {

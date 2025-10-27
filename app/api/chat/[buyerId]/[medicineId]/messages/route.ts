@@ -4,10 +4,13 @@ import { createTranslatedErrorResponse, getLocaleFromRequest } from '@/lib/api-i
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { buyerId: string; medicineId: string } }
+  { params }: { params: Promise<{ buyerId: string; medicineId: string }> }
 ) {
   try {
     const locale = getLocaleFromRequest(request);
+    
+    // Await params before accessing properties
+    const resolvedParams = await params;
     
     // Get cookies from the request
     const cookieHeader = request.headers.get('cookie') || '';
@@ -32,7 +35,7 @@ export async function GET(
     
     // Forward the request to the actual API with the auth token and query parameters
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/chat/${params.buyerId}/${params.medicineId}/messages`, 
+      `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/chat/${resolvedParams.buyerId}/${resolvedParams.medicineId}/messages`, 
       {
         headers: {
           'Authorization': `Bearer ${token}`,

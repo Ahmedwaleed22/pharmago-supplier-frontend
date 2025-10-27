@@ -25,6 +25,13 @@ export async function POST(request: NextRequest) {
     // Get FormData from request
     const formData = await request.formData();
     
+    // Log FormData contents for debugging
+    const formDataEntries: Record<string, any> = {};
+    for (const [key, value] of formData.entries()) {
+      formDataEntries[key] = value instanceof File ? `File: ${value.name}, ${value.type}` : value;
+    }
+    console.log('Chat send - FormData contents:', formDataEntries);
+    
     // Forward the request to the actual API with the auth token
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/chat/send`,
@@ -43,6 +50,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     const locale = getLocaleFromRequest(request);
     console.error('Chat send API route error:', error);
+    console.error('Error details:', error.response?.data);
     
     // Return appropriate error response with translation
     const errorResponse = await createTranslatedErrorResponse(
