@@ -520,7 +520,8 @@
     "rfqsRequests": "Solicitudes de RFQs",
     "deliveryHistory": "Historial de entregas",
     "addAdvertisement": "Agregar anuncio",
-    "advertisementList": "Lista de anuncios"
+    "advertisementList": "Lista de anuncios",
+    "chat": "Chat"
   },
   "profile": {
     "title": "Perfil",

@@ -72,6 +72,11 @@ export function AppSidebar() {
       ],
     },
     {
+      title: t('navigation.chat'),
+      url: "/dashboard/chat",
+      icon: "solar:chat-round-dots-outline",
+    },
+    {
       title: t('navigation.sales'),
       url: "/dashboard/sales",
       icon: "lets-icons:paper-light",

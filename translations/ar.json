@@ -524,7 +524,8 @@
     "rfqsRequests": "طلبات الاستفسارات",
     "deliveryHistory": "تاريخ التوصيل",
     "addAdvertisement": "إضافة إعلان",
-    "advertisementList": "قائمة الإعلانات"
+    "advertisementList": "قائمة الإعلانات",
+    "chat": "الدردشة"
   },
   "profile": {
     "title": "الملف الشخصي",

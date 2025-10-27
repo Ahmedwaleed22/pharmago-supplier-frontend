@@ -522,7 +522,8 @@
     "rfqsRequests": "RFQs Requests",
     "deliveryHistory": "Delivery History",
     "addAdvertisement": "Add Advertisement",
-    "advertisementList": "Advertisement List"
+    "advertisementList": "Advertisement List",
+    "chat": "Chat"
   },
   "profile": {
     "title": "Profile",
