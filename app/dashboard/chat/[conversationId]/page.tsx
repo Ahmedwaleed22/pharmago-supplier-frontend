@@ -20,6 +20,7 @@ import {
 import { chatService, ChatMessage, ChatConversation } from "@/services/chatService";
 import useAuth from "@/hooks/useAuth";
 import { useChatPusher } from "@/hooks/useChatPusher";
+import { subscribeToChatChannel, unsubscribeFromChatChannel } from "@/services/pusher";
 
 function ChatDetailPage() {
   const router = useRouter();
@@ -104,7 +105,7 @@ function ChatDetailPage() {
       
       // Update conversations to reflect the new last message
       setConversations((prevConversations) => {
-        return prevConversations.map((conv) => {
+        const updated = prevConversations.map((conv) => {
           if (
             conv.supplier_id === newMessage.supplier_id &&
             conv.buyer_id === newMessage.buyer_id &&
@@ -125,6 +126,13 @@ function ChatDetailPage() {
           }
           return conv;
         });
+        
+        // Sort by updated_at in descending order (most recent first)
+        return updated.sort((a, b) => {
+          const timeA = new Date(a.updated_at).getTime();
+          const timeB = new Date(b.updated_at).getTime();
+          return timeB - timeA; // Descending order
+        });
       });
     },
     enabled: !!(
@@ -133,6 +141,95 @@ function ChatDetailPage() {
       activeConversation.supplier_id === user.id
     ),
   });
+
+  // Listen for messages on ALL conversation channels (for unread count updates when outside a conversation)
+  useEffect(() => {
+    if (!user?.id || !isAuthenticated || conversations.length === 0) {
+      return;
+    }
+
+    console.log('Setting up Pusher listeners for all conversations in detail page');
+
+    const allChannelsRef: Record<string, any> = {};
+
+    // Subscribe to all conversation channels
+    conversations.forEach((conv) => {
+      const channelName = `supplier-chat.${conv.supplier_id}.${conv.buyer_id}.${conv.medicine_id}`;
+
+      // Skip if already listening to this channel via useChatPusher
+      if (activeConversation && 
+          conv.supplier_id === activeConversation.supplier_id &&
+          conv.buyer_id === activeConversation.buyer_id &&
+          conv.medicine_id === activeConversation.medicine_id) {
+        return;
+      }
+
+      if (!allChannelsRef[channelName]) {
+        const channel = subscribeToChatChannel(
+          conv.supplier_id,
+          conv.buyer_id,
+          conv.medicine_id
+        );
+
+        if (channel) {
+          allChannelsRef[channelName] = channel;
+
+          // Listen for new messages
+          channel.bind('new_message', (data: ChatMessage) => {
+            console.log('Received new message in other conversations:', data);
+
+            // Update the conversation list with the new last message and unread count
+            setConversations((prevConversations) => {
+              const updated = prevConversations.map((convItem) => {
+                if (
+                  convItem.supplier_id === data.supplier_id &&
+                  convItem.buyer_id === data.buyer_id &&
+                  convItem.medicine_id === data.medicine_id
+                ) {
+                  return {
+                    ...convItem,
+                    last_message: {
+                      id: data.id,
+                      message: data.message,
+                      message_type: data.message_type,
+                      sender_name: data.sender.name,
+                      is_sent_by_me: data.sender_id === user?.id,
+                      created_at: data.created_at,
+                    },
+                    updated_at: data.created_at,
+                    // Increment unread count if message is not from current user
+                    unread_count:
+                      data.sender_id === user?.id
+                        ? convItem.unread_count
+                        : convItem.unread_count + 1,
+                  };
+                }
+                return convItem;
+              });
+              
+              // Sort by updated_at in descending order (most recent first)
+              return updated.sort((a, b) => {
+                const timeA = new Date(a.updated_at).getTime();
+                const timeB = new Date(b.updated_at).getTime();
+                return timeB - timeA; // Descending order
+              });
+            });
+          });
+        }
+      }
+    });
+
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up other conversation Pusher listeners');
+      Object.keys(allChannelsRef).forEach((channelName) => {
+        const channel = allChannelsRef[channelName];
+        if (channel) {
+          channel.unbind_all();
+        }
+      });
+    };
+  }, [conversations, activeConversation, user?.id, isAuthenticated]);
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -284,7 +381,7 @@ function ChatDetailPage() {
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
         <div className="flex h-[600px] p-4">
           {/* Left Panel - Conversations Skeleton */}
-          <div className="w-80 bg-white border-r border-gray-200 p-4 pl-2">
+          <div className="w-70 bg-white border-r border-gray-200 p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -349,7 +446,7 @@ function ChatDetailPage() {
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
         <div className="flex h-[600px] p-4">
           {/* Left Panel - Conversations Skeleton */}
-          <div className="w-80 bg-white border-r border-gray-200 p-4 pl-2">
+          <div className="w-70 bg-white border-r border-gray-200 p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -441,7 +538,7 @@ function ChatDetailPage() {
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
       <div className="flex h-[600px] p-4">
         {/* Left Panel - Recent Chats */}
-        <div className="w-80 bg-white border-r border-gray-200 p-4 pl-2">
+        <div className="w-70 bg-white border-r border-gray-200 p-4 pl-2">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Recent Chats
           </h3>

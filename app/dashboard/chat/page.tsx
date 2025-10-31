@@ -65,7 +65,7 @@ function ChatPage() {
 
             // Update the conversation list with the new last message
             setConversations((prevConversations) => {
-              return prevConversations.map((convItem) => {
+              const updated = prevConversations.map((convItem) => {
                 if (
                   convItem.supplier_id === data.supplier_id &&
                   convItem.buyer_id === data.buyer_id &&
@@ -90,6 +90,13 @@ function ChatPage() {
                   };
                 }
                 return convItem;
+              });
+              
+              // Sort by updated_at in descending order (most recent first)
+              return updated.sort((a, b) => {
+                const timeA = new Date(a.updated_at).getTime();
+                const timeB = new Date(b.updated_at).getTime();
+                return timeB - timeA; // Descending order
               });
             });
           });
