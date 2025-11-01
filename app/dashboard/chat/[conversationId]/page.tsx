@@ -34,6 +34,7 @@ function ChatDetailPage() {
   const [message, setMessage] = useState("");
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conversationsLoaded, setConversationsLoaded] = useState(false);
   const [showOfferForm, setShowOfferForm] = useState(false);
@@ -119,6 +120,9 @@ function ChatDetailPage() {
   // Load messages when active conversation changes
   useEffect(() => {
     if (activeConversation && user?.id) {
+      // Clear old messages and show loading state when switching conversations
+      setMessages([]);
+      setLoadingMessages(true);
       // Only reload conversations on initial load, not on subsequent updates
       loadMessages(activeConversation.buyer_id, activeConversation.medicine_id, true);
     }
@@ -462,6 +466,7 @@ function ChatDetailPage() {
 
   const loadMessages = async (buyerId: string, medicineId: string, reloadConversations = false) => {
     try {
+      setLoadingMessages(true);
       const response = await chatService.getMessages(buyerId, medicineId);
       setMessages(response.data.messages.reverse()); // Reverse to show oldest first
       
@@ -507,9 +512,11 @@ function ChatDetailPage() {
       
       // Scroll to bottom after loading messages
       setTimeout(scrollToBottom, 100);
+      setLoadingMessages(false);
     } catch (err) {
       setError("Failed to load messages");
       console.error("Error loading messages:", err);
+      setLoadingMessages(false);
     }
   };
 
@@ -994,7 +1001,14 @@ function ChatDetailPage() {
                 ref={messagesContainerRef}
                 className="flex-1 p-4 overflow-y-auto space-y-4"
               >
-                {messages.length === 0 ? (
+                {loadingMessages ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-2" />
+                      <p className="text-gray-500">Loading messages...</p>
+                    </div>
+                  </div>
+                ) : messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <p className="text-gray-500">
                       No messages yet. Start the conversation!
