@@ -534,11 +534,12 @@ function ChatDetailPage() {
                   convItem.medicine_id === data.medicine_id
                 ) {
                   // Check if this is a new status change (for notifications)
-                  const wasAccepted = convItem.last_message?.metadata?.is_accepted || 
-                                    convItem.last_message?.metadata?.added_to_cart || 
-                                    (convItem.last_message as any)?.offer_details?.is_accepted;
-                  const wasRejected = convItem.last_message?.metadata?.is_rejected || 
-                                    (convItem.last_message as any)?.offer_details?.is_rejected;
+                  const lastMsg = convItem.last_message as any;
+                  const wasAccepted = lastMsg?.metadata?.is_accepted || 
+                                    lastMsg?.metadata?.added_to_cart || 
+                                    lastMsg?.offer_details?.is_accepted;
+                  const wasRejected = lastMsg?.metadata?.is_rejected || 
+                                    lastMsg?.offer_details?.is_rejected;
                   
                   // If offer status changed, notify the supplier
                   if (isOfferMessage && ((!wasAccepted && isAccepted) || (!wasRejected && isRejected))) {
@@ -886,15 +887,8 @@ function ChatDetailPage() {
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-        // Reload messages to ensure everything is in sync (with a small delay to ensure image is processed)
-        setTimeout(async () => {
-          await loadMessages(
-            activeConversation.buyer_id,
-            activeConversation.medicine_id,
-            false // Don't reload conversations since we just updated them
-          );
-          scrollToBottom();
-        }, 500);
+        // No need to reload messages - the message is already added via state update above
+        // and Pusher will handle real-time updates for other clients
       } catch (err: any) {
         console.error("Error sending message:", err);
         
@@ -1263,9 +1257,23 @@ function ChatDetailPage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-all duration-300 cursor-pointer">
-                      <Phone className="w-5 h-5" />
-                    </button>
+                    {activeConversation.buyer.phone_number ? (
+                      <a 
+                        href={`tel:${activeConversation.buyer.phone_number}`}
+                        className="p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-all duration-300 cursor-pointer"
+                        title={`Call ${activeConversation.buyer.name}`}
+                      >
+                        <Phone className="w-5 h-5" />
+                      </a>
+                    ) : (
+                      <button 
+                        className="p-2 text-gray-400 hover:text-gray-500 rounded-lg transition-all duration-300 cursor-not-allowed"
+                        title="Phone number not available"
+                        disabled
+                      >
+                        <Phone className="w-5 h-5" />
+                      </button>
+                    )}
                     <button
                       onClick={() => setIsRightPanelOpen(!isRightPanelOpen)}
                       className="p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-all duration-300 cursor-pointer"
@@ -1784,10 +1792,24 @@ function ChatDetailPage() {
             </div>
 
             <div className="flex space-x-2 mb-6">
-              <button className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300">
-                <Phone className="w-4 h-4" />
-                <span className="text-sm font-medium">Call</span>
-              </button>
+              {activeConversation.buyer.phone_number ? (
+                <a 
+                  href={`tel:${activeConversation.buyer.phone_number}`}
+                  className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span className="text-sm font-medium">Call</span>
+                </a>
+              ) : (
+                <button 
+                  className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed"
+                  disabled
+                  title="Phone number not available"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span className="text-sm font-medium">Call</span>
+                </button>
+              )}
               <button className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300">
                 <User className="w-4 h-4" />
                 <span className="font-medium text-sm">Open Profile</span>
@@ -1826,9 +1848,18 @@ function ChatDetailPage() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-primary">
-                    Contact buyer for details
-                  </span>
+                  {activeConversation.buyer.phone_number ? (
+                    <a 
+                      href={`tel:${activeConversation.buyer.phone_number}`}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      {activeConversation.buyer.phone_number}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-gray-500">
+                      Phone number not available
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center space-x-3">
                   <MapPin className="w-4 h-4 text-gray-500" />

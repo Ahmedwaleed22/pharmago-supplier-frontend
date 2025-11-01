@@ -52,6 +52,7 @@ export interface ChatConversation {
     name: string;
     avatar?: string;
     account_type: string;
+    phone_number?: string;
   };
   medicine: {
     id: string;
