@@ -11,6 +11,7 @@ interface UseChatPusherOptions {
   buyerId: string;
   medicineId: string;
   onNewMessage?: (message: ChatMessage) => void;
+  onMessageUpdated?: (message: ChatMessage) => void;
   enabled?: boolean;
 }
 
@@ -24,15 +25,21 @@ export function useChatPusher({
   buyerId,
   medicineId,
   onNewMessage,
+  onMessageUpdated,
   enabled = true,
 }: UseChatPusherOptions) {
   const channelRef = useRef<any | null>(null);
   const onNewMessageRef = useRef(onNewMessage);
+  const onMessageUpdatedRef = useRef(onMessageUpdated);
 
-  // Keep the callback ref updated
+  // Keep the callback refs updated
   useEffect(() => {
     onNewMessageRef.current = onNewMessage;
   }, [onNewMessage]);
+
+  useEffect(() => {
+    onMessageUpdatedRef.current = onMessageUpdated;
+  }, [onMessageUpdated]);
 
   useEffect(() => {
     if (!enabled) {
@@ -62,6 +69,15 @@ export function useChatPusher({
       // Listen for message read status
       channel.bind('message_read', (data: any) => {
         console.log('Message read status updated via Pusher:', data);
+      });
+
+      // Listen for message updates (e.g., offer accepted/rejected)
+      channel.bind('message_updated', (data: ChatMessage) => {
+        console.log('Received message update via Pusher:', data);
+        
+        if (onMessageUpdatedRef.current) {
+          onMessageUpdatedRef.current(data);
+        }
       });
     }
 

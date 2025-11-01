@@ -292,6 +292,107 @@ function ChatDetailPage() {
         });
       });
     },
+    onMessageUpdated: (updatedMessage: ChatMessage) => {
+      console.log('Received message update via Pusher:', updatedMessage);
+      
+      // Check if this is an offer acceptance/rejection notification
+      const isOfferMessage = updatedMessage.message_type === 'offer' || updatedMessage.message_type === 'counter_offer';
+      const isAccepted = updatedMessage.metadata?.is_accepted || updatedMessage.metadata?.added_to_cart || updatedMessage.offer_details?.is_accepted;
+      const isRejected = updatedMessage.metadata?.is_rejected || updatedMessage.offer_details?.is_rejected;
+      
+      // Check if this is for the active conversation
+      const isActiveConversation =
+        activeConversation &&
+        activeConversation.supplier_id === updatedMessage.supplier_id &&
+        activeConversation.buyer_id === updatedMessage.buyer_id &&
+        activeConversation.medicine_id === updatedMessage.medicine_id;
+      
+      // Update the existing message in the messages array
+      setMessages((prevMessages) => {
+        return prevMessages.map((msg) => {
+          if (msg.id === updatedMessage.id) {
+            // Check if this is a new status change (for notifications)
+            const wasAccepted = msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted;
+            const wasRejected = msg.metadata?.is_rejected || msg.offer_details?.is_rejected;
+            
+            // If offer status changed and this is an offer message, notify the supplier
+            if (isOfferMessage && ((!wasAccepted && isAccepted) || (!wasRejected && isRejected))) {
+              // Play notification sound
+              playNotificationSound();
+              
+              // Flash title if not viewing this conversation or tab is hidden
+              if (!isActiveConversation || document.hidden) {
+                // Update conversations first to get accurate unread count
+                setConversations((prevConversations) => {
+                  const updated = prevConversations.map((conv) => {
+                    if (
+                      conv.supplier_id === updatedMessage.supplier_id &&
+                      conv.buyer_id === updatedMessage.buyer_id &&
+                      conv.medicine_id === updatedMessage.medicine_id
+                    ) {
+                      return {
+                        ...conv,
+                        unread_count: conv.unread_count + 1,
+                      };
+                    }
+                    return conv;
+                  });
+                  const totalUnread = calculateUnreadCount(updated);
+                  flashBrowserTitle(totalUnread);
+                  return updated;
+                });
+              } else {
+                // Just flash briefly even if in active conversation to notify about status change
+                // Use a timeout to flash for a few seconds then clear
+                const totalUnread = calculateUnreadCount(conversations);
+                flashBrowserTitle(totalUnread);
+                setTimeout(() => {
+                  clearTitleFlash();
+                }, 5000); // Flash for 5 seconds then clear
+              }
+            }
+            
+            // Update the message with new metadata
+            return {
+              ...msg,
+              metadata: updatedMessage.metadata,
+              message: updatedMessage.message,
+              offer_details: updatedMessage.offer_details || msg.offer_details,
+            };
+          }
+          return msg;
+        });
+      });
+
+      // Update conversations to reflect the updated message
+      setConversations((prevConversations) => {
+        return prevConversations.map((conv) => {
+          if (
+            conv.supplier_id === updatedMessage.supplier_id &&
+            conv.buyer_id === updatedMessage.buyer_id &&
+            conv.medicine_id === updatedMessage.medicine_id
+          ) {
+            // If this is the last message, update it
+            if (conv.last_message?.id === updatedMessage.id) {
+              let displayMessage = updatedMessage.message || '';
+              if (updatedMessage.message_type === 'offer' || updatedMessage.message_type === 'counter_offer') {
+                displayMessage = updatedMessage.message;
+              }
+              
+              return {
+                ...conv,
+                last_message: {
+                  ...conv.last_message,
+                  message: displayMessage,
+                  message_type: updatedMessage.message_type,
+                },
+              };
+            }
+          }
+          return conv;
+        });
+      });
+    },
     enabled: !!(
       activeConversation &&
       user?.id &&
@@ -406,6 +507,114 @@ function ChatDetailPage() {
                 return timeB - timeA; // Descending order
               });
             });
+          });
+
+          // Listen for message updates (e.g., offer accepted/rejected)
+          channel.bind('message_updated', (data: ChatMessage) => {
+            console.log('Received message update in other conversations:', data);
+
+            // Check if this is an offer acceptance/rejection notification
+            const isOfferMessage = data.message_type === 'offer' || data.message_type === 'counter_offer';
+            const isAccepted = data.metadata?.is_accepted || data.metadata?.added_to_cart || data.offer_details?.is_accepted;
+            const isRejected = data.metadata?.is_rejected || data.offer_details?.is_rejected;
+            
+            // Check if this is for the active conversation
+            const isActiveConversation = 
+              activeConversation &&
+              activeConversation.supplier_id === data.supplier_id &&
+              activeConversation.buyer_id === data.buyer_id &&
+              activeConversation.medicine_id === data.medicine_id;
+
+            // Update conversations to reflect the updated message
+            setConversations((prevConversations) => {
+              const updated = prevConversations.map((convItem) => {
+                if (
+                  convItem.supplier_id === data.supplier_id &&
+                  convItem.buyer_id === data.buyer_id &&
+                  convItem.medicine_id === data.medicine_id
+                ) {
+                  // Check if this is a new status change (for notifications)
+                  const wasAccepted = convItem.last_message?.metadata?.is_accepted || 
+                                    convItem.last_message?.metadata?.added_to_cart || 
+                                    (convItem.last_message as any)?.offer_details?.is_accepted;
+                  const wasRejected = convItem.last_message?.metadata?.is_rejected || 
+                                    (convItem.last_message as any)?.offer_details?.is_rejected;
+                  
+                  // If offer status changed, notify the supplier
+                  if (isOfferMessage && ((!wasAccepted && isAccepted) || (!wasRejected && isRejected))) {
+                    // Play notification sound
+                    playNotificationSound();
+                    
+                    // Flash title (since this is not the active conversation, always flash)
+                    setTimeout(() => {
+                      const totalUnread = calculateUnreadCount(prevConversations);
+                      flashBrowserTitle(totalUnread);
+                    }, 0);
+                  }
+                  
+                  // If this is the last message, update it
+                  if (convItem.last_message?.id === data.id) {
+                    let displayMessage = data.message || '';
+                    if (data.message_type === 'offer' || data.message_type === 'counter_offer') {
+                      displayMessage = data.message;
+                    }
+                    
+                    return {
+                      ...convItem,
+                      last_message: {
+                        ...convItem.last_message,
+                        message: displayMessage,
+                        message_type: data.message_type,
+                        metadata: data.metadata,
+                      },
+                    };
+                  }
+                }
+                return convItem;
+              });
+              
+              return updated;
+            });
+
+            // If this is the active conversation, update messages too
+            if (isActiveConversation) {
+              setMessages((prevMessages) => {
+                return prevMessages.map((msg) => {
+                  if (msg.id === data.id) {
+                    // Check if this is a new status change (for notifications)
+                    const wasAccepted = msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted;
+                    const wasRejected = msg.metadata?.is_rejected || msg.offer_details?.is_rejected;
+                    
+                    // If offer status changed, notify the supplier
+                    if (isOfferMessage && ((!wasAccepted && isAccepted) || (!wasRejected && isRejected))) {
+                      // Play notification sound
+                      playNotificationSound();
+                      
+                      // Flash title if tab is hidden, otherwise flash briefly
+                      if (document.hidden) {
+                        const totalUnread = calculateUnreadCount(conversations);
+                        flashBrowserTitle(totalUnread);
+                      } else {
+                        // Flash briefly even if tab is visible to notify about status change
+                        const totalUnread = calculateUnreadCount(conversations);
+                        flashBrowserTitle(totalUnread);
+                        setTimeout(() => {
+                          clearTitleFlash();
+                        }, 5000); // Flash for 5 seconds then clear
+                      }
+                    }
+                    
+                    return {
+                      ...msg,
+                      metadata: data.metadata,
+                      message: data.message,
+                      offer_details: data.offer_details || msg.offer_details,
+                    };
+                  }
+                  return msg;
+                });
+              });
+            }
           });
         }
       }
@@ -1101,9 +1310,9 @@ function ChatDetailPage() {
                           }`}
                         >
                           <div className={`rounded-2xl p-6 max-w-md ${
-                            msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                            msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                               ? "bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200"
-                              : msg.metadata?.is_rejected
+                              : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                               ? "bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200"
                               : "bg-white border-2 border-green-200 shadow-md"
                           }`}>
@@ -1111,23 +1320,23 @@ function ChatDetailPage() {
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-2">
                                 <div className={`w-2 h-2 rounded-full ${
-                                  msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                  msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                     ? "bg-blue-500"
-                                    : msg.metadata?.is_rejected
+                                    : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                     ? "bg-red-500"
                                     : "bg-green-500"
                                 }`}></div>
                                 <span className={`text-xs font-semibold uppercase tracking-wide ${
-                                  msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                  msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                     ? "text-blue-700"
-                                    : msg.metadata?.is_rejected
+                                    : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                     ? "text-red-700"
                                     : "text-green-700"
                                 }`}>
                                   Price Offer
                                 </span>
                               </div>
-                              {(msg.metadata?.is_accepted || msg.metadata?.added_to_cart) && (
+                              {(msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted) && (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
                                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -1135,7 +1344,7 @@ function ChatDetailPage() {
                                   Accepted
                                 </span>
                               )}
-                              {msg.metadata?.is_rejected && (
+                              {(msg.metadata?.is_rejected || msg.offer_details?.is_rejected) && (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-full">
                                   <X className="w-3 h-3" />
                                   Rejected
@@ -1153,9 +1362,9 @@ function ChatDetailPage() {
                                     className="w-20 h-20 object-cover rounded-xl ring-2 ring-white shadow-lg"
                                   />
                                   <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-white ${
-                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                       ? "bg-blue-500"
-                                      : msg.metadata?.is_rejected
+                                      : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                       ? "bg-red-500"
                                       : "bg-green-500"
                                   }`}></div>
@@ -1164,9 +1373,9 @@ function ChatDetailPage() {
                               <div className="flex-1 min-w-0 pt-1">
                                 <div className="flex items-baseline gap-2 mb-2">
                                   <span className={`text-2xl font-bold ${
-                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                       ? "text-blue-900"
-                                      : msg.metadata?.is_rejected
+                                      : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                       ? "text-red-900"
                                       : "text-green-900"
                                   }`}>
@@ -1177,9 +1386,9 @@ function ChatDetailPage() {
                                       : "0.00"}
                                   </span>
                                   <span className={`text-sm font-medium ${
-                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                       ? "text-blue-600"
-                                      : msg.metadata?.is_rejected
+                                      : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                       ? "text-red-600"
                                       : "text-green-600"
                                   }`}>
@@ -1188,18 +1397,18 @@ function ChatDetailPage() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                   <div className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
-                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                       ? "bg-blue-100 text-blue-800"
-                                      : msg.metadata?.is_rejected
+                                      : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                       ? "bg-red-100 text-red-800"
                                       : "bg-green-100 text-green-800"
                                   }`}>
                                     {msg.metadata?.quantity || msg.offer_details?.quantity || 0} units
                                   </div>
                                   <div className={`text-sm font-semibold ${
-                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                       ? "text-blue-700"
-                                      : msg.metadata?.is_rejected
+                                      : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                       ? "text-red-700"
                                       : "text-green-700"
                                   }`}>
@@ -1210,19 +1419,19 @@ function ChatDetailPage() {
                             </div>
 
                             {/* Rejection Reason */}
-                            {msg.metadata?.is_rejected && msg.metadata?.rejection_reason && (
+                            {(msg.metadata?.is_rejected || msg.offer_details?.is_rejected) && (msg.metadata?.rejection_reason || msg.offer_details?.rejection_reason) && (
                               <div className="mt-4 p-3 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
                                 <p className="text-xs font-semibold text-red-900 mb-1">Rejection Reason:</p>
-                                <p className="text-xs text-red-700 leading-relaxed">{msg.metadata.rejection_reason}</p>
+                                <p className="text-xs text-red-700 leading-relaxed">{msg.metadata?.rejection_reason || msg.offer_details?.rejection_reason}</p>
                               </div>
                             )}
 
                             {/* Timestamp */}
                             <div className="mt-4 pt-3 border-t border-gray-200/50">
                               <p className={`text-xs font-medium ${
-                                msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                   ? "text-blue-500"
-                                  : msg.metadata?.is_rejected
+                                  : msg.metadata?.is_rejected || msg.offer_details?.is_rejected
                                   ? "text-red-500"
                                   : "text-gray-500"
                               }`}>
@@ -1509,7 +1718,7 @@ function ChatDetailPage() {
                     onKeyPress={(e) => e.key === "Enter" && !sendingMessage && handleSendMessage()}
                     disabled={sendingMessage}
                   />
-                  <label
+                  {/* <label
                     htmlFor="file-input"
                     className={`p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg cursor-pointer ${
                       sendingMessage ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
@@ -1517,7 +1726,7 @@ function ChatDetailPage() {
                     title="Attach Image"
                   >
                     <Paperclip className="w-5 h-5" />
-                  </label>
+                  </label> */}
                   <button
                     onClick={handleSendMessage}
                     disabled={sendingMessage || (!message.trim() && !selectedFile)}

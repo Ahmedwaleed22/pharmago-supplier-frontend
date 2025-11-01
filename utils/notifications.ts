@@ -56,14 +56,30 @@ export function playNotificationSound() {
   }
 }
 
-let originalTitle = document.title;
+let originalTitle: string | null = null;
 let notificationInterval: NodeJS.Timeout | null = null;
 let notificationCount = 0;
+
+/**
+ * Get the original title, initializing it if needed
+ */
+function getOriginalTitle(): string {
+  if (typeof document === 'undefined') {
+    return '';
+  }
+  if (!originalTitle) {
+    originalTitle = document.title;
+  }
+  return originalTitle;
+}
 
 /**
  * Check if the current tab is active
  */
 function isTabActive(): boolean {
+  if (typeof document === 'undefined') {
+    return false;
+  }
   return !document.hidden;
 }
 
@@ -72,6 +88,11 @@ function isTabActive(): boolean {
  * @param count - Number of unread messages
  */
 export function flashBrowserTitle(count: number) {
+  // Guard against SSR - only run in browser
+  if (typeof document === 'undefined') {
+    return;
+  }
+
   // Only flash if tab is not active or if there are unread messages
   if (isTabActive() && count === 0) {
     clearTitleFlash();
@@ -85,22 +106,24 @@ export function flashBrowserTitle(count: number) {
     clearInterval(notificationInterval);
   }
 
-  // Save original title if not already saved
-  if (!originalTitle) {
-    originalTitle = document.title;
-  }
+  // Get original title (will initialize if needed)
+  const title = getOriginalTitle();
 
   // Start flashing
   let showNotification = true;
   notificationInterval = setInterval(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    
     if (notificationCount === 0 || isTabActive()) {
       clearTitleFlash();
       return;
     }
 
     document.title = showNotification
-      ? `(${notificationCount > 0 ? notificationCount : '•'}) ${originalTitle}`
-      : originalTitle;
+      ? `(${notificationCount > 0 ? notificationCount : '•'}) ${title}`
+      : title;
     showNotification = !showNotification;
   }, 1000); // Flash every second
 }
@@ -114,7 +137,9 @@ export function clearTitleFlash() {
     notificationInterval = null;
   }
   notificationCount = 0;
-  if (originalTitle) {
+  
+  // Guard against SSR
+  if (typeof document !== 'undefined' && originalTitle) {
     document.title = originalTitle;
   }
 }
@@ -123,6 +148,11 @@ export function clearTitleFlash() {
  * Initialize title tracking (save original title on load)
  */
 export function initializeTitle() {
+  // Guard against SSR
+  if (typeof document === 'undefined') {
+    return;
+  }
+  
   originalTitle = document.title;
   
   // Restore title when tab becomes active

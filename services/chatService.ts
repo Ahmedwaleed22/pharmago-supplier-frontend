@@ -37,6 +37,9 @@ export interface ChatMessage {
     quantity: number;
     offered_price: number;
     total_price: number;
+    is_accepted?: boolean;
+    is_rejected?: boolean;
+    rejection_reason?: string;
   };
 }
 
