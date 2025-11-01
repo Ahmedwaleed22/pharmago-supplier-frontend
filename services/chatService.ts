@@ -231,6 +231,25 @@ class ChatService {
     const response = await axios.post("/api/chat/mark-read", request);
     return response.data;
   }
+
+  /**
+   * Mark all messages in a conversation as read (without specific message IDs)
+   */
+  async markConversationAsRead(
+    buyerId: string,
+    medicineId: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: { updated_count: number };
+  }> {
+    const response = await axios.post("/api/chat/mark-read", {
+      buyer_id: buyerId,
+      medicine_id: medicineId,
+      // No message_ids means mark all unread messages
+    });
+    return response.data;
+  }
 }
 
 export const chatService = new ChatService();

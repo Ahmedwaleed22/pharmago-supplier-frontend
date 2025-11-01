@@ -51,6 +51,47 @@ export async function GET(
       }
     );
     
+    // Mark all unread messages as read when fetching messages for the conversation
+    // Only mark as read if this is the first page (page 1) to avoid spamming
+    if (page === '1') {
+      try {
+        const markReadResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/chat/mark-read`,
+          {
+            buyer_id: resolvedParams.buyerId,
+            medicine_id: resolvedParams.medicineId,
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Cookie': cookieHeader,
+              'Accept-Language': locale
+            }
+          }
+        );
+        
+        // Update messages in the response to reflect they're now read
+        if (response.data?.data?.messages && Array.isArray(response.data.data.messages)) {
+          response.data.data.messages = response.data.data.messages.map((msg: any) => ({
+            ...msg,
+            is_read: true,
+            read_at: msg.read_at || new Date().toISOString()
+          }));
+        }
+        
+        // Note: The frontend will reload conversations after loading messages
+        // to get the updated unread counts from the backend
+      } catch (markReadErr: any) {
+        // Silently fail - messages are still returned
+        // Only log if it's not a 404 or expected error
+        if (markReadErr.response?.status && markReadErr.response.status !== 404) {
+          console.error('[Messages Route] Error marking messages as read:', markReadErr.response?.status, markReadErr.message);
+        }
+      }
+    }
+    
     // Return the API response
     return NextResponse.json(response.data);
   } catch (error: any) {

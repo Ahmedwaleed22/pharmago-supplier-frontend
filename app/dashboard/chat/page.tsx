@@ -154,7 +154,8 @@ function ChatPage() {
       // If there are conversations, redirect to the first one
       if (response.data.conversations.length > 0) {
         const firstConversation = response.data.conversations[0];
-        const conversationId = `${firstConversation.buyer_id}-${firstConversation.medicine_id}`;
+        // Use double underscore (__) as separator - Format: buyer_id__medicine_id
+        const conversationId = `${firstConversation.buyer_id}__${firstConversation.medicine_id}`;
         console.log("Supplier chat - Redirecting to first conversation:", {
           firstConversation,
           conversationId,
@@ -170,17 +171,37 @@ function ChatPage() {
   };
 
   const selectConversation = (conversation: ChatConversation) => {
-    // Use buyer_id-medicine_id combination as the conversation ID
-    const conversationId = `${conversation.buyer_id}-${conversation.medicine_id}`;
+    // Use double underscore (__) as separator instead of hyphen or pipe since UUIDs contain hyphens
+    // Format: buyer_id__medicine_id
+    const conversationId = `${conversation.buyer_id}__${conversation.medicine_id}`;
     console.log("Supplier chat - Selecting conversation:", {
       conversation,
       supplier_id: conversation.supplier_id,
       buyer_id: conversation.buyer_id,
       medicine_id: conversation.medicine_id,
-      buyer_id_from_object: conversation.buyer?.id,
-      medicine_id_from_object: conversation.medicine?.id,
       generated_conversation_id: conversationId,
     });
+    
+    // Mark conversation as read before navigating
+    if (conversation.unread_count > 0) {
+      chatService.markConversationAsRead(conversation.buyer_id, conversation.medicine_id)
+        .then(() => {
+          console.log("Conversation marked as read");
+          // Update local state to remove unread count
+          setConversations((prevConversations) =>
+            prevConversations.map((conv) =>
+              conv.buyer_id === conversation.buyer_id &&
+              conv.medicine_id === conversation.medicine_id
+                ? { ...conv, unread_count: 0 }
+                : conv
+            )
+          );
+        })
+        .catch((err) => {
+          console.error("Error marking conversation as read:", err);
+        });
+    }
+    
     router.push(`/dashboard/chat/${conversationId}`);
   };
 

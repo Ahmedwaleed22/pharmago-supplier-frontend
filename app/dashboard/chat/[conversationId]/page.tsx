@@ -63,24 +63,66 @@ function ChatDetailPage() {
   // Update active conversation when URL params change
   useEffect(() => {
     const conversationId = params.conversationId as string;
+    console.log("🔍 URL conversationId:", conversationId);
+    console.log("📋 Available conversations:", conversations.map(c => ({ 
+      buyerId: c.buyer_id, 
+      medicineId: c.medicine_id,
+      expectedFormat: `${c.buyer_id}__${c.medicine_id}`
+    })));
+    
     if (conversationId && conversations.length > 0) {
-      const [buyerId, medicineId] = conversationId.split("-");
-      const conversation = conversations.find(
-        (conv) => conv.buyer_id === buyerId && conv.medicine_id === medicineId
-      );
-      if (conversation) {
-        // Always update to ensure state is in sync with URL
-        setActiveConversation(conversation);
+      let buyerId: string | undefined;
+      let medicineId: string | undefined;
+      
+      // Try new separator first (double underscore)
+      if (conversationId.includes("__")) {
+        [buyerId, medicineId] = conversationId.split("__");
+        console.log("✂️ Using new __ separator:", { buyerId, medicineId });
+      } 
+      // Fall back to old separator (last hyphen) for backward compatibility
+      else if (conversationId.includes("-")) {
+        // UUIDs are 36 chars (32 chars + 4 hyphens), so split at the last hyphen before the last UUID
+        const parts = conversationId.split("-");
+        // UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (8-4-4-4-12)
+        // So we need to find where first UUID ends and second begins
+        // This is tricky, so let's use a different approach: 
+        // Find the last occurrence of a UUID pattern
+        const uuidPattern = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+        const match = conversationId.match(uuidPattern);
+        if (match) {
+          buyerId = match[1];
+          medicineId = match[2];
+          console.log("✂️ Using old - separator (backward compatibility):", { buyerId, medicineId });
+        } else {
+          console.warn("⚠️ Could not parse old format conversationId");
+        }
+      }
+      
+      if (buyerId && medicineId) {
+        const conversation = conversations.find(
+          (conv) => conv.buyer_id === buyerId && conv.medicine_id === medicineId
+        );
+        console.log("🎯 Found conversation:", conversation);
+        
+        if (conversation) {
+          // Always update to ensure state is in sync with URL
+          setActiveConversation(conversation);
+        } else {
+          console.warn("⚠️ Conversation not found, URL might be malformed");
+        }
+      } else {
+        console.warn("⚠️ Could not parse buyerId and medicineId from URL");
       }
     }
   }, [params.conversationId, conversations]);
 
   // Load messages when active conversation changes
   useEffect(() => {
-    if (activeConversation) {
-      loadMessages(activeConversation.buyer_id, activeConversation.medicine_id);
+    if (activeConversation && user?.id) {
+      // Only reload conversations on initial load, not on subsequent updates
+      loadMessages(activeConversation.buyer_id, activeConversation.medicine_id, true);
     }
-  }, [activeConversation]);
+  }, [activeConversation?.buyer_id, activeConversation?.medicine_id, user?.id]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -106,6 +148,30 @@ function ChatDetailPage() {
         setMessages((prevMessages) => {
           const exists = prevMessages.some((msg) => msg.id === newMessage.id);
           if (!exists) {
+            // Mark message as read if we're the receiver
+            if (newMessage.receiver_id === user?.id && !newMessage.is_read) {
+              chatService.markAsRead({
+                buyer_id: newMessage.buyer_id,
+                medicine_id: newMessage.medicine_id,
+                message_ids: [newMessage.id],
+              }).then(() => {
+                // Update unread count for conversation
+                setConversations((prevConversations) =>
+                  prevConversations.map((conv) =>
+                    conv.buyer_id === newMessage.buyer_id &&
+                    conv.medicine_id === newMessage.medicine_id
+                      ? {
+                          ...conv,
+                          unread_count: Math.max(0, conv.unread_count - 1),
+                        }
+                      : conv
+                  )
+                );
+              }).catch((err) => {
+                console.error("Error marking message as read:", err);
+              });
+            }
+            
             // If it's an image message, wait a bit for the image to load before scrolling
             if (newMessage.message_type === 'image') {
               setTimeout(() => {
@@ -131,11 +197,23 @@ function ChatDetailPage() {
             conv.buyer_id === newMessage.buyer_id &&
             conv.medicine_id === newMessage.medicine_id
           ) {
+            // Get display message based on message type (match backend format)
+            let displayMessage = newMessage.message || '';
+            if (newMessage.message_type === 'image') {
+              displayMessage = '📷 Photo';
+            } else if (newMessage.message_type === 'offer' || newMessage.message_type === 'counter_offer') {
+              displayMessage = `💰 ${newMessage.message}`;
+            } else if (newMessage.message_type === 'acceptance') {
+              displayMessage = '✅ Offer accepted';
+            } else if (newMessage.message_type === 'rejection') {
+              displayMessage = '❌ Offer rejected';
+            }
+            
             return {
               ...conv,
               last_message: {
                 id: newMessage.id,
-                message: newMessage.message,
+                message: displayMessage,
                 message_type: newMessage.message_type,
                 sender_name: newMessage.sender.name,
                 is_sent_by_me: newMessage.sender_id === user?.id,
@@ -198,6 +276,24 @@ function ChatDetailPage() {
           channel.bind('new_message', (data: ChatMessage) => {
             console.log('Received new message in other conversations:', data);
 
+            // If this is the active conversation, mark it as read
+            if (
+              activeConversation &&
+              data.supplier_id === activeConversation.supplier_id &&
+              data.buyer_id === activeConversation.buyer_id &&
+              data.medicine_id === activeConversation.medicine_id &&
+              data.receiver_id === user?.id &&
+              !data.is_read
+            ) {
+              chatService.markAsRead({
+                buyer_id: data.buyer_id,
+                medicine_id: data.medicine_id,
+                message_ids: [data.id],
+              }).catch((err) => {
+                console.error("Error marking message as read:", err);
+              });
+            }
+
             // Update the conversation list with the new last message and unread count
             setConversations((prevConversations) => {
               const updated = prevConversations.map((convItem) => {
@@ -206,6 +302,13 @@ function ChatDetailPage() {
                   convItem.buyer_id === data.buyer_id &&
                   convItem.medicine_id === data.medicine_id
                 ) {
+                  // If this is the active conversation and we're the receiver, don't increment unread
+                  const isActiveConversation = 
+                    activeConversation &&
+                    activeConversation.supplier_id === data.supplier_id &&
+                    activeConversation.buyer_id === data.buyer_id &&
+                    activeConversation.medicine_id === data.medicine_id;
+                  
                   return {
                     ...convItem,
                     last_message: {
@@ -217,9 +320,9 @@ function ChatDetailPage() {
                       created_at: data.created_at,
                     },
                     updated_at: data.created_at,
-                    // Increment unread count if message is not from current user
+                    // Increment unread count only if message is not from current user and not active conversation
                     unread_count:
-                      data.sender_id === user?.id
+                      data.sender_id === user?.id || isActiveConversation
                         ? convItem.unread_count
                         : convItem.unread_count + 1,
                   };
@@ -261,8 +364,8 @@ function ChatDetailPage() {
   const selectConversation = (conversation: ChatConversation) => {
     console.log("selectConversation called with:", conversation);
     
-    // Use buyer_id-medicine_id combination as the conversation ID
-    const conversationId = `${conversation.buyer_id}-${conversation.medicine_id}`;
+    // Use double underscore (__) as separator - Format: buyer_id__medicine_id
+    const conversationId = `${conversation.buyer_id}__${conversation.medicine_id}`;
     const currentConversationId = params.conversationId as string;
 
     console.log("Selecting conversation:", {
@@ -270,8 +373,6 @@ function ChatDetailPage() {
       supplier_id: conversation.supplier_id,
       buyer_id: conversation.buyer_id,
       medicine_id: conversation.medicine_id,
-      buyer_id_from_object: conversation.buyer?.id,
-      medicine_id_from_object: conversation.medicine?.id,
       generated_conversation_id: conversationId,
       current_conversation_id: currentConversationId,
     });
@@ -307,22 +408,43 @@ function ChatDetailPage() {
       const conversationId = params.conversationId as string;
       console.log("URL conversation ID:", conversationId);
       if (conversationId && response.data.conversations.length > 0) {
-        // Parse buyer_id and medicine_id from the conversation ID
-        const [buyerId, medicineId] = conversationId.split("-");
-        console.log("Parsed IDs:", { buyerId, medicineId });
+        let buyerId: string | undefined;
+        let medicineId: string | undefined;
         
-        // Find conversation by buyer_id and medicine_id
-        const conversation = response.data.conversations.find(
-          (conv) =>
-            conv.buyer_id === buyerId && conv.medicine_id === medicineId
-        );
-        console.log("Found conversation:", conversation);
+        // Try new separator first (double underscore)
+        if (conversationId.includes("__")) {
+          [buyerId, medicineId] = conversationId.split("__");
+          console.log("Using new __ separator:", { buyerId, medicineId });
+        }
+        // Fall back to old separator (hyphens) for backward compatibility
+        else if (conversationId.includes("-")) {
+          const uuidPattern = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+          const match = conversationId.match(uuidPattern);
+          if (match) {
+            buyerId = match[1];
+            medicineId = match[2];
+            console.log("Using old - separator (backward compatibility):", { buyerId, medicineId });
+          }
+        }
         
-        if (conversation) {
-          setActiveConversation(conversation);
+        if (buyerId && medicineId) {
+          // Find conversation by buyer_id and medicine_id
+          const conversation = response.data.conversations.find(
+            (conv) =>
+              conv.buyer_id === buyerId && conv.medicine_id === medicineId
+          );
+          console.log("Found conversation:", conversation);
+          
+          if (conversation) {
+            setActiveConversation(conversation);
+          } else {
+            // If conversation not found, select the first one
+            console.log("Conversation not found, selecting first one");
+            setActiveConversation(response.data.conversations[0]);
+          }
         } else {
-          // If conversation not found, select the first one
-          console.log("Conversation not found, selecting first one");
+          // If we can't parse the URL, select the first one
+          console.log("Could not parse URL format, selecting first conversation");
           setActiveConversation(response.data.conversations[0]);
         }
       } else if (response.data.conversations.length > 0) {
@@ -338,10 +460,51 @@ function ChatDetailPage() {
     }
   };
 
-  const loadMessages = async (buyerId: string, medicineId: string) => {
+  const loadMessages = async (buyerId: string, medicineId: string, reloadConversations = false) => {
     try {
       const response = await chatService.getMessages(buyerId, medicineId);
       setMessages(response.data.messages.reverse()); // Reverse to show oldest first
+      
+      // Mark the conversation as read with a separate API call
+      try {
+        await chatService.markConversationAsRead(buyerId, medicineId);
+        console.log("Conversation marked as read via API");
+      } catch (markErr) {
+        console.error("Error marking conversation as read:", markErr);
+      }
+      
+      // Update conversation unread count to 0 for this conversation locally
+      setConversations((prevConversations) =>
+        prevConversations.map((conv) =>
+          conv.buyer_id === buyerId && conv.medicine_id === medicineId
+            ? { ...conv, unread_count: 0 }
+            : conv
+        )
+      );
+      
+      // Reload conversations from backend after a short delay to get accurate unread counts
+      // This allows the backend to process the mark-as-read before we refresh
+      if (reloadConversations) {
+        setTimeout(async () => {
+          try {
+            const conversationsResponse = await chatService.getConversations();
+            setConversations(conversationsResponse.data.conversations);
+            
+            // Ensure active conversation is still set with updated data
+            const restoredConv = conversationsResponse.data.conversations.find(
+              (conv: ChatConversation) =>
+                conv.buyer_id === buyerId && conv.medicine_id === medicineId
+            );
+            if (restoredConv) {
+              setActiveConversation(restoredConv);
+            }
+          } catch (convErr) {
+            // Don't fail if conversations reload fails
+            console.error("Error reloading conversations:", convErr);
+          }
+        }, 500); // Wait 500ms for backend to process mark-as-read
+      }
+      
       // Scroll to bottom after loading messages
       setTimeout(scrollToBottom, 100);
     } catch (err) {
@@ -369,6 +532,8 @@ function ChatDetailPage() {
           if (newMessage.message_type === 'image' && !newMessage.image_url && newMessage.metadata?.image_url) {
             newMessage.image_url = newMessage.metadata.image_url;
           }
+          
+          // Update messages list
           setMessages((prevMessages) => {
             // Check if message already exists to avoid duplicates
             const exists = prevMessages.some((msg) => msg.id === newMessage.id);
@@ -377,6 +542,50 @@ function ChatDetailPage() {
             }
             return prevMessages;
           });
+          
+          // Update conversations list to reflect new last message and move to top
+          setConversations((prevConversations) => {
+            const updated = prevConversations.map((conv) => {
+              if (
+                conv.buyer_id === activeConversation.buyer_id &&
+                conv.medicine_id === activeConversation.medicine_id
+              ) {
+                // Get display message based on message type
+                let displayMessage = newMessage.message;
+                if (newMessage.message_type === 'image') {
+                  displayMessage = '📷 Photo';
+                } else if (newMessage.message_type === 'offer' || newMessage.message_type === 'counter_offer') {
+                  displayMessage = `💰 ${newMessage.message}`;
+                } else if (newMessage.message_type === 'acceptance') {
+                  displayMessage = '✅ Offer accepted';
+                } else if (newMessage.message_type === 'rejection') {
+                  displayMessage = '❌ Offer rejected';
+                }
+                
+                return {
+                  ...conv,
+                  last_message: {
+                    id: newMessage.id,
+                    message: displayMessage,
+                    message_type: newMessage.message_type,
+                    sender_name: newMessage.sender.name,
+                    is_sent_by_me: newMessage.sender_id === user?.id,
+                    created_at: newMessage.created_at,
+                  },
+                  updated_at: newMessage.created_at,
+                };
+              }
+              return conv;
+            });
+            
+            // Sort by updated_at in descending order (most recent first)
+            return updated.sort((a, b) => {
+              const timeA = new Date(a.updated_at).getTime();
+              const timeB = new Date(b.updated_at).getTime();
+              return timeB - timeA; // Descending order
+            });
+          });
+          
           // Scroll to bottom immediately after adding message
           setTimeout(scrollToBottom, 100);
         }
@@ -390,7 +599,8 @@ function ChatDetailPage() {
         setTimeout(async () => {
           await loadMessages(
             activeConversation.buyer_id,
-            activeConversation.medicine_id
+            activeConversation.medicine_id,
+            false // Don't reload conversations since we just updated them
           );
           scrollToBottom();
         }, 500);
