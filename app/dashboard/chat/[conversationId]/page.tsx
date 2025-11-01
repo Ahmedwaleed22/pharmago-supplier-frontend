@@ -106,6 +106,17 @@ function ChatDetailPage() {
         setMessages((prevMessages) => {
           const exists = prevMessages.some((msg) => msg.id === newMessage.id);
           if (!exists) {
+            // If it's an image message, wait a bit for the image to load before scrolling
+            if (newMessage.message_type === 'image') {
+              setTimeout(() => {
+                scrollToBottom();
+                // Extra scroll after image loads
+                setTimeout(scrollToBottom, 500);
+              }, 100);
+            } else {
+              // Scroll immediately for text messages
+              setTimeout(scrollToBottom, 100);
+            }
             return [...prevMessages, newMessage];
           }
           return prevMessages;
@@ -897,6 +908,10 @@ function ChatDetailPage() {
                               src={msg.image_url || msg.metadata?.image_url || "/placeholder-image.jpg"}
                               alt="Shared image"
                               className="max-w-full h-auto rounded"
+                              onLoad={() => {
+                                // Scroll to bottom when image finishes loading
+                                setTimeout(scrollToBottom, 100);
+                              }}
                               onError={(e) => {
                                 // Fallback to placeholder if image fails to load
                                 const target = e.target as HTMLImageElement;
