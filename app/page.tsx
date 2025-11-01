@@ -149,7 +149,7 @@ function LoginContent() {
           
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-              {error}
+              {typeof error === 'string' ? error : ''}
             </div>
           )}
           {success && (
