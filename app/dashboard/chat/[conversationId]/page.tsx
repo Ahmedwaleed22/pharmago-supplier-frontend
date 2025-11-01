@@ -22,6 +22,13 @@ import { chatService, ChatMessage, ChatConversation } from "@/services/chatServi
 import useAuth from "@/hooks/useAuth";
 import { useChatPusher } from "@/hooks/useChatPusher";
 import { subscribeToChatChannel, unsubscribeFromChatChannel } from "@/services/pusher";
+import {
+  playNotificationSound,
+  flashBrowserTitle,
+  clearTitleFlash,
+  initializeTitle,
+  calculateUnreadCount,
+} from "@/utils/notifications";
 
 function ChatDetailPage() {
   const router = useRouter();
@@ -46,6 +53,24 @@ function ChatDetailPage() {
   const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize title tracking
+  useEffect(() => {
+    initializeTitle();
+    return () => {
+      clearTitleFlash();
+    };
+  }, []);
+
+  // Update browser title when conversations change
+  useEffect(() => {
+    const totalUnread = calculateUnreadCount(conversations);
+    if (totalUnread > 0) {
+      flashBrowserTitle(totalUnread);
+    } else {
+      clearTitleFlash();
+    }
+  }, [conversations]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -141,13 +166,43 @@ function ChatDetailPage() {
     onNewMessage: (newMessage: ChatMessage) => {
       console.log('Received new message via Pusher:', newMessage);
       
-      // Only add the message if it's for the current conversation
-      if (
+      // Play sound and flash title if message is not from current user
+      const isFromCurrentUser = newMessage.sender_id === user?.id;
+      const isActiveConversation =
         activeConversation &&
         newMessage.supplier_id === activeConversation.supplier_id &&
         newMessage.buyer_id === activeConversation.buyer_id &&
-        newMessage.medicine_id === activeConversation.medicine_id
-      ) {
+        newMessage.medicine_id === activeConversation.medicine_id;
+
+      if (!isFromCurrentUser) {
+        // Play notification sound if not from current user
+        playNotificationSound();
+
+        // Flash title if not viewing this conversation or tab is not active
+        if (!isActiveConversation || document.hidden) {
+          // Update conversations first to get accurate unread count
+          setConversations((prevConversations) => {
+            const updated = prevConversations.map((conv) => {
+              if (
+                conv.buyer_id === newMessage.buyer_id &&
+                conv.medicine_id === newMessage.medicine_id
+              ) {
+                return {
+                  ...conv,
+                  unread_count: conv.unread_count + 1,
+                };
+              }
+              return conv;
+            });
+            const totalUnread = calculateUnreadCount(updated);
+            flashBrowserTitle(totalUnread);
+            return updated;
+          });
+        }
+      }
+      
+      // Only add the message if it's for the current conversation
+      if (isActiveConversation) {
         // Check if message already exists (avoid duplicates)
         setMessages((prevMessages) => {
           const exists = prevMessages.some((msg) => msg.id === newMessage.id);
@@ -206,7 +261,7 @@ function ChatDetailPage() {
             if (newMessage.message_type === 'image') {
               displayMessage = '📷 Photo';
             } else if (newMessage.message_type === 'offer' || newMessage.message_type === 'counter_offer') {
-              displayMessage = `💰 ${newMessage.message}`;
+              displayMessage = newMessage.message;
             } else if (newMessage.message_type === 'acceptance') {
               displayMessage = '✅ Offer accepted';
             } else if (newMessage.message_type === 'rejection') {
@@ -280,12 +335,21 @@ function ChatDetailPage() {
           channel.bind('new_message', (data: ChatMessage) => {
             console.log('Received new message in other conversations:', data);
 
+            const isFromCurrentUser = data.sender_id === user?.id;
+            const isActiveConversation = 
+              activeConversation &&
+              activeConversation.supplier_id === data.supplier_id &&
+              activeConversation.buyer_id === data.buyer_id &&
+              activeConversation.medicine_id === data.medicine_id;
+
+            // Play sound and flash title if message is not from current user and not in active conversation
+            if (!isFromCurrentUser && !isActiveConversation) {
+              playNotificationSound();
+            }
+
             // If this is the active conversation, mark it as read
             if (
-              activeConversation &&
-              data.supplier_id === activeConversation.supplier_id &&
-              data.buyer_id === activeConversation.buyer_id &&
-              data.medicine_id === activeConversation.medicine_id &&
+              isActiveConversation &&
               data.receiver_id === user?.id &&
               !data.is_read
             ) {
@@ -306,13 +370,6 @@ function ChatDetailPage() {
                   convItem.buyer_id === data.buyer_id &&
                   convItem.medicine_id === data.medicine_id
                 ) {
-                  // If this is the active conversation and we're the receiver, don't increment unread
-                  const isActiveConversation = 
-                    activeConversation &&
-                    activeConversation.supplier_id === data.supplier_id &&
-                    activeConversation.buyer_id === data.buyer_id &&
-                    activeConversation.medicine_id === data.medicine_id;
-                  
                   return {
                     ...convItem,
                     last_message: {
@@ -333,6 +390,14 @@ function ChatDetailPage() {
                 }
                 return convItem;
               });
+              
+              // Update title flash with new unread count
+              const totalUnread = calculateUnreadCount(updated);
+              if (totalUnread > 0) {
+                flashBrowserTitle(totalUnread);
+              } else {
+                clearTitleFlash();
+              }
               
               // Sort by updated_at in descending order (most recent first)
               return updated.sort((a, b) => {
@@ -479,13 +544,23 @@ function ChatDetailPage() {
       }
       
       // Update conversation unread count to 0 for this conversation locally
-      setConversations((prevConversations) =>
-        prevConversations.map((conv) =>
+      setConversations((prevConversations) => {
+        const updated = prevConversations.map((conv) =>
           conv.buyer_id === buyerId && conv.medicine_id === medicineId
             ? { ...conv, unread_count: 0 }
             : conv
-        )
-      );
+        );
+        
+        // Update title flash with new unread count
+        const totalUnread = calculateUnreadCount(updated);
+        if (totalUnread > 0) {
+          flashBrowserTitle(totalUnread);
+        } else {
+          clearTitleFlash();
+        }
+        
+        return updated;
+      });
       
       // Reload conversations from backend after a short delay to get accurate unread counts
       // This allows the backend to process the mark-as-read before we refresh
@@ -562,7 +637,7 @@ function ChatDetailPage() {
                 if (newMessage.message_type === 'image') {
                   displayMessage = '📷 Photo';
                 } else if (newMessage.message_type === 'offer' || newMessage.message_type === 'counter_offer') {
-                  displayMessage = `💰 ${newMessage.message}`;
+                  displayMessage = newMessage.message;
                 } else if (newMessage.message_type === 'acceptance') {
                   displayMessage = '✅ Offer accepted';
                 } else if (newMessage.message_type === 'rejection') {
@@ -727,7 +802,7 @@ function ChatDetailPage() {
         return "📷 Photo";
       case "offer":
       case "counter_offer":
-        return "💰 " + msg.message;
+        return msg.message;
       case "acceptance":
         return "✅ Offer accepted";
       case "rejection":
