@@ -16,6 +16,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { chatService, ChatMessage, ChatConversation } from "@/services/chatService";
 import useAuth from "@/hooks/useAuth";
@@ -35,6 +36,14 @@ function ChatDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [conversationsLoaded, setConversationsLoaded] = useState(false);
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [offerQuantity, setOfferQuantity] = useState(1);
+  const [offerPrice, setOfferPrice] = useState("");
+  const [sendingOffer, setSendingOffer] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Redirect to login if not authenticated
@@ -331,26 +340,151 @@ function ChatDetailPage() {
   };
 
   const handleSendMessage = async () => {
-    if (message.trim() && activeConversation) {
+    if ((message.trim() || selectedFile) && activeConversation && !sendingMessage) {
       try {
-        await chatService.sendMessage({
+        setSendingMessage(true);
+        const response = await chatService.sendMessage({
           buyer_id: activeConversation.buyer_id,
           medicine_id: activeConversation.medicine_id,
-          message: message.trim(),
-          message_type: "text",
+          message: message.trim() || undefined, // Send text message along with image if provided
+          message_type: selectedFile ? "image" : "text",
+          image: selectedFile || undefined, // Send image if selected
         });
+        
+        // Immediately add the new message to the messages list with the correct image_url
+        if (response.data?.chat_message) {
+          const newMessage = response.data.chat_message;
+          // Ensure image_url is properly extracted from metadata if needed
+          if (newMessage.message_type === 'image' && !newMessage.image_url && newMessage.metadata?.image_url) {
+            newMessage.image_url = newMessage.metadata.image_url;
+          }
+          setMessages((prevMessages) => {
+            // Check if message already exists to avoid duplicates
+            const exists = prevMessages.some((msg) => msg.id === newMessage.id);
+            if (!exists) {
+              return [...prevMessages, newMessage];
+            }
+            return prevMessages;
+          });
+          // Scroll to bottom immediately after adding message
+          setTimeout(scrollToBottom, 100);
+        }
+        
         setMessage("");
-        // Reload messages to show the new message
-        await loadMessages(
-          activeConversation.buyer_id,
-          activeConversation.medicine_id
-        );
-        // Scroll to bottom after sending message
-        setTimeout(scrollToBottom, 100);
-      } catch (err) {
-        setError("Failed to send message");
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        // Reload messages to ensure everything is in sync (with a small delay to ensure image is processed)
+        setTimeout(async () => {
+          await loadMessages(
+            activeConversation.buyer_id,
+            activeConversation.medicine_id
+          );
+          scrollToBottom();
+        }, 500);
+      } catch (err: any) {
         console.error("Error sending message:", err);
+        
+        // Handle validation errors with user-friendly messages
+        if (err.response?.status === 422) {
+          const errors = err.response?.data?.errors || {};
+          
+          // Check for image size error
+          if (errors.image && Array.isArray(errors.image)) {
+            const imageError = errors.image[0];
+            if (imageError?.includes('2048 kilobytes') || imageError?.includes('2048')) {
+              setFileError("Image file is too large. Please select an image smaller than 2MB.");
+              setSelectedFile(null);
+            } else if (imageError?.includes('image')) {
+              setFileError("Please select a valid image file (JPEG, PNG, GIF, or WebP).");
+              setSelectedFile(null);
+            } else {
+              setFileError(imageError || "Invalid image file. Please try again.");
+              setSelectedFile(null);
+            }
+          } else if (errors.message) {
+            // Handle other validation errors
+            const errorMessages = Object.values(errors).flat() as string[];
+            setError(errorMessages[0] || "Validation failed. Please check your input.");
+          } else {
+            setError(err.response?.data?.message || "Failed to send message. Please try again.");
+          }
+        } else if (err.response?.status === 413) {
+          setFileError("Image file is too large. Please select an image smaller than 2MB.");
+          setSelectedFile(null);
+        } else {
+          setError(err.response?.data?.message || "Failed to send message. Please try again.");
+        }
+      } finally {
+        setSendingMessage(false);
       }
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Clear any previous errors
+      setError(null);
+      setFileError(null);
+      
+      // Validate file type (images only)
+      if (!file.type.startsWith('image/')) {
+        setFileError("Please select a valid image file (JPEG, PNG, GIF, or WebP).");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+      
+      // Validate file size (2MB = 2048 KB = 2097152 bytes)
+      const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+      if (file.size > maxSizeInBytes) {
+        setFileError("Image file is too large. Please select an image smaller than 2MB.");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+      
+      // File is valid
+      setSelectedFile(file);
+      setFileError(null);
+    }
+  };
+
+  const handleSendOffer = async () => {
+    if (!activeConversation || !offerPrice || offerQuantity < 1) {
+      setError("Please enter valid quantity and price");
+      return;
+    }
+
+    try {
+      setSendingOffer(true);
+      await chatService.sendMessage({
+        buyer_id: activeConversation.buyer_id,
+        medicine_id: activeConversation.medicine_id,
+        message_type: "offer",
+        offer_data: {
+          quantity: offerQuantity,
+          offered_price: parseFloat(offerPrice),
+        },
+      });
+      setShowOfferForm(false);
+      setOfferQuantity(1);
+      setOfferPrice("");
+      // Reload messages to show the new offer
+      await loadMessages(
+        activeConversation.buyer_id,
+        activeConversation.medicine_id
+      );
+      setTimeout(scrollToBottom, 100);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to send offer");
+      console.error("Error sending offer:", err);
+    } finally {
+      setSendingOffer(false);
     }
   };
 
@@ -608,7 +742,7 @@ function ChatDetailPage() {
                       <p className="text-xs text-blue-600 font-medium">
                         {activeConversation.medicine.name}
                       </p>
-                      <p className="text-xs text-gray-500">Online</p>
+                      {/* <p className="text-xs text-gray-500">Online</p> */}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -643,7 +777,51 @@ function ChatDetailPage() {
                 ) : (
                   messages.map((msg) => (
                     <div key={msg.id}>
-                      {msg.message_type === "shipment_dimensions" ? (
+                      {msg.message_type === "offer" || msg.message_type === "counter_offer" ? (
+                        <div
+                          className={`flex ${
+                            msg.sender_id === activeConversation.supplier_id
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
+                            <h5 className="font-medium text-green-800 mb-2">
+                              Price Negotiation
+                            </h5>
+                            <div className="text-xs text-green-700 mb-2">
+                              Product ID: {activeConversation.medicine_id}
+                            </div>
+                            <div className="flex items-center space-x-3 mb-3">
+                              {activeConversation.medicine.image && (
+                                <img
+                                  src={activeConversation.medicine.image}
+                                  alt={activeConversation.medicine.name}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <p className="text-sm text-green-900 font-medium">
+                                  {msg.metadata?.quantity || msg.offer_details?.quantity || 0} units
+                                </p>
+                                <p className="text-lg font-bold text-green-800">
+                                  {msg.metadata?.offered_price 
+                                    ? `${parseFloat(String(msg.metadata.offered_price)).toFixed(2)} per unit`
+                                    : msg.offer_details?.offered_price
+                                    ? `${parseFloat(String(msg.offer_details.offered_price)).toFixed(2)} per unit`
+                                    : "Price not available"}
+                                </p>
+                                <p className="text-sm text-green-700">
+                                  Total: {msg.metadata?.total_price || msg.offer_details?.total_price || 0} 
+                                </p>
+                              </div>
+                            </div>
+                            <p className="text-xs text-green-600 mt-2">
+                              {formatTimestamp(msg.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                      ) : msg.message_type === "shipment_dimensions" ? (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
                           <h5 className="font-medium text-green-800 mb-3">
                             Shipment Dimensions
@@ -670,6 +848,36 @@ function ChatDetailPage() {
                             </div>
                           </div>
                         </div>
+                      ) : msg.message_type === "acceptance" || msg.message_type === "rejection" ? (
+                        <div
+                          className={`flex ${
+                            msg.sender_id === activeConversation.supplier_id
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-md px-4 py-2 rounded-lg ${
+                              msg.message_type === "acceptance"
+                                ? "bg-green-100 border border-green-300 text-green-800"
+                                : "bg-red-100 border border-red-300 text-red-800"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {msg.message_type === "acceptance" ? (
+                                <span className="text-lg">✅</span>
+                              ) : (
+                                <span className="text-lg">❌</span>
+                              )}
+                              <p className="text-md font-medium">
+                                {getDisplayMessage(msg)}
+                              </p>
+                            </div>
+                            <p className="text-xs mt-1 opacity-75">
+                              {formatTimestamp(msg.created_at)}
+                            </p>
+                          </div>
+                        </div>
                       ) : msg.message_type === "image" ? (
                         <div
                           className={`flex ${
@@ -686,11 +894,18 @@ function ChatDetailPage() {
                             }`}
                           >
                             <img
-                              src={msg.image_url || "/placeholder-image.jpg"}
+                              src={msg.image_url || msg.metadata?.image_url || "/placeholder-image.jpg"}
                               alt="Shared image"
                               className="max-w-full h-auto rounded"
+                              onError={(e) => {
+                                // Fallback to placeholder if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== "/placeholder-image.jpg") {
+                                  target.src = "/placeholder-image.jpg";
+                                }
+                              }}
                             />
-                            <p className="text-sm mt-2">{getDisplayMessage(msg)}</p>
+                            <p className="text-sm mt-2">{msg.message}</p>
                             <p
                               className={`text-xs mt-1 ${
                                 msg.sender_id === activeConversation.supplier_id
@@ -735,29 +950,174 @@ function ChatDetailPage() {
                 )}
               </div>
 
+              {/* Offer Form */}
+              {showOfferForm && (
+                <div className="p-4 border-t border-gray-200 bg-gray-50">
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={offerQuantity}
+                      onChange={(e) => setOfferQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Price per Unit
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={offerPrice}
+                      onChange={(e) => setOfferPrice(e.target.value)}
+                      placeholder="Enter price per unit"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  {offerPrice && offerQuantity && (
+                    <div className="mb-3 p-2 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-900">
+                        Total: {(parseFloat(offerPrice || "0") * offerQuantity).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleSendOffer}
+                      disabled={sendingOffer || !offerPrice || offerQuantity < 1}
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendingOffer ? "Sending..." : "Send Offer"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowOfferForm(false);
+                        setOfferQuantity(1);
+                        setOfferPrice("");
+                      }}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Selected File Preview */}
+              {(selectedFile || fileError) && (
+                <div className={`px-4 py-2 border-t ${
+                  fileError ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'
+                }`}>
+                  {selectedFile && !fileError ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Paperclip className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm text-gray-700">{selectedFile.name}</span>
+                        <span className="text-xs text-gray-500">
+                          ({(selectedFile.size / 1024).toFixed(1)} KB)
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedFile(null);
+                          setFileError(null);
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                          }
+                        }}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : fileError ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 flex-1">
+                        <Paperclip className="w-4 h-4 text-red-600" />
+                        <span className="text-sm text-red-700 font-medium">{fileError}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedFile(null);
+                          setFileError(null);
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                          }
+                        }}
+                        className="text-red-500 hover:text-red-700 ml-2"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
               {/* Message Input */}
               <div className="p-4 pb-2 border-t border-gray-200 bg-white">
                 <div className="flex items-center space-x-3">
-                  <button className="p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg">
-                    <Paperclip className="w-5 h-5" />
+                  <button
+                    onClick={() => setShowOfferForm(!showOfferForm)}
+                    className="p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg"
+                    title="Send Offer"
+                  >
+                    <Package className="w-5 h-5" />
                   </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    accept="image/*"
+                    className="hidden"
+                    id="file-input"
+                    disabled={sendingMessage}
+                  />
+                  <label
+                    htmlFor="file-input"
+                    className={`p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg cursor-pointer ${
+                      sendingMessage ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
+                    }`}
+                    title="Attach Image"
+                  >
+                    <Paperclip className="w-5 h-5" />
+                  </label>
                   <input
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type your message..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                    placeholder={selectedFile ? "Add a message (optional)..." : "Type your message..."}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                    onKeyPress={(e) => e.key === "Enter" && !sendingMessage && handleSendMessage()}
+                    disabled={sendingMessage}
                   />
+                  <label
+                    htmlFor="file-input"
+                    className={`p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg cursor-pointer ${
+                      sendingMessage ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
+                    }`}
+                    title="Attach Image"
+                  >
+                    <Paperclip className="w-5 h-5" />
+                  </label>
                   <button
                     onClick={handleSendMessage}
-                    className={`p-2 rounded-lg transition-all duration-300 hover:bg-blue-600 hover:text-white cursor-pointer ${
-                      message.trim()
+                    disabled={sendingMessage || (!message.trim() && !selectedFile)}
+                    className={`p-2 rounded-lg transition-all duration-300 hover:bg-blue-600 hover:text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                      (message.trim() || selectedFile) && !sendingMessage
                         ? "bg-blue-600 text-white"
                         : "bg-transparent text-gray-700"
                     }`}
                   >
-                    <Send className="w-5 h-5" />
+                    {sendingMessage ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -796,7 +1156,7 @@ function ChatDetailPage() {
                 {activeConversation.buyer.name}
               </h4>
               <p className="text-sm text-gray-600">
-                {activeConversation.buyer.account_type} . Online
+                {activeConversation.buyer.account_type}
               </p>
             </div>
 

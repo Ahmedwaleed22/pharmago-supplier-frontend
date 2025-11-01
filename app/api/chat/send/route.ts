@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import FormData from 'form-data';
 import { createTranslatedErrorResponse, getLocaleFromRequest } from '@/lib/api-i18n';
 
 export async function POST(request: NextRequest) {
@@ -25,22 +26,52 @@ export async function POST(request: NextRequest) {
     // Get FormData from request
     const formData = await request.formData();
     
-    // Log FormData contents for debugging
-    const formDataEntries: Record<string, any> = {};
+    // Create new FormData for backend - parse offer_data if it's a JSON string
+    const backendFormData = new FormData();
+    
     for (const [key, value] of formData.entries()) {
-      formDataEntries[key] = value instanceof File ? `File: ${value.name}, ${value.type}` : value;
+      if (key === 'offer_data' && typeof value === 'string') {
+        // Parse JSON string and add as array structure that Laravel expects
+        try {
+          const offerData = JSON.parse(value);
+          backendFormData.append('offer_data[quantity]', String(offerData.quantity));
+          backendFormData.append('offer_data[offered_price]', String(offerData.offered_price));
+          if (offerData.shipment_dimensions) {
+            backendFormData.append('offer_data[shipment_dimensions]', JSON.stringify(offerData.shipment_dimensions));
+          }
+          if (offerData.notes) {
+            backendFormData.append('offer_data[notes]', offerData.notes);
+          }
+        } catch (e) {
+          // If parsing fails, append as-is
+          backendFormData.append(key, value);
+        }
+      } else if (value instanceof File) {
+        // Convert File to Buffer for form-data package
+        const arrayBuffer = await value.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        backendFormData.append(key, buffer, {
+          filename: value.name,
+          contentType: value.type,
+        });
+      } else {
+        backendFormData.append(key, String(value));
+      }
     }
-    console.log('Chat send - FormData contents:', formDataEntries);
+    
+    // Log FormData contents for debugging
+    console.log('Chat send - FormData field names:', backendFormData.getHeaders());
     
     // Forward the request to the actual API with the auth token
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_SUPPLIER_URL}/chat/send`,
-      formData,
+      backendFormData,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Cookie': cookieHeader,
-          'Accept-Language': locale
+          'Accept-Language': locale,
+          ...backendFormData.getHeaders(),
         }
       }
     );
