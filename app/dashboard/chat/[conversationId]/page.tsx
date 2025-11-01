@@ -899,13 +899,18 @@ function ChatDetailPage() {
           </h3>
           <div className="space-y-3">
             {conversations.map((conversation) => {
-              const conversationId = `${conversation.buyer_id}-${conversation.medicine_id}`;
+              // Use double underscore separator to match URL format
+              const conversationId = `${conversation.buyer_id}__${conversation.medicine_id}`;
               const currentConversationId = params.conversationId as string;
-              const isActive = conversationId === currentConversationId;
+              
+              // Check if active: compare with new format (__) or old format (-) for backward compatibility
+              const isActive = 
+                conversationId === currentConversationId ||
+                `${conversation.buyer_id}-${conversation.medicine_id}` === currentConversationId;
               
               return (
               <div
-                key={`${conversation.buyer_id}-${conversation.medicine_id}`}
+                key={`${conversation.buyer_id}__${conversation.medicine_id}`}
                 className={`p-3 rounded-lg cursor-pointer transition-colors ${
                   isActive
                     ? "bg-blue-50 border border-blue-200"
