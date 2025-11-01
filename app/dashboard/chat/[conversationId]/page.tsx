@@ -1100,40 +1100,135 @@ function ChatDetailPage() {
                               : "justify-start"
                           }`}
                         >
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
-                            <h5 className="font-medium text-green-800 mb-2">
-                              Price Negotiation
-                            </h5>
-                            <div className="text-xs text-green-700 mb-2">
-                              Product ID: {activeConversation.medicine_id}
-                            </div>
-                            <div className="flex items-center space-x-3 mb-3">
-                              {activeConversation.medicine.image && (
-                                <img
-                                  src={activeConversation.medicine.image}
-                                  alt={activeConversation.medicine.name}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
+                          <div className={`rounded-2xl p-6 max-w-md ${
+                            msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                              ? "bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200"
+                              : msg.metadata?.is_rejected
+                              ? "bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200"
+                              : "bg-white border-2 border-green-200 shadow-md"
+                          }`}>
+                            {/* Status Badge */}
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${
+                                  msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                    ? "bg-blue-500"
+                                    : msg.metadata?.is_rejected
+                                    ? "bg-red-500"
+                                    : "bg-green-500"
+                                }`}></div>
+                                <span className={`text-xs font-semibold uppercase tracking-wide ${
+                                  msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                    ? "text-blue-700"
+                                    : msg.metadata?.is_rejected
+                                    ? "text-red-700"
+                                    : "text-green-700"
+                                }`}>
+                                  Price Offer
+                                </span>
+                              </div>
+                              {(msg.metadata?.is_accepted || msg.metadata?.added_to_cart) && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                  Accepted
+                                </span>
                               )}
-                              <div className="flex-1">
-                                <p className="text-sm text-green-900 font-medium">
-                                  {msg.metadata?.quantity || msg.offer_details?.quantity || 0} units
-                                </p>
-                                <p className="text-lg font-bold text-green-800">
-                                  {msg.metadata?.offered_price 
-                                    ? `${parseFloat(String(msg.metadata.offered_price)).toFixed(2)} per unit`
-                                    : msg.offer_details?.offered_price
-                                    ? `${parseFloat(String(msg.offer_details.offered_price)).toFixed(2)} per unit`
-                                    : "Price not available"}
-                                </p>
-                                <p className="text-sm text-green-700">
-                                  Total: {msg.metadata?.total_price || msg.offer_details?.total_price || 0} 
-                                </p>
+                              {msg.metadata?.is_rejected && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-full">
+                                  <X className="w-3 h-3" />
+                                  Rejected
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Product Info */}
+                            <div className="flex gap-4 mb-5">
+                              {activeConversation.medicine.image && (
+                                <div className="relative flex-shrink-0">
+                                  <img
+                                    src={activeConversation.medicine.image}
+                                    alt={activeConversation.medicine.name}
+                                    className="w-20 h-20 object-cover rounded-xl ring-2 ring-white shadow-lg"
+                                  />
+                                  <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-white ${
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                      ? "bg-blue-500"
+                                      : msg.metadata?.is_rejected
+                                      ? "bg-red-500"
+                                      : "bg-green-500"
+                                  }`}></div>
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0 pt-1">
+                                <div className="flex items-baseline gap-2 mb-2">
+                                  <span className={`text-2xl font-bold ${
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                      ? "text-blue-900"
+                                      : msg.metadata?.is_rejected
+                                      ? "text-red-900"
+                                      : "text-green-900"
+                                  }`}>
+                                    {msg.metadata?.offered_price 
+                                      ? parseFloat(String(msg.metadata.offered_price)).toFixed(2)
+                                      : msg.offer_details?.offered_price
+                                      ? parseFloat(String(msg.offer_details.offered_price)).toFixed(2)
+                                      : "0.00"}
+                                  </span>
+                                  <span className={`text-sm font-medium ${
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                      ? "text-blue-600"
+                                      : msg.metadata?.is_rejected
+                                      ? "text-red-600"
+                                      : "text-green-600"
+                                  }`}>
+                                    per unit
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <div className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                      ? "bg-blue-100 text-blue-800"
+                                      : msg.metadata?.is_rejected
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-green-100 text-green-800"
+                                  }`}>
+                                    {msg.metadata?.quantity || msg.offer_details?.quantity || 0} units
+                                  </div>
+                                  <div className={`text-sm font-semibold ${
+                                    msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                      ? "text-blue-700"
+                                      : msg.metadata?.is_rejected
+                                      ? "text-red-700"
+                                      : "text-green-700"
+                                  }`}>
+                                    Total: {msg.metadata?.total_price || msg.offer_details?.total_price || 0}
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                            <p className="text-xs text-green-600 mt-2">
-                              {formatTimestamp(msg.created_at)}
-                            </p>
+
+                            {/* Rejection Reason */}
+                            {msg.metadata?.is_rejected && msg.metadata?.rejection_reason && (
+                              <div className="mt-4 p-3 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+                                <p className="text-xs font-semibold text-red-900 mb-1">Rejection Reason:</p>
+                                <p className="text-xs text-red-700 leading-relaxed">{msg.metadata.rejection_reason}</p>
+                              </div>
+                            )}
+
+                            {/* Timestamp */}
+                            <div className="mt-4 pt-3 border-t border-gray-200/50">
+                              <p className={`text-xs font-medium ${
+                                msg.metadata?.is_accepted || msg.metadata?.added_to_cart
+                                  ? "text-blue-500"
+                                  : msg.metadata?.is_rejected
+                                  ? "text-red-500"
+                                  : "text-gray-500"
+                              }`}>
+                                {formatTimestamp(msg.created_at)}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       ) : msg.message_type === "shipment_dimensions" ? (
