@@ -2,6 +2,7 @@
 
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
+import { useI18n } from "@/contexts/i18n-context";
 import {
   Phone,
   Paperclip,
@@ -33,6 +34,7 @@ import {
 function ChatDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const { locale, isRtl: isRTL, t } = useI18n();
   const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth();
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [activeConversation, setActiveConversation] =
@@ -259,13 +261,13 @@ function ChatDetailPage() {
             // Get display message based on message type (match backend format)
             let displayMessage = newMessage.message || '';
             if (newMessage.message_type === 'image') {
-              displayMessage = '📷 Photo';
+              displayMessage = t('chat.photo');
             } else if (newMessage.message_type === 'offer' || newMessage.message_type === 'counter_offer') {
               displayMessage = newMessage.message;
             } else if (newMessage.message_type === 'acceptance') {
-              displayMessage = '✅ Offer accepted';
+              displayMessage = t('chat.offerAccepted');
             } else if (newMessage.message_type === 'rejection') {
-              displayMessage = '❌ Offer rejected';
+              displayMessage = t('chat.offerRejected');
             }
             
             return {
@@ -732,7 +734,7 @@ function ChatDetailPage() {
       }
     } catch (err) {
       console.error("Error loading conversations:", err);
-      setError("Failed to load conversations. Please try again.");
+      setError(t('chat.failedToLoadConversations'));
     } finally {
       setLoading(false);
       setConversationsLoaded(true);
@@ -799,7 +801,7 @@ function ChatDetailPage() {
       setTimeout(scrollToBottom, 100);
       setLoadingMessages(false);
     } catch (err) {
-      setError("Failed to load messages");
+      setError(t('chat.failedToLoadMessages'));
       console.error("Error loading messages:", err);
       setLoadingMessages(false);
     }
@@ -845,13 +847,13 @@ function ChatDetailPage() {
                 // Get display message based on message type
                 let displayMessage = newMessage.message;
                 if (newMessage.message_type === 'image') {
-                  displayMessage = '📷 Photo';
+                  displayMessage = t('chat.photo');
                 } else if (newMessage.message_type === 'offer' || newMessage.message_type === 'counter_offer') {
                   displayMessage = newMessage.message;
                 } else if (newMessage.message_type === 'acceptance') {
-                  displayMessage = '✅ Offer accepted';
+                  displayMessage = t('chat.offerAccepted');
                 } else if (newMessage.message_type === 'rejection') {
-                  displayMessage = '❌ Offer rejected';
+                  displayMessage = t('chat.offerRejected');
                 }
                 
                 return {
@@ -900,27 +902,27 @@ function ChatDetailPage() {
           if (errors.image && Array.isArray(errors.image)) {
             const imageError = errors.image[0];
             if (imageError?.includes('2048 kilobytes') || imageError?.includes('2048')) {
-              setFileError("Image file is too large. Please select an image smaller than 2MB.");
+              setFileError(t('chat.imageFileTooLarge'));
               setSelectedFile(null);
             } else if (imageError?.includes('image')) {
-              setFileError("Please select a valid image file (JPEG, PNG, GIF, or WebP).");
+              setFileError(t('chat.pleaseSelectValidImageFile'));
               setSelectedFile(null);
             } else {
-              setFileError(imageError || "Invalid image file. Please try again.");
+              setFileError(imageError || t('chat.invalidImageFile'));
               setSelectedFile(null);
             }
           } else if (errors.message) {
             // Handle other validation errors
             const errorMessages = Object.values(errors).flat() as string[];
-            setError(errorMessages[0] || "Validation failed. Please check your input.");
+            setError(errorMessages[0] || t('chat.validationFailed'));
           } else {
-            setError(err.response?.data?.message || "Failed to send message. Please try again.");
+            setError(err.response?.data?.message || t('chat.failedToSendMessage'));
           }
         } else if (err.response?.status === 413) {
-          setFileError("Image file is too large. Please select an image smaller than 2MB.");
+          setFileError(t('chat.imageFileTooLarge'));
           setSelectedFile(null);
         } else {
-          setError(err.response?.data?.message || "Failed to send message. Please try again.");
+          setError(err.response?.data?.message || t('chat.failedToSendMessage'));
         }
       } finally {
         setSendingMessage(false);
@@ -937,7 +939,7 @@ function ChatDetailPage() {
       
       // Validate file type (images only)
       if (!file.type.startsWith('image/')) {
-        setFileError("Please select a valid image file (JPEG, PNG, GIF, or WebP).");
+        setFileError(t('chat.pleaseSelectValidImageFile'));
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -947,7 +949,7 @@ function ChatDetailPage() {
       // Validate file size (2MB = 2048 KB = 2097152 bytes)
       const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
       if (file.size > maxSizeInBytes) {
-        setFileError("Image file is too large. Please select an image smaller than 2MB.");
+        setFileError(t('chat.imageFileTooLarge'));
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -962,7 +964,7 @@ function ChatDetailPage() {
 
   const handleSendOffer = async () => {
     if (!activeConversation || !offerPrice || offerQuantity < 1) {
-      setError("Please enter valid quantity and price");
+      setError(t('chat.pleaseEnterValidQuantityAndPrice'));
       return;
     }
 
@@ -987,7 +989,7 @@ function ChatDetailPage() {
       );
       setTimeout(scrollToBottom, 100);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to send offer");
+      setError(err.response?.data?.message || t('chat.failedToSendOffer'));
       console.error("Error sending offer:", err);
     } finally {
       setSendingOffer(false);
@@ -1002,14 +1004,14 @@ function ChatDetailPage() {
   const getDisplayMessage = (msg: ChatMessage) => {
     switch (msg.message_type) {
       case "image":
-        return "📷 Photo";
+        return t('chat.photo');
       case "offer":
       case "counter_offer":
         return msg.message;
       case "acceptance":
-        return "✅ Offer accepted";
+        return t('chat.offerAccepted');
       case "rejection":
-        return "❌ Offer rejected";
+        return t('chat.offerRejected');
       default:
         return msg.message;
     }
@@ -1150,7 +1152,7 @@ function ChatDetailPage() {
             onClick={() => loadConversations(true)}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
           >
-            Try Again
+            {t('chat.tryAgain')}
           </button>
         </div>
       </div>
@@ -1164,10 +1166,10 @@ function ChatDetailPage() {
         <div className="text-center">
           <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No conversations yet
+            {t('chat.noConversationsYet')}
           </h3>
           <p className="text-gray-500 mb-4">
-            You don't have any chat conversations with buyers yet.
+            {t('chat.noConversationsDescription')}
           </p>
         </div>
       </div>
@@ -1176,11 +1178,17 @@ function ChatDetailPage() {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
-      <div className="flex h-[600px] p-4">
-        {/* Left Panel - Recent Chats */}
-        <div className="w-70 bg-white border-r border-gray-200 p-4 pl-2">
+      <div className="flex flex-col md:flex-row h-[600px] p-4">
+        {/* Conversations List */}
+        <div
+          className={`w-full md:w-80 bg-white ${
+            isRTL
+              ? 'order-3 md:order-3 border-r-1 border-border-color pr-2'
+              : 'order-2 md:order-1 border-r border-border-color pl-2'
+          } p-4 !px-2`}
+        >
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Recent Chats
+            {t('chat.recentChats')}
           </h3>
           <div className="space-y-3">
             {conversations.map((conversation) => {
@@ -1194,16 +1202,16 @@ function ChatDetailPage() {
                 `${conversation.buyer_id}-${conversation.medicine_id}` === currentConversationId;
               
               return (
-              <div
-                key={`${conversation.buyer_id}__${conversation.medicine_id}`}
-                className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                  isActive
-                    ? "bg-blue-50 border border-blue-200"
-                    : "hover:bg-gray-100"
-                }`}
-                onClick={() => selectConversation(conversation)}
-              >
-                <div className="flex items-center space-x-3">
+                <div
+                  key={`${conversation.buyer_id}__${conversation.medicine_id}`}
+                  className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                    isActive
+                      ? "bg-blue-50 border border-blue-200"
+                      : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => selectConversation(conversation)}
+                >
+                  <div className={`flex items-center ${isRTL ? 'space-x-reverse flex-row' : ''} space-x-3`}>
                   <div className="relative">
                     <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                       <User className="w-5 h-5 text-gray-600" />
@@ -1212,63 +1220,66 @@ function ChatDetailPage() {
                       <Package className="w-2.5 h-2.5 text-white" />
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate flex items-center gap-2">
-                      {conversation.buyer.name}
-                      {conversation.unread_count > 0 && (
-                        <span className="bg-red-500 text-white text-[8px] rounded-full h-[15px] w-[15px] flex items-center justify-center">
-                          {conversation.unread_count}
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-xs text-blue-600 truncate font-medium">
-                      {conversation.medicine.name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {conversation.last_message?.message || "No messages yet"}
-                    </p>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-medium text-gray-900 truncate flex items-center gap-2 ${isRTL ? 'flex-row' : ''}`}>
+                        {conversation.buyer.name}
+                        {conversation.unread_count > 0 && (
+                          <span className="bg-red-500 text-white text-[8px] rounded-full h-[15px] w-[15px] flex items-center justify-center">
+                            {conversation.unread_count}
+                          </span>
+                        )}
+                      </p>
+                      <p
+                        className={`text-xs text-blue-600 truncate font-medium ${isRTL ? 'text-right' : 'text-left'}`}
+                        style={isRTL ? {direction: 'ltr', textAlign: 'right'} : undefined}
+                      >
+                        {conversation.medicine.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {conversation.last_message?.message || t('chat.noMessagesYet')}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              )
+              );
             })}
           </div>
         </div>
 
-        {/* Center Panel - Active Chat */}
-        <div className="flex-1 flex flex-col">
+        {/* Active Chat */}
+        <div className="flex-1 flex flex-col order-1 md:order-2">
           {activeConversation ? (
             <>
               {/* Chat Header */}
               <div className="p-4 pt-2 border-b border-gray-200 bg-white">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                <div className={`flex items-center justify-between ${isRTL ? 'flex-row' : ''}`}>
+                  <div className={`flex items-center ${isRTL ? 'space-x-reverse flex-row' : ''} space-x-3`}>
                     <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                       <User className="w-5 h-5 text-gray-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">
+                      <h4 className={`font-medium text-gray-900 ${isRTL ? 'text-right' : ''}`}>
                         {activeConversation.buyer.name}
                       </h4>
-                      <p className="text-xs text-blue-600 font-medium">
+                      <p className={`text-xs text-blue-600 font-medium ${isRTL ? 'text-right' : ''}`}>
                         {activeConversation.medicine.name}
                       </p>
                       {/* <p className="text-xs text-gray-500">Online</p> */}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className={`flex items-center ${isRTL ? 'space-x-reverse flex-row' : ''} space-x-2`}>
                     {activeConversation.buyer.phone_number ? (
                       <a 
                         href={`tel:${activeConversation.buyer.phone_number}`}
                         className="p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-all duration-300 cursor-pointer"
-                        title={`Call ${activeConversation.buyer.name}`}
+                        title={`${t('chat.call')} ${activeConversation.buyer.name}`}
                       >
                         <Phone className="w-5 h-5" />
                       </a>
                     ) : (
                       <button 
                         className="p-2 text-gray-400 hover:text-gray-500 rounded-lg transition-all duration-300 cursor-not-allowed"
-                        title="Phone number not available"
+                        title={t('chat.phoneNumberNotAvailable')}
                         disabled
                       >
                         <Phone className="w-5 h-5" />
@@ -1279,9 +1290,9 @@ function ChatDetailPage() {
                       className="p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-all duration-300 cursor-pointer"
                     >
                       {isRightPanelOpen ? (
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
                       ) : (
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
                       )}
                     </button>
                   </div>
@@ -1297,13 +1308,13 @@ function ChatDetailPage() {
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
                       <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-2" />
-                      <p className="text-gray-500">Loading messages...</p>
+                      <p className="text-gray-500">{t('chat.loadingMessages')}</p>
                     </div>
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <p className="text-gray-500">
-                      No messages yet. Start the conversation!
+                      {t('chat.noMessagesStartConversation')}
                     </p>
                   </div>
                 ) : (
@@ -1341,7 +1352,7 @@ function ChatDetailPage() {
                                     ? "text-red-700"
                                     : "text-green-700"
                                 }`}>
-                                  Price Offer
+                                  {t('chat.priceOffer')}
                                 </span>
                               </div>
                               {(msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted) && (
@@ -1349,13 +1360,13 @@ function ChatDetailPage() {
                                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                   </svg>
-                                  Accepted
+                                  {t('chat.accepted')}
                                 </span>
                               )}
                               {(msg.metadata?.is_rejected || msg.offer_details?.is_rejected) && (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-full">
                                   <X className="w-3 h-3" />
-                                  Rejected
+                                  {t('chat.rejected')}
                                 </span>
                               )}
                             </div>
@@ -1400,7 +1411,7 @@ function ChatDetailPage() {
                                       ? "text-red-600"
                                       : "text-green-600"
                                   }`}>
-                                    per unit
+                                    {t('chat.perUnit')}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -1411,7 +1422,7 @@ function ChatDetailPage() {
                                       ? "bg-red-100 text-red-800"
                                       : "bg-green-100 text-green-800"
                                   }`}>
-                                    {msg.metadata?.quantity || msg.offer_details?.quantity || 0} units
+                                    {msg.metadata?.quantity || msg.offer_details?.quantity || 0} {t('chat.units')}
                                   </div>
                                   <div className={`text-sm font-semibold ${
                                     msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
@@ -1420,7 +1431,7 @@ function ChatDetailPage() {
                                       ? "text-red-700"
                                       : "text-green-700"
                                   }`}>
-                                    Total: {msg.metadata?.total_price || msg.offer_details?.total_price || 0}
+                                    {t('chat.total')}: {msg.metadata?.total_price || msg.offer_details?.total_price || 0}
                                   </div>
                                 </div>
                               </div>
@@ -1429,7 +1440,7 @@ function ChatDetailPage() {
                             {/* Rejection Reason */}
                             {(msg.metadata?.is_rejected || msg.offer_details?.is_rejected) && (msg.metadata?.rejection_reason || msg.offer_details?.rejection_reason) && (
                               <div className="mt-4 p-3 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
-                                <p className="text-xs font-semibold text-red-900 mb-1">Rejection Reason:</p>
+                                <p className="text-xs font-semibold text-red-900 mb-1">{t('chat.rejectionReason')}:</p>
                                 <p className="text-xs text-red-700 leading-relaxed">{msg.metadata?.rejection_reason || msg.offer_details?.rejection_reason}</p>
                               </div>
                             )}
@@ -1451,27 +1462,27 @@ function ChatDetailPage() {
                       ) : msg.message_type === "shipment_dimensions" ? (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
                           <h5 className="font-medium text-green-800 mb-3">
-                            Shipment Dimensions
+                            {t('chat.shipmentDimensions')}
                           </h5>
                           <div className="text-xs text-green-700 mb-2">
-                            Product ID: {activeConversation.medicine_id}
+                            {t('chat.productId')}: {activeConversation.medicine_id}
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div className="flex items-center space-x-2">
                               <Weight className="w-4 h-4 text-green-600" />
-                              <span>Weight: {msg.metadata?.weight || "N/A"}</span>
+                              <span>{t('chat.weight')}: {msg.metadata?.weight || t('common.notAvailable')}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Ruler className="w-4 h-4 text-green-600" />
-                              <span>Length: {msg.metadata?.length || "N/A"}</span>
+                              <span>{t('chat.length')}: {msg.metadata?.length || t('common.notAvailable')}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Ruler className="w-4 h-4 text-green-600" />
-                              <span>Width: {msg.metadata?.width || "N/A"}</span>
+                              <span>{t('chat.width')}: {msg.metadata?.width || t('common.notAvailable')}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Ruler className="w-4 h-4 text-green-600" />
-                              <span>Height: {msg.metadata?.height || "N/A"}</span>
+                              <span>{t('chat.height')}: {msg.metadata?.height || t('common.notAvailable')}</span>
                             </div>
                           </div>
                         </div>
@@ -1586,7 +1597,7 @@ function ChatDetailPage() {
                 <div className="p-4 border-t border-gray-200 bg-gray-50">
                   <div className="mb-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Quantity
+                      {t('chat.quantity')}
                     </label>
                     <input
                       type="number"
@@ -1598,7 +1609,7 @@ function ChatDetailPage() {
                   </div>
                   <div className="mb-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Price per Unit
+                      {t('chat.pricePerUnit')}
                     </label>
                     <input
                       type="number"
@@ -1606,14 +1617,14 @@ function ChatDetailPage() {
                       step="0.01"
                       value={offerPrice}
                       onChange={(e) => setOfferPrice(e.target.value)}
-                      placeholder="Enter price per unit"
+                      placeholder={t('chat.enterPricePerUnit')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   {offerPrice && offerQuantity && (
                     <div className="mb-3 p-2 bg-blue-50 rounded-lg">
                       <p className="text-sm text-blue-900">
-                        Total: {(parseFloat(offerPrice || "0") * offerQuantity).toFixed(2)}
+                        {t('chat.total')}: {(parseFloat(offerPrice || "0") * offerQuantity).toFixed(2)}
                       </p>
                     </div>
                   )}
@@ -1623,7 +1634,7 @@ function ChatDetailPage() {
                       disabled={sendingOffer || !offerPrice || offerQuantity < 1}
                       className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {sendingOffer ? "Sending..." : "Send Offer"}
+                      {sendingOffer ? t('chat.sending') : t('chat.sendOffer')}
                     </button>
                     <button
                       onClick={() => {
@@ -1633,7 +1644,7 @@ function ChatDetailPage() {
                       }}
                       className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
                     >
-                      Cancel
+                      {t('chat.cancel')}
                     </button>
                   </div>
                 </div>
@@ -1695,7 +1706,7 @@ function ChatDetailPage() {
                   <button
                     onClick={() => setShowOfferForm(!showOfferForm)}
                     className="p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg"
-                    title="Send Offer"
+                    title={t('chat.sendOffer')}
                   >
                     <Package className="w-5 h-5" />
                   </button>
@@ -1713,7 +1724,7 @@ function ChatDetailPage() {
                     className={`p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg cursor-pointer ${
                       sendingMessage ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
                     }`}
-                    title="Attach Image"
+                    title={t('chat.attachImage')}
                   >
                     <Paperclip className="w-5 h-5" />
                   </label>
@@ -1721,7 +1732,7 @@ function ChatDetailPage() {
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder={selectedFile ? "Add a message (optional)..." : "Type your message..."}
+                    placeholder={selectedFile ? t('chat.addMessageOptional') : t('chat.typeYourMessage')}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                     onKeyPress={(e) => e.key === "Enter" && !sendingMessage && handleSendMessage()}
                     disabled={sendingMessage}
@@ -1758,28 +1769,33 @@ function ChatDetailPage() {
               <div className="text-center">
                 <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No conversation selected
+                  {t('chat.noConversationSelected')}
                 </h3>
                 <p className="text-gray-500">
-                  Choose a conversation from the left panel to start chatting
+                  {t('chat.chooseConversationToStart')}
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Right Panel - Buyer Details */}
+        {/* Buyer Details */}
         {isRightPanelOpen && activeConversation && (
-          <div className="w-80 bg-white border-l border-gray-200 p-4 pr-2 relative">
-            {/* Close Button */}
+          <div
+            className={`w-full md:w-80 bg-white ${
+              isRTL
+                ? 'order-2 md:order-1 border-r md:border-r md:border-l-0 pl-2'
+                : 'order-3 md:order-3 border-l pr-2'
+            } border-gray-200 p-4 relative`}
+          >
             <button
               onClick={() => setIsRightPanelOpen(false)}
-              className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-300 cursor-pointer"
+              className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-300 cursor-pointer`}
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="text-center mb-6">
+            <div className={`text-center mb-6 ${isRTL ? 'rtl' : ''}`}>
               <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-3">
                 <User className="w-8 h-8 text-gray-600" />
               </div>
@@ -1791,35 +1807,35 @@ function ChatDetailPage() {
               </p>
             </div>
 
-            <div className="flex space-x-2 mb-6">
+            <div className={`flex ${isRTL ? 'space-x-reverse' : ''} space-x-2 mb-6`}>
               {activeConversation.buyer.phone_number ? (
                 <a 
                   href={`tel:${activeConversation.buyer.phone_number}`}
-                  className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300"
+                  className={`flex-1 flex items-center justify-center ${isRTL ? 'space-x-reverse' : ''} space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300`}
                 >
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm font-medium">Call</span>
+                  <span className="text-sm font-medium">{t('chat.call')}</span>
                 </a>
               ) : (
                 <button 
-                  className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed"
+                  className={`flex-1 flex items-center justify-center ${isRTL ? 'space-x-reverse' : ''} space-x-2 py-2 px-3 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed`}
                   disabled
-                  title="Phone number not available"
+                  title={t('chat.phoneNumberNotAvailable')}
                 >
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm font-medium">Call</span>
+                  <span className="text-sm font-medium">{t('chat.call')}</span>
                 </button>
               )}
-              <button className="flex-1 flex items-center justify-center space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300">
+              <button className={`flex-1 flex items-center justify-center ${isRTL ? 'space-x-reverse' : ''} space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300`}>
                 <User className="w-4 h-4" />
-                <span className="font-medium text-sm">Open Profile</span>
+                <span className="font-medium text-sm">{t('chat.openProfile')}</span>
               </button>
             </div>
 
-            <div className="mb-6">
-              <h5 className="font-medium text-gray-900 mb-3">Product Details</h5>
+            <div className={`${isRTL ? 'rtl' : ''} mb-6`}>
+              <h5 className={`font-medium text-gray-900 mb-3 ${isRTL ? 'text-right' : 'text-left'}`}>{t('chat.productDetails')}</h5>
               <div className="space-y-3">
-                <div className="flex items-center space-x-3">
+                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
                   <Package className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-700">
                     {activeConversation.medicine.name}
@@ -1837,16 +1853,16 @@ function ChatDetailPage() {
               </div>
             </div>
 
-            <div>
-              <h5 className="font-medium text-gray-900 mb-3">Buyer Details</h5>
+            <div className={isRTL ? 'rtl' : ''}>
+              <h5 className={`font-medium text-gray-900 mb-3 ${isRTL ? 'text-right' : 'text-left'}`}>{t('chat.buyerDetails')}</h5>
               <div className="space-y-3">
-                <div className="flex items-center space-x-3">
+                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
                   <Mail className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-primary">
-                    Contact buyer for details
+                    {t('chat.contactBuyerForDetails')}
                   </span>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
                   <Phone className="w-4 h-4 text-gray-500" />
                   {activeConversation.buyer.phone_number ? (
                     <a 
@@ -1857,14 +1873,14 @@ function ChatDetailPage() {
                     </a>
                   ) : (
                     <span className="text-sm text-gray-500">
-                      Phone number not available
+                      {t('chat.phoneNumberNotAvailable')}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
                   <MapPin className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-primary">
-                    Contact buyer for details
+                    {t('chat.contactBuyerForDetails')}
                   </span>
                 </div>
               </div>

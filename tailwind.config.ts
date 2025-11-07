@@ -28,6 +28,7 @@ const config: Config = {
         "gray": "#71717A",
         "muted-gray": "#A0A0A0",
         "light-gray": "#838383",
+        "border-color": "#ededed",
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
