@@ -5,10 +5,10 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { usePathname } from 'next/navigation';
 
-function NavLink({ href, className, children }: { href: string; className: string; children: React.ReactNode }) {
+function NavLink({ href, className, children, matchPrefix = false }: { href: string; className: string; children: React.ReactNode; matchPrefix?: boolean }) {
 
   const pathname = usePathname()
-  const isActive = pathname === href
+  const isActive = matchPrefix ? pathname.startsWith(href) : pathname === href
 
   return (
     <Link href={href} className={cn("py-5", className, isActive && "bg-primary-blue text-white hover:bg-primary-blue-600 hover:text-white transition-all duration-300")}>

@@ -196,6 +196,7 @@ export function AppSidebar() {
                       <NavLink
                         href={item.url}
                         className="px-3 py-[calc(var(--spacing)_*_5.7)] rounded-xl"
+                        matchPrefix={item.url === "/dashboard/chat"}
                       >
                         <Icon icon={item.icon} className="!w-5 !h-5 !font-normal" />
                         <span>{item.title}</span>
