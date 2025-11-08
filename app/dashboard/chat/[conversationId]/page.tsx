@@ -1784,10 +1784,11 @@ function ChatDetailPage() {
           <div
             className={`w-full md:w-80 bg-white ${
               isRTL
-                ? 'order-2 md:order-1 !border-border-color border-r md:border-r md:border-l-0  pl-2'
-                : 'order-3 md:order-3 !border-border-color border-l  pr-2'
-            } p-4 relative`}
+                ? 'order-2 md:order-1 border-r md:border-r md:border-l-0 pr-2'
+                : 'order-3 md:order-3 border-l pr-2'
+            } !border-border-color p-4 relative ${isRTL ? 'rtl' : ''}`}
           >
+            {/* Close Button */}
             <button
               onClick={() => setIsRightPanelOpen(false)}
               className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-300 cursor-pointer`}
@@ -1795,49 +1796,51 @@ function ChatDetailPage() {
               <X className="w-4 h-4" />
             </button>
 
-            <div className={`text-center mb-6 ${isRTL ? 'rtl' : ''}`}>
+            <div className={`text-center mb-6 flex flex-col items-center ${isRTL ? 'rtl' : ''}`}>
               <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-3">
                 <User className="w-8 h-8 text-gray-600" />
               </div>
-              <h4 className="text-lg font-medium text-gray-900">
+              <h4 className={`text-lg font-medium text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
                 {activeConversation.buyer.name}
               </h4>
-              <p className="text-sm text-gray-600">
+              <p className={`text-sm text-gray-600 ${isRTL ? 'text-right' : 'text-left'}`}>
                 {activeConversation.buyer.account_type}
               </p>
             </div>
 
-            <div className={`flex ${isRTL ? 'space-x-reverse' : ''} space-x-2 mb-6`}>
+            <div className={`flex space-x-2 mb-6 justify-between`}>
               {activeConversation.buyer.phone_number ? (
                 <a 
                   href={`tel:${activeConversation.buyer.phone_number}`}
-                  className={`flex-1 flex items-center justify-center ${isRTL ? 'space-x-reverse' : ''} space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-gray-200 text-primary-color rounded-lg hover:bg-gray-300`}
                 >
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm font-medium">{t('chat.call')}</span>
+                  <span className="text-sm font-medium">{t("chat.call")}</span>
                 </a>
               ) : (
                 <button 
-                  className={`flex-1 flex items-center justify-center ${isRTL ? 'space-x-reverse' : ''} space-x-2 py-2 px-3 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed`}
                   disabled
-                  title={t('chat.phoneNumberNotAvailable')}
+                  title={t("chat.phoneNumberNotAvailable")}
                 >
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm font-medium">{t('chat.call')}</span>
+                  <span className="text-sm font-medium">{t("chat.call")}</span>
                 </button>
               )}
-              <button className={`flex-1 flex items-center justify-center ${isRTL ? 'space-x-reverse' : ''} space-x-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300`}>
+              {/* <button className={`flex-1 flex items-center justify-center cursor-pointer gap-2 py-2 px-3 bg-gray-200 text-primary rounded-lg hover:bg-gray-300`}>
                 <User className="w-4 h-4" />
-                <span className="font-medium text-sm">{t('chat.openProfile')}</span>
-              </button>
+                <span className="font-medium text-sm">{t("chat.openProfile")}</span>
+              </button> */}
             </div>
 
-            <div className={`${isRTL ? 'rtl' : ''} mb-6`}>
-              <h5 className={`font-medium text-gray-900 mb-3 ${isRTL ? 'text-right' : 'text-left'}`}>{t('chat.productDetails')}</h5>
+            <div className={`mb-6 ${isRTL ? 'rtl' : ''}`}>
+              <h5 className={`font-medium text-gray-900 mb-3 text-left`}>
+                {t("chat.productDetails")}
+              </h5>
               <div className="space-y-3">
-                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
+                <div className={`flex items-center gap-2 space-x-3`}>
                   <Package className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-700">
+                  <span className={`text-sm text-gray-700 ${isRTL ? 'text-right' : 'text-left'}`}>
                     {activeConversation.medicine.name}
                   </span>
                 </div>
@@ -1854,33 +1857,35 @@ function ChatDetailPage() {
             </div>
 
             <div className={isRTL ? 'rtl' : ''}>
-              <h5 className={`font-medium text-gray-900 mb-3 ${isRTL ? 'text-right' : 'text-left'}`}>{t('chat.buyerDetails')}</h5>
+              <h5 className={`font-medium text-gray-900 mb-3 text-left`}>
+                {t("chat.buyerDetails")}
+              </h5>
               <div className="space-y-3">
-                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
+                <div className={`flex items-center gap-2`}>
                   <Mail className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-primary">
-                    {t('chat.contactBuyerForDetails')}
+                  <span className={`text-sm text-primary ${isRTL ? 'text-right' : 'text-left'}`}>
+                    {t("chat.contactBuyerForDetails")}
                   </span>
                 </div>
-                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
+                <div className={`flex items-center gap-2`}>
                   <Phone className="w-4 h-4 text-gray-500" />
                   {activeConversation.buyer.phone_number ? (
                     <a 
                       href={`tel:${activeConversation.buyer.phone_number}`}
-                      className="text-sm text-primary hover:underline"
+                      className={`text-sm text-primary hover:underline ${isRTL ? 'text-right' : 'text-left'}`}
                     >
                       {activeConversation.buyer.phone_number}
                     </a>
                   ) : (
-                    <span className="text-sm text-gray-500">
-                      {t('chat.phoneNumberNotAvailable')}
+                    <span className={`text-sm text-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}>
+                      {t("chat.phoneNumberNotAvailable")}
                     </span>
                   )}
                 </div>
-                <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
+                <div className={`flex items-center gap-2`}>
                   <MapPin className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-primary">
-                    {t('chat.contactBuyerForDetails')}
+                  <span className={`text-sm text-primary ${isRTL ? 'text-right' : 'text-left'}`}>
+                    {t("chat.contactBuyerForDetails")}
                   </span>
                 </div>
               </div>
