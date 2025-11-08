@@ -277,7 +277,7 @@ function ChatPage() {
           {conversations.map((conversation) => (
             <div
               key={`${conversation.buyer_id}-${conversation.medicine_id}`}
-              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+              className="p-4 border border-border-color rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
               onClick={() => selectConversation(conversation)}
             >
               <div className="flex items-center space-x-4">

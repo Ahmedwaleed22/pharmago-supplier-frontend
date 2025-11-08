@@ -1023,7 +1023,7 @@ function ChatDetailPage() {
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
         <div className="flex h-[600px] p-4">
           {/* Left Panel - Conversations Skeleton */}
-          <div className="w-70 bg-white border-r border-gray-200 p-4 pl-2">
+          <div className="w-70 bg-white border-r border-border-color p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -1043,7 +1043,7 @@ function ChatDetailPage() {
 
         {/* Center Panel - Chat Skeleton */}
         <div className="flex-1 flex flex-col">
-          <div className="p-4 pt-2 border-b border-gray-200 bg-white">
+          <div className="p-4 pt-2 border-b border-border-color bg-white">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
               <div className="space-y-2">
@@ -1065,7 +1065,7 @@ function ChatDetailPage() {
             ))}
           </div>
 
-          <div className="p-4 pb-2 border-t border-gray-200 bg-white">
+          <div className="p-4 pb-2 border-t border-border-color bg-white">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
               <div className="flex-1 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -1088,7 +1088,7 @@ function ChatDetailPage() {
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
         <div className="flex h-[600px] p-4">
           {/* Left Panel - Conversations Skeleton */}
-          <div className="w-70 bg-white border-r border-gray-200 p-4 pl-2">
+          <div className="w-70 bg-white border-r border-border-color p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -1108,7 +1108,7 @@ function ChatDetailPage() {
 
         {/* Center Panel - Chat Skeleton */}
         <div className="flex-1 flex flex-col">
-          <div className="p-4 pt-2 border-b border-gray-200 bg-white">
+          <div className="p-4 pt-2 border-b border-border-color bg-white">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
               <div className="space-y-2">
@@ -1130,7 +1130,7 @@ function ChatDetailPage() {
             ))}
           </div>
 
-          <div className="p-4 pb-2 border-t border-gray-200 bg-white">
+          <div className="p-4 pb-2 border-t border-border-color bg-white">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
               <div className="flex-1 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -1230,12 +1230,12 @@ function ChatDetailPage() {
                         )}
                       </p>
                       <p
-                        className={`text-xs text-blue-600 truncate font-medium ${isRTL ? 'text-right' : 'text-left'}`}
-                        style={isRTL ? {direction: 'ltr', textAlign: 'right'} : undefined}
+                        className={`text-xs text-blue-600 truncate font-medium justify-end ${isRTL ? 'text-right' : 'text-left'}`}
+                        style={isRTL ? {direction: 'ltr', textAlign: 'left'} : undefined}
                       >
                         {conversation.medicine.name}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className={`text-xs text-gray-500 truncate ${isRTL ? 'text-right' : 'text-left'}`}>
                         {conversation.last_message?.message || t('chat.noMessagesYet')}
                       </p>
                     </div>
@@ -1251,7 +1251,7 @@ function ChatDetailPage() {
           {activeConversation ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 pt-2 border-b border-gray-200 bg-white">
+              <div className="p-4 pt-2 border-b border-border-color bg-white">
                 <div className={`flex items-center justify-between ${isRTL ? 'flex-row' : ''}`}>
                   <div className={`flex items-center ${isRTL ? 'space-x-reverse flex-row' : ''} space-x-3`}>
                     <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
@@ -1446,7 +1446,7 @@ function ChatDetailPage() {
                             )}
 
                             {/* Timestamp */}
-                            <div className="mt-4 pt-3 border-t border-gray-200/50">
+                            <div className="mt-4 pt-3 border-t border-border-color/50">
                               <p className={`text-xs font-medium ${
                                 msg.metadata?.is_accepted || msg.metadata?.added_to_cart || msg.offer_details?.is_accepted
                                   ? "text-blue-500"
@@ -1594,7 +1594,7 @@ function ChatDetailPage() {
 
               {/* Offer Form */}
               {showOfferForm && (
-                <div className="p-4 border-t border-gray-200 bg-gray-50">
+                <div className="p-4 border-t border-border-color bg-gray-50">
                   <div className="mb-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {t('chat.quantity')}
@@ -1653,7 +1653,7 @@ function ChatDetailPage() {
               {/* Selected File Preview */}
               {(selectedFile || fileError) && (
                 <div className={`px-4 py-2 border-t ${
-                  fileError ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'
+                  fileError ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-border-color'
                 }`}>
                   {selectedFile && !fileError ? (
                     <div className="flex items-center justify-between">
@@ -1701,7 +1701,7 @@ function ChatDetailPage() {
               )}
 
               {/* Message Input */}
-              <div className="p-4 pb-2 border-t border-gray-200 bg-white">
+              <div className="p-4 pb-2 border-t border-border-color bg-white">
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setShowOfferForm(!showOfferForm)}
@@ -1784,9 +1784,9 @@ function ChatDetailPage() {
           <div
             className={`w-full md:w-80 bg-white ${
               isRTL
-                ? 'order-2 md:order-1 border-r md:border-r md:border-l-0 pl-2'
-                : 'order-3 md:order-3 border-l pr-2'
-            } border-gray-200 p-4 relative`}
+                ? 'order-2 md:order-1 !border-border-color border-r md:border-r md:border-l-0  pl-2'
+                : 'order-3 md:order-3 !border-border-color border-l  pr-2'
+            } p-4 relative`}
           >
             <button
               onClick={() => setIsRightPanelOpen(false)}
