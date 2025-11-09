@@ -1185,12 +1185,12 @@ function ChatDetailPage() {
             isRTL
               ? 'order-3 md:order-3 border-r-1 border-border-color pr-2'
               : 'order-2 md:order-1 border-r border-border-color pl-2'
-          } p-4 !px-2`}
+          } p-4 !px-2 flex flex-col`}
         >
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             {t('chat.recentChats')}
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-3 overflow-y-auto flex-1 pr-2">
             {conversations.map((conversation) => {
               // Use double underscore separator to match URL format
               const conversationId = `${conversation.buyer_id}__${conversation.medicine_id}`;

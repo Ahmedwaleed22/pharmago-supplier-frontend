@@ -269,11 +269,11 @@ function ChatPage() {
   // Show conversation list if there are conversations but we're not redirecting
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div className="p-6">
+      <div className="p-6 flex flex-col h-[600px]">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           Your Conversations
         </h2>
-        <div className="grid gap-4">
+        <div className="grid gap-4 overflow-y-auto flex-1 pr-2">
           {conversations.map((conversation) => (
             <div
               key={`${conversation.buyer_id}-${conversation.medicine_id}`}
