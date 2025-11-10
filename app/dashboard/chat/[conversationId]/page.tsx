@@ -1023,7 +1023,7 @@ function ChatDetailPage() {
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
         <div className="flex h-[600px] p-4">
           {/* Left Panel - Conversations Skeleton */}
-          <div className="w-70 bg-white border-r border-border-color p-4 pl-2">
+          <div className="w-70 bg-white border-r !border-border-color p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -1088,7 +1088,7 @@ function ChatDetailPage() {
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden mt-10">
         <div className="flex h-[600px] p-4">
           {/* Left Panel - Conversations Skeleton */}
-          <div className="w-70 bg-white border-r border-border-color p-4 pl-2">
+          <div className="w-70 bg-white border-r !border-border-color p-4 pl-2">
           <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
