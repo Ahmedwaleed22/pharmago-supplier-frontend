@@ -1702,7 +1702,7 @@ function ChatDetailPage() {
 
               {/* Message Input */}
               <div className="p-4 pb-2 border-t border-border-color bg-white">
-                <div className="flex items-center space-x-3">
+                <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <button
                     onClick={() => setShowOfferForm(!showOfferForm)}
                     className="p-2 text-primary hover:text-primary hover:bg-gray-100 rounded-lg"
