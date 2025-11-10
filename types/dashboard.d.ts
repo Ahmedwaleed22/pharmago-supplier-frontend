@@ -43,6 +43,11 @@ declare module Dashboard {
     patient_name?: string;
     consumer_name?: string;
     translation_params?: Record<string, string | number>;
+    // Chat-related fields
+    medicine_id?: string;
+    sender_id?: string;
+    buyer_id?: string;
+    chat_id?: string;
   }
 
   export interface NotificationResponse {
