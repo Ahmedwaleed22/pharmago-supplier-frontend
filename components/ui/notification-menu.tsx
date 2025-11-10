@@ -26,6 +26,90 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
   const [currentLimit, setCurrentLimit] = useState(3); // Start with 3 notifications
   const { t } = useTranslation();
   const { locale } = useI18n();
+
+  // Helper function to translate notification text if it's a translation key
+  const translateNotificationText = (text: string, notification: Dashboard.Notification): string => {
+    if (!text) return text;
+    
+    // Check if text looks like a translation key (e.g., "notifications.new_chat_message_body")
+    // A translation key typically: starts with "notifications." or contains dots and no spaces
+    const isTranslationKey = text.startsWith('notifications.') || 
+                            (text.includes('.') && !text.includes(' ') && text.length < 100);
+    
+    if (isTranslationKey) {
+      // Extract the key part (e.g., "new_chat_message_body" from "notifications.new_chat_message_body")
+      let key = text;
+      if (text.startsWith('notifications.')) {
+        key = text.replace('notifications.', '');
+      } else if (text.includes('.')) {
+        // Try to extract the last part after the dot
+        const parts = text.split('.');
+        key = parts[parts.length - 1];
+      }
+      
+      // Build params from notification data
+      const params: Record<string, string | number> = {};
+      
+      // Use translation_params if available (from backend)
+      if (notification.translation_params) {
+        Object.assign(params, notification.translation_params);
+      }
+      
+      // Also check individual fields on notification object
+      if (notification.sender_name) params.sender_name = notification.sender_name;
+      if (notification.medicine_name) params.medicine_name = notification.medicine_name;
+      if (notification.quantity) params.quantity = notification.quantity;
+      if (notification.price) params.price = notification.price;
+      if (notification.order_id) params.order_id = notification.order_id;
+      if (notification.pharmacy_name) params.pharmacy_name = notification.pharmacy_name;
+      if (notification.total) params.total = notification.total;
+      if (notification.patient_name) params.patient_name = notification.patient_name;
+      if (notification.consumer_name) params.consumer_name = notification.consumer_name;
+      
+      // Try to translate using the key
+      try {
+        // Use the key with the notifications namespace
+        const translationKey = `notifications.${key}`;
+        const translated = t(translationKey, params);
+        
+        // Check if translation succeeded
+        // The t function from useTranslation returns the key if translation fails
+        if (translated && translated !== key && translated !== text && translated !== translationKey) {
+          console.log('✅ Translation successful:', { 
+            original: text, 
+            key, 
+            translated, 
+            params 
+          });
+          return translated;
+        } else {
+          // Translation might have failed - log for debugging
+          console.warn('⚠️ Translation check:', { 
+            original: text,
+            key, 
+            translated, 
+            translationKey,
+            params,
+            isSameAsKey: translated === key,
+            isSameAsText: translated === text,
+            isSameAsTranslationKey: translated === translationKey
+          });
+          
+          // If the translation returned the key, it means the translation doesn't exist
+          // Return the original text (which is the key) - user will see the key
+          // This helps identify missing translations
+          return text;
+        }
+      } catch (e) {
+        // Translation failed, log for debugging
+        console.error('❌ Translation error for key:', key, 'Error:', e);
+        return text;
+      }
+    }
+    
+    // If not a translation key or translation failed, return original text
+    return text;
+  };
   
   // Use the actual API to fetch notifications with pagination
   const { data: notificationResponse, isLoading, isFetching, isPlaceholderData } = useQuery(createNotificationsQueryOptions(0, currentLimit, locale));
@@ -180,17 +264,17 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
   return (
     <div 
       ref={menuRef}
-      className="absolute top-12 right-0 z-50 w-[420px] bg-white rounded-2xl shadow-lg overflow-hidden"
+      className="absolute top-12 right-0 z-50 w-[90vw] max-w-[420px] bg-white rounded-2xl shadow-lg overflow-hidden"
       style={{
         boxShadow: "0px 2px 30px 0px rgba(0, 0, 0, 0.22), 0px 0px 15px 0px rgba(0, 0, 0, 0.06)"
       }}
     >
       <div className="p-3">
-        <div className="flex justify-between items-center px-5 py-2">
-          <div className="inline-flex items-center">
-            <h4 className="text-lg font-medium text-gray-800">{t('notifications.title')}</h4>
+        <div className="flex justify-between items-center px-5 py-2 gap-2">
+          <div className="inline-flex items-center min-w-0 flex-1">
+            <h4 className="text-lg font-medium text-gray-800 truncate">{t('notifications.title')}</h4>
             {unreadCount > 0 && (
-              <span className="flex justify-center items-center bg-red-500 text-white text-xs rounded-full w-5 h-5 ml-1">
+              <span className="flex justify-center items-center bg-red-500 text-white text-xs rounded-full w-5 h-5 ml-1 flex-shrink-0">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -199,7 +283,7 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
             <button 
               onClick={handleMarkAllAsRead}
               disabled={markAllAsReadMutation.isPending}
-              className="text-blue-600 text-sm px-2 py-2 rounded-full hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-blue-600 text-sm px-2 py-2 rounded-full hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
             >
               {markAllAsReadMutation.isPending ? t('notifications.markingAsRead') : t('notifications.markAllRead')}
             </button>
@@ -217,7 +301,7 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
             {notifications.map((notification) => (
               <div 
                 key={notification.id} 
-                className={`flex gap-3 px-6 py-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${!notification.is_read ? "bg-blue-50" : ""} ${markAsReadMutation.isPending ? "opacity-50" : ""}`}
+                className={`flex gap-3 px-6 py-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${!notification.is_read ? "bg-blue-50" : ""} ${markAsReadMutation.isPending ? "opacity-50" : ""} min-w-0`}
                 onClick={() => !markAsReadMutation.isPending && handleNotificationClick(notification)}
               >
                 <div className="relative">
@@ -234,23 +318,27 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full"></div>
                   )}
                 </div>
-                <div className="flex flex-col gap-1 flex-1">
-                  <p className="text-sm">
-                    <strong className="text-gray-800">{notification.title}</strong>
+                <div className="flex flex-col gap-1 flex-1 min-w-0">
+                  <p className="text-sm break-words" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal' }}>
+                    <strong className="text-gray-800 break-words" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal' }}>
+                      {translateNotificationText(notification.title, notification)}
+                    </strong>
                     {markAsReadMutation.isPending && markAsReadMutation.variables === notification.id && (
-                      <span className="ml-2 text-xs text-gray-500">{t('notifications.markingAsRead')}</span>
+                      <span className="ml-2 text-xs text-gray-500 whitespace-nowrap">{t('notifications.markingAsRead')}</span>
                     )}
                   </p>
-                  <p className="text-sm text-gray-600">{notification.short_description}</p>
+                  <p className="text-sm text-gray-600 break-words" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal', lineHeight: '1.5' }}>
+                    {translateNotificationText(notification.short_description, notification)}
+                  </p>
                   <span className="text-xs text-gray-500">{formatTimeAgo(notification.created_at)}</span>
                   
                   {notification.category && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <div className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
                         {notification.category}
                       </div>
                       {notification.type && (
-                        <div className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                        <div className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full whitespace-nowrap">
                           {notification.type}
                         </div>
                       )}

@@ -32,6 +32,17 @@ declare module Dashboard {
     is_expired: boolean;
     created_at: string;
     updated_at: string;
+    // Additional fields for translation
+    sender_name?: string;
+    medicine_name?: string;
+    quantity?: string | number;
+    price?: string | number;
+    order_id?: string;
+    pharmacy_name?: string;
+    total?: string | number;
+    patient_name?: string;
+    consumer_name?: string;
+    translation_params?: Record<string, string | number>;
   }
 
   export interface NotificationResponse {

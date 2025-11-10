@@ -85,7 +85,12 @@ export function getNestedValue(obj: any, path: string): string {
 }
 
 export function interpolate(template: string, values: Record<string, string | number>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-    return values[key]?.toString() || match;
-  });
+  // Support both {key} and {{key}} formats
+  return template
+    .replace(/\{\{(\w+)\}\}/g, (match, key) => {
+      return values[key]?.toString() || match;
+    })
+    .replace(/\{(\w+)\}/g, (match, key) => {
+      return values[key]?.toString() || match;
+    });
 } 
