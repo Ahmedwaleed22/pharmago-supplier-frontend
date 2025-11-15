@@ -223,6 +223,18 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
       markAsReadMutation.mutate(notification.id);
     }
     
+    // Helper function to normalize notification links for supplier panel
+    const normalizeLink = (link: string): string => {
+      if (!link) return link;
+      
+      // Convert old /supplier/orders/ format to /dashboard/orders/
+      if (link.startsWith('/supplier/orders/')) {
+        return link.replace('/supplier/orders/', '/dashboard/orders/');
+      }
+      
+      return link;
+    };
+    
     // Check if this is a chat notification - navigate to chat
     // Category can be "chat", "CHAT", or the enum value
     const isChatNotification = notification.category?.toLowerCase() === "chat" || 
@@ -243,11 +255,12 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
       
       // Also check if the link itself contains chat information
       if (notification.link) {
-        const chatMatch = notification.link.match(/\/chat\/([^\/]+)/) || notification.link.match(/\/dashboard\/chat\/([^\/]+)/);
+        const normalizedLink = normalizeLink(notification.link);
+        const chatMatch = normalizedLink.match(/\/chat\/([^\/]+)/) || normalizedLink.match(/\/dashboard\/chat\/([^\/]+)/);
         if (chatMatch) {
-          console.log(`Navigating to chat from link: ${notification.link}`);
+          console.log(`Navigating to chat from link: ${normalizedLink}`);
           onClose();
-          router.push(notification.link);
+          router.push(normalizedLink);
           return;
         }
       }
@@ -255,19 +268,21 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({ isOpen, onClose }) 
     
     // Navigate to the notification link if provided
     if (notification.link && notification.category === "prescription") {
-      console.log(`Navigating to notification link: ${notification.link}`);
+      const normalizedLink = normalizeLink(notification.link);
+      console.log(`Navigating to notification link: ${normalizedLink}`);
       if (notification.is_expired) {
         console.log(`Notification ${notification.id} is expired, skipping navigation`);
       } else {
-        window.open(notification.link, '_self');
+        window.open(normalizedLink, '_self');
       }
     }
     
     // For other notification types, try to use the link if available
     if (notification.link && !notification.is_expired) {
-      console.log(`Navigating to notification link: ${notification.link}`);
+      const normalizedLink = normalizeLink(notification.link);
+      console.log(`Navigating to notification link: ${normalizedLink}`);
       onClose();
-      router.push(notification.link);
+      router.push(normalizedLink);
     }
   };
 
