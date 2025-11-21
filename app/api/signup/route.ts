@@ -37,15 +37,42 @@ export async function POST(request: NextRequest) {
     //   error.response?.status || 500, 
     //   locale
     // );
-    let messages: string = "";
-    const errorResponse = error.response.data;
-    for (const [key, value] of Object.entries(errorResponse?.errors)) {
-      messages += value + "\n";
+
+    const errorResponse = error.response?.data || {};
+
+    let messages = "";
+
+    // Prefer structured validation errors if present
+    if (errorResponse?.errors && typeof errorResponse.errors === "object") {
+      for (const [, value] of Object.entries(errorResponse.errors)) {
+        // Laravel often returns arrays of messages per field
+        if (Array.isArray(value)) {
+          messages += value.join("\n") + "\n";
+        } else if (value) {
+          messages += String(value) + "\n";
+        }
+      }
+      messages = messages.trim();
     }
-    console.log(messages);
-    return NextResponse.json({
-      "status": "error",
-      "message": messages
-    }, { status: error.response?.status || 500 });
+
+    // Fallback to top-level message when there is no errors object
+    if (!messages && errorResponse?.message) {
+      messages = String(errorResponse.message);
+    }
+
+    // Final generic fallback
+    if (!messages) {
+      messages = "An error occurred while processing your request.";
+    }
+
+    console.log("Signup aggregated error message:", messages);
+
+    return NextResponse.json(
+      {
+        status: "error",
+        message: messages,
+      },
+      { status: error.response?.status || 500 }
+    );
   }
 }
