@@ -835,6 +835,7 @@ function SignupPage() {
       <div className="flex flex-col">
         <label htmlFor="country" className="text-sm text-blue-gray mb-3 px-0.5">
           {t("auth.country")}
+          <span className="text-red-500 ml-1">*</span>
         </label>
 
         <CountriesSelectBox
